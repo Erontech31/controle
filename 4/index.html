@@ -19,6 +19,19 @@
         .painel-seletor label { font-weight: bold; font-size: 14px; color: #495057; display: block; margin-bottom: 5px; }
         .select-turma { width: 100%; padding: 10px; font-size: 16px; font-weight: bold; border-radius: 5px; border: 1px solid #ced4da; background-color: white; color: #333; }
 
+        /* Estilos do Painel de Cadastro */
+        .btn-toggle-cadastro { background-color: #6c757d; margin-bottom: 15px; }
+        .btn-toggle-cadastro:hover { background-color: #5a6268; }
+        #painel-cadastro { display: none; background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; max-width: 400px; margin: 0 auto 15px auto; text-align: left; }
+        #painel-cadastro h3 { margin-top: 0; font-size: 16px; color: #856404; text-align: center; }
+        .form-cadastro { display: flex; gap: 5px; margin-bottom: 15px; }
+        .form-cadastro input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; text-transform: uppercase; }
+        .form-cadastro button { width: auto; margin: 0; background-color: #28a745; padding: 10px 15px; }
+        .form-cadastro button:hover { background-color: #218838; }
+        .lista-gerenciar { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
+        .lista-gerenciar li { display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px; border: 1px solid #ddd; margin-bottom: 5px; border-radius: 4px; font-size: 13px; }
+        .btn-remover { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; width: auto; font-size: 12px; margin: 0; }
+
         #leitor-container { width: 100%; max-width: 400px; margin: 0 auto; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         #reader { width: 100%; }
         button { margin-top: 10px; padding: 12px 20px; font-size: 16px; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; max-width: 400px; background-color: #007bff; }
@@ -51,11 +64,29 @@
     <div class="painel-seletor">
         <label for="sala-select">Selecione a Turma Atual:</label>
         <select id="sala-select" class="select-turma" onchange="mudarTurma()">
+            <option value="1_ano">1º Ano</option>
+            <option value="2_ano">2º Ano</option>
+            <option value="3_ano">3º Ano</option>
             <option value="4_ano">4º Ano</option>
             <option value="5_ano">5º Ano</option>
             <option value="6_ano">6º Ano</option>
             <option value="7_ano">7º Ano</option>
+            <option value="8_ano">8º Ano</option>
+            <option value="9_ano">9º Ano</option>
         </select>
+    </div>
+
+    <button class="btn-toggle-cadastro" onclick="alternarPainelCadastro()">⚙️ Gerenciar Alunos da Turma</button>
+    
+    <div id="painel-cadastro">
+        <h3>Cadastrar Novo Aluno</h3>
+        <div class="form-cadastro">
+            <input type="text" id="input-novo-aluno" placeholder="NOME DO ALUNO" onkeypress="verificarEnter(event)">
+            <button onclick="adicionarAluno()">Salvar</button>
+        </div>
+        <h3>Alunos Cadastrados</h3>
+        <ul class="lista-gerenciar" id="lista-gerenciar-alunos">
+            </ul>
     </div>
 
     <div id="leitor-container">
@@ -77,7 +108,9 @@
     </div>
 
     <script>
-        //Configuração do seu projeto Firebase
+        // ==========================================
+        // 1. CONFIGURAÇÃO DO FIREBASE
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyBWB41DNUr-14oi6N3D_8M6KPFqH3yYesU",
             authDomain: "controle-de-saida-54745.firebaseapp.com",
@@ -89,55 +122,39 @@
             measurementId: "G-73JT4T17N6"
         };
 
-        // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Variáveis de controle de rotas das salas
-        let salaAtual = "4_ano";
+        let salaAtual = "1_ano";
         let refAlunos;
         let refHistorico;
-
-        // Lista base padrão de alunos (usada para criar novas turmas se a pasta estiver vazia)
-        const listaNomesBase = [
-            "MIGUEL", "PEDRO HENRIQUE", "SAMUEL LEVY", "SANNY KETLEYN",
-            "WALLYSON", "YAN VICTOR"
-        ];
-
         let bancoDados = {};
         let historicoGeral = [];
 
-        // Função responsável por desconectar da sala antiga e escutar a sala nova em tempo real
+        // ==========================================
+        // 2. CONEXÃO E GERENCIAMENTO DAS TURMAS
+        // ==========================================
         function conectarBancoSala() {
             document.getElementById('status-db').innerText = "Alterando sala no banco...";
             
-            // Se já existiam conexões antigas ativas, desliga elas primeiro
             if (refAlunos) refAlunos.off();
             if (refHistorico) refHistorico.off();
 
-            // Aponta para os caminhos da sala escolhida na nuvem
             refAlunos = database.ref(`salas/${salaAtual}/alunos`);
             refHistorico = database.ref(`salas/${salaAtual}/historico`);
 
-            // Escuta modificações da lista de alunos da sala atual
             refAlunos.on('value', (snapshot) => {
                 const dadosOnline = snapshot.val();
-                if (dadosOnline) {
-                    bancoDados = dadosOnline;
-                    const nomeFormatado = document.getElementById('sala-select').options[document.getElementById('sala-select').selectedIndex].text;
-                    document.getElementById('status-db').innerText = `🟢 Conectado: ${nomeFormatado}`;
-                } else {
-                    // Se a sala nunca foi aberta na internet, gera a estrutura do zero para ela
-                    bancoDados = {};
-                    listaNomesBase.forEach(aluno => {
-                        bancoDados[aluno] = { limite: 2, contador: 0, hora1: "", hora2: "" };
-                    });
-                    refAlunos.set(bancoDados); 
-                }
+                // Se não houver dados, inicia um objeto vazio para a turma
+                bancoDados = dadosOnline ? dadosOnline : {};
+                
+                const nomeFormatado = document.getElementById('sala-select').options[document.getElementById('sala-select').selectedIndex].text;
+                document.getElementById('status-db').innerText = `🟢 Conectado: ${nomeFormatado}`;
+                
                 atualizarListaTela();
+                atualizarPainelCadastro();
             });
 
-            // Escuta modificações do histórico da sala atual
             refHistorico.on('value', (snapshot) => {
                 const histOnline = snapshot.val();
                 historicoGeral = histOnline ? histOnline : [];
@@ -145,18 +162,76 @@
             });
         }
 
-        // Evento disparado quando o professor altera a sala no topo da tela
         function mudarTurma() {
             salaAtual = document.getElementById('sala-select').value;
-            // Limpa mensagens anteriores da tela para não confundir o professor
             const msgDiv = document.getElementById('mensagem');
             msgDiv.style.display = "none";
-            
             conectarBancoSala();
         }
 
         // ==========================================
-        // FUNÇÕES DE EXIBIÇÃO DE TELAS E DATA/HORA
+        // 3. FUNÇÕES DE CADASTRO E REMOÇÃO DE ALUNOS
+        // ==========================================
+        function alternarPainelCadastro() {
+            const painel = document.getElementById('painel-cadastro');
+            painel.style.display = (painel.style.display === 'none' || painel.style.display === '') ? 'block' : 'none';
+        }
+
+        function verificarEnter(event) {
+            if (event.key === 'Enter') {
+                adicionarAluno();
+            }
+        }
+
+        function adicionarAluno() {
+            const input = document.getElementById('input-novo-aluno');
+            const nome = input.value.trim().toUpperCase();
+
+            if (nome === "") {
+                alert("Por favor, digite o nome do aluno.");
+                return;
+            }
+
+            if (bancoDados[nome]) {
+                alert("Este aluno já está cadastrado nesta turma!");
+                return;
+            }
+
+            // Adiciona o aluno ao objeto local e salva no Firebase
+            bancoDados[nome] = { limite: 2, contador: 0, hora1: "", hora2: "" };
+            refAlunos.set(bancoDados).then(() => {
+                input.value = ""; // Limpa o campo após o sucesso
+            });
+        }
+
+        function removerAluno(nome) {
+            const confirmacao = confirm(`Tem certeza que deseja remover ${nome} desta turma?`);
+            if (confirmacao) {
+                delete bancoDados[nome]; // Remove do objeto local
+                refAlunos.set(bancoDados); // Atualiza na nuvem
+            }
+        }
+
+        function atualizarPainelCadastro() {
+            const ulGerenciar = document.getElementById('lista-gerenciar-alunos');
+            ulGerenciar.innerHTML = '';
+            
+            const alunosOrdenados = Object.keys(bancoDados).sort();
+
+            if (alunosOrdenados.length === 0) {
+                ulGerenciar.innerHTML = '<li>Nenhum aluno cadastrado nesta turma.</li>';
+                return;
+            }
+
+            alunosOrdenados.forEach(aluno => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${aluno}</span> <button class="btn-remover" onclick="removerAluno('${aluno}')">Excluir</button>`;
+                ulGerenciar.appendChild(li);
+            });
+        }
+
+        // ==========================================
+        // 4. FUNÇÕES DE EXIBIÇÃO DE TELAS E DATA/HORA
         // ==========================================
         function obterDataAtual() { return new Date().toLocaleDateString('pt-BR'); }
         function obterHoraAtual() {
@@ -170,6 +245,11 @@
             const ul = document.getElementById('lista-alunos');
             ul.innerHTML = '';
             const alunosOrdenados = Object.keys(bancoDados).sort();
+
+            if (alunosOrdenados.length === 0) {
+                ul.innerHTML = '<li style="text-align:center; color:#999;">Sem alunos. Cadastre no botão "Gerenciar Alunos".</li>';
+                return;
+            }
 
             alunosOrdenados.forEach(aluno => {
                 const li = document.createElement('li');
@@ -204,7 +284,7 @@
         }
 
         // ==========================================
-        // LÓGICA DE CONTROLE DE DADOS
+        // 5. LÓGICA DE CONTROLE DE DADOS DA TURMA
         // ==========================================
         function reiniciarContagem() {
             for (let aluno in bancoDados) {
@@ -230,7 +310,7 @@
         }
 
         // ==========================================
-        // CONFIGURAÇÕES DA CÂMERA E LEITOR QR CODE
+        // 6. CÂMERA E LEITURA DE QR CODE
         // ==========================================
         let html5QrCode;
         let cameraTraseira = true;
@@ -282,7 +362,6 @@
                     const textoHistorico = `📅 ${dataAtual} às ⏰ ${horaAtual}<br><strong>${qrLido}</strong> (Utilizou a ${bancoDados[qrLido].contador}ª saída)`;
                     historicoGeral.unshift(textoHistorico);
 
-                    // Atualiza exclusivamente a pasta da turma ativa
                     refAlunos.set(bancoDados);
                     refHistorico.set(historicoGeral);
 
@@ -300,7 +379,7 @@
 
         window.onload = function() {
             salaAtual = document.getElementById('sala-select').value;
-            conectarBancoSala(); // Inicia conectado na sala padrão selecionada
+            conectarBancoSala(); 
             iniciarCamera();
         };
     </script>
