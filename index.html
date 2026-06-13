@@ -2,59 +2,176 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Controle de Saída de Alunos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Saída - QR Code</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .box { margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px; }
-        #mensagem { font-size: 24px; font-weight: bold; margin-top: 20px; padding: 10px; }
-        .verde { color: green; border: 2px solid green; display: inline-block; }
-        .vermelho { color: red; border: 2px solid red; display: inline-block; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 10px;
+            background-color: #f4f4f9;
+            margin: 0;
+        }
+        h1 {
+            font-size: 22px;
+            color: #333;
+        }
+        #leitor-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #reader {
+            width: 100%;
+        }
+        button {
+            margin-top: 15px;
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 400px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #mensagem {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            display: none; /* Escondido até ter uma leitura */
+        }
+        .verde {
+            color: #155724;
+            background-color: #d4edda;
+            border: 2px solid #c3e6cb;
+            display: block !important;
+        }
+        .vermelho {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 2px solid #f5c6cb;
+            display: block !important;
+        }
+        .amarelo {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 2px solid #ffeeba;
+            display: block !important;
+        }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <h2>Cadastro de Alunos</h2>
-        <input type="text" id="nomeAluno" placeholder="Nome/ID do Aluno">
-        <input type="number" id="limiteSaidas" placeholder="Limite de saídas">
-        <button onclick="cadastrar()">Cadastrar</button>
-    </div>
+    <h1>Controle de Saídas da Turma</h1>
 
-    <div class="box">
-        <h2>Leitor de QR Code (Simulado)</h2>
-        <input type="text" id="leituraQr" placeholder="Escaneie o QR Code aqui" oninput="processarLeitura()">
+    <div id="leitor-container">
+        <div id="reader"></div>
+        <button onclick="alternarCamera()">Mudar Câmera (Frente/Trás)</button>
     </div>
 
     <div id="mensagem"></div>
 
     <script>
-        const bancoDados = {};
+        // Lista de alunos fixada no código
+        const listaAlunos = [
+            "DAVI LUIZ", "ELLYSA MARIA", "FRANCISCO ARTHUR", "IGOR GABRIEL",
+            "JOAO VITOR", "KAUAN", "KELVEN HALERRANDRO", "KEVILLY", "LUANA",
+            "MARIA APARECIDA", "MARIA EDUARDA", "MATHEUS YAN", "MICAEL",
+            "MIGUEL", "PEDRO HENRIQUE", "SAMUEL LEVY", "SANNY KETLEYN",
+            "WALLYSON", "YAN VICTOR"
+        ];
 
-        function cadastrar() {
-            const nome = document.getElementById('nomeAluno').value;
-            const limite = parseInt(document.getElementById('limiteSaidas').value);
-            
-            if(nome && limite) {
-                bancoDados[nome] = { limite: limite, contador: 0 };
-                alert("Aluno " + nome + " cadastrado com limite de " + limite);
+        // Cria o banco de dados com limite de 2 saídas para todos
+        const bancoDados = {};
+        listaAlunos.forEach(aluno => {
+            bancoDados[aluno] = { limite: 2, contador: 0 };
+        });
+
+        let html5QrCode;
+        let cameraTraseira = true; // Inicia assumindo câmera traseira
+
+        // Inicia a câmera
+        function iniciarCamera() {
+            const configCamera = cameraTraseira ? { facingMode: "environment" } : { facingMode: "user" };
+            const configLeitor = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    iniciarNovaInstancia(configCamera, configLeitor);
+                }).catch(err => console.log("Erro ao parar a câmera: ", err));
+            } else {
+                iniciarNovaInstancia(configCamera, configLeitor);
             }
         }
 
-        function processarLeitura() {
-            const id = document.getElementById('leituraQr').value;
+        function iniciarNovaInstancia(configCamera, configLeitor) {
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                configCamera,
+                configLeitor,
+                aoLerQrCode,
+                (errorMessage) => { /* Ignora erros contínuos de não encontrar QR Code */ }
+            ).catch((err) => {
+                alert("Erro ao acessar a câmera. Verifique as permissões.");
+            });
+        }
+
+        function alternarCamera() {
+            cameraTraseira = !cameraTraseira;
+            iniciarCamera();
+        }
+
+        // Variáveis para evitar que a câmera leia o mesmo código várias vezes seguidas
+        let ultimoLido = "";
+        let tempoEspera;
+
+        // Função acionada quando o QR Code é lido com sucesso
+        function aoLerQrCode(textoDecodificado) {
+            // Remove espaços extras no início e fim, e deixa tudo maiúsculo para bater com a lista
+            const nomeAluno = textoDecodificado.trim().toUpperCase();
+
+            // Evita leitura dupla do mesmo código em menos de 4 segundos
+            if (nomeAluno === ultimoLido) return;
+            ultimoLido = nomeAluno;
+            clearTimeout(tempoEspera);
+            tempoEspera = setTimeout(() => { ultimoLido = ""; }, 4000);
+
             const msgDiv = document.getElementById('mensagem');
-            
-            if (bancoDados[id]) {
-                if (bancoDados[id].contador < bancoDados[id].limite) {
-                    bancoDados[id].contador++;
-                    msgDiv.innerHTML = "Saída permitida (" + bancoDados[id].contador + "/" + bancoDados[id].limite + ")";
+
+            // Verifica se o aluno está na lista
+            if (bancoDados[nomeAluno]) {
+                if (bancoDados[nomeAluno].contador < bancoDados[nomeAluno].limite) {
+                    bancoDados[nomeAluno].contador++;
+                    msgDiv.innerHTML = `${nomeAluno}<br><br>Saída permitida (${bancoDados[nomeAluno].contador}/2)`;
                     msgDiv.className = "verde";
                 } else {
-                    msgDiv.innerHTML = "Saída negada! Limite atingido.";
+                    msgDiv.innerHTML = `${nomeAluno}<br><br>Saída negada!<br>Limite de 2 saídas atingido.`;
                     msgDiv.className = "vermelho";
                 }
+            } else {
+                msgDiv.innerHTML = `QR Code LIDO: ${nomeAluno}<br><br>Aluno não encontrado na lista.`;
+                msgDiv.className = "amarelo";
             }
         }
+
+        // Inicia a câmera automaticamente quando a página carrega
+        window.onload = iniciarCamera;
+
     </script>
 </body>
 </html>
