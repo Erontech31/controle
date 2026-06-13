@@ -3,251 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Saídas - Escola</title>
+    <title>Sistema Escolar - Controle de Saídas</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
     <style>
         :root {
-            --bg-principal: #f8fafc;
-            --texto-principal: #1e293b;
-            --cor-primaria: #3b82f6;
-            --cor-primaria-hover: #2563eb;
-            --cor-adm: #475569;
-            --cor-diretor: #0f766e;
-            --cor-professor: #15803d;
-            --cor-erro: #e11d48;
-            --cor-sucesso: #16a34a;
-            --card-bg: #ffffff;
-            --borda: #e2e8f0;
+            /* Paleta de Cores Premium */
+            --bg-body: #f0f4f8;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --border-color: #e2e8f0;
+            
+            /* Cores de Ação */
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --success-hover: #059669;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --warning: #f59e0b;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+
+            /* Temas dos Perfis */
+            --grad-adm: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+            --grad-dir: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+            --grad-prof: linear-gradient(135deg, #059669 0%, #047857 100%);
+            
+            /* Sombras e Raios */
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 10px 20px rgba(0,0,0,0.05), 0 6px 6px rgba(0,0,0,0.04);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --radius-md: 12px;
+            --radius-lg: 20px;
         }
 
+        * { box-sizing: border-box; }
+
         body { 
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-family: 'Poppins', sans-serif; 
             text-align: center; 
             padding: 15px; 
-            background-color: var(--bg-principal); 
+            background: var(--bg-body); 
             margin: 0; 
-            color: var(--texto-principal); 
+            color: var(--text-main); 
             -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
         }
         
-        h1, h2, h3 { color: #0f172a; margin-top: 0; }
+        h1, h2, h3 { margin-top: 0; font-weight: 600; color: var(--text-main); }
         
+        /* --- ESTILO GLOBAL DE BOTÕES --- */
         button { 
-            padding: 12px 18px; 
+            padding: 12px 20px; 
             font-size: 14px; 
             font-weight: 600;
-            color: white; 
+            font-family: 'Poppins', sans-serif;
+            color: var(--white); 
             border: none; 
-            border-radius: 8px; 
+            border-radius: var(--radius-md); 
             cursor: pointer; 
-            background-color: var(--cor-primaria); 
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background-color: var(--primary); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        button:hover { background-color: var(--cor-primaria-hover); transform: translateY(-1px); }
+        button:hover { 
+            background-color: var(--primary-hover); 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.2);
+        }
         button:active { transform: translateY(0); }
-        button:disabled { background-color: #cbd5e1; cursor: not-allowed; transform: none; }
+        button:disabled { background-color: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; color: #94a3b8; }
         
+        /* --- ESTILO GLOBAL DE INPUTS E SELECTS --- */
         input, select { 
-            padding: 12px; 
-            border-radius: 8px; 
-            border: 1px solid var(--borda); 
+            padding: 14px 16px; 
+            border-radius: var(--radius-md); 
+            border: 2px solid var(--border-color); 
             font-size: 14px; 
+            font-family: 'Poppins', sans-serif;
             margin-bottom: 12px; 
-            background-color: #fff;
-            color: var(--texto-principal);
-            transition: border-color 0.2s;
-            box-sizing: border-box;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+            width: 100%;
         }
-        input:focus, select:focus { outline: none; border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            background-color: var(--white);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); 
+        }
         
+        /* --- BARRAS DE TOPO --- */
         .topo-barra { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            background: var(--cor-adm); 
-            color: white; 
-            padding: 14px 20px; 
-            border-radius: 12px; 
+            color: var(--white); 
+            padding: 16px 24px; 
+            border-radius: var(--radius-lg); 
             margin-bottom: 25px; 
-            max-width: 600px; 
+            max-width: 700px; 
             margin-left: auto; 
             margin-right: auto; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-md);
         }
-        .topo-barra h2 { margin: 0; color: white; font-size: 18px; font-weight: 600; }
-        .btn-sair { background-color: #ef4444; padding: 8px 14px; font-size: 13px; }
-        .btn-sair:hover { background-color: #dc2626; }
+        .topo-barra h2 { margin: 0; color: var(--white); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
+        .btn-sair { background-color: rgba(255, 255, 255, 0.2); padding: 8px 16px; font-size: 13px; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-sair:hover { background-color: var(--danger); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
 
-        /* --- TELAS --- */
-        .tela { display: none; max-width: 600px; margin: 0 auto; animation: fadeIn 0.3s ease-in-out; }
-        
-        #tela-login { 
-            display: block; 
-            max-width: 360px; 
-            margin: 80px auto; 
-            background: var(--card-bg); 
-            padding: 35px 30px; 
-            border-radius: 16px; 
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05); 
-            border: 1px solid rgba(0,0,0,0.02);
-        }
-        #tela-login h2 { margin-bottom: 8px; font-size: 24px; font-weight: 700; }
-        #tela-login input { width: 100%; text-align: center; font-size: 20px; letter-spacing: 4px; border-width: 2px; }
-        #tela-login button { width: 100%; font-size: 16px; padding: 14px; background-color: var(--cor-sucesso); font-weight: bold; margin-top: 5px; }
-        #tela-login button:hover { background-color: #15803d; }
-        #status-conexao { font-size: 13px; color: #64748b; margin-bottom: 20px; font-weight: 500; }
-
-        /* --- GERENCIAMENTO --- */
-        .card-gerencia { 
-            background: var(--card-bg); 
-            padding: 24px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.02); 
-            margin-bottom: 25px; 
-            text-align: left; 
-            border-left: 5px solid var(--cor-primaria);
-            border-top: 1px solid rgba(0,0,0,0.01);
-            border-right: 1px solid rgba(0,0,0,0.01);
-            border-bottom: 1px solid rgba(0,0,0,0.01);
-        }
-        .card-gerencia h3 { margin-top: 0; font-size: 16px; font-weight: 700; border-bottom: 1px solid var(--borda); padding-bottom: 12px; margin-bottom: 18px; color: #334155; }
-        .linha-form { display: flex; gap: 12px; margin-bottom: 15px; flex-wrap: wrap; }
-        .linha-form input { flex: 1; min-width: 150px; margin: 0; }
-        .linha-form button { margin: 0; white-space: nowrap; }
-        
-        .lista-itens { list-style: none; padding: 0; margin: 0; max-height: 220px; overflow-y: auto; border: 1px solid var(--borda); border-radius: 8px; background: #f8fafc; }
-        .lista-itens li { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--borda); font-size: 13px; color: #475569; }
-        .lista-itens li:last-child { border-bottom: none; }
-        .btn-remover { background-color: #fee2e2; color: #ef4444; font-size: 12px; padding: 6px 10px; font-weight: 600; }
-        .btn-remover:hover { background-color: #ef4444; color: white; }
-
-        /* --- DIRETOR --- */
-        .filtro-diretor { text-align: left; margin-bottom: 20px; background: var(--card-bg); padding: 18px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid var(--borda); }
-        .filtro-diretor label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #64748b; }
-        .filtro-diretor select { width: 100%; font-size: 16px; font-weight: 600; background: #f1f5f9; border: none; margin: 0; }
-        
-        table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--card-bg); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border-radius: 12px; overflow: hidden; font-size: 14px; border: 1px solid var(--borda); }
-        th, td { padding: 14px; border-bottom: 1px solid var(--borda); text-align: center; }
-        th { background-color: #f8fafc; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #f8fafc; }
-        .status-ok { color: var(--cor-sucesso); font-weight: 700; }
-        .status-cheio { color: #b91c1c; font-weight: 700; background-color: #fef2f2; border-radius: 4px; display: inline-block; padding: 2px 8px; }
-
-        /* --- PROFESSOR --- */
-        #leitor-container { background: var(--card-bg); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 25px; border: 1px solid var(--borda); overflow: hidden; }
-        #reader { width: 100%; border-radius: 12px; overflow: hidden; border: none !important; }
-        #reader video { border-radius: 12px; }
-        .btn-camera { width: 100%; margin-top: 12px; background-color: #64748b; }
-        .btn-camera:hover { background-color: #475569; }
-        
-        .painel-alunos { text-align: left; background: var(--card-bg); padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 25px; border: 1px solid var(--borda); }
-        .painel-alunos h3 { margin-top: 0; text-align: center; font-size: 16px; font-weight: 700; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; color: #334155; }
-        #lista-prof-alunos { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0; }
-        #lista-prof-alunos li { background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--borda); font-size: 14px; transition: all 0.2s; color: #334155; }
-        .limite-atingido { border-color: #fca5a5 !important; background-color: #fef2f2 !important; color: #991b1b !important; font-weight: 500; }
-        
-        #mensagem { font-size: 16px; font-weight: 700; margin: 20px 0; padding: 16px; border-radius: 12px; display: none; line-height: 1.5; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-        .verde { color: #166534; background-color: #dcfce7; border: 1px solid #bbf7d0; display: block !important; }
-        .vermelho { color: #991b1b; background-color: #fee2e2; border: 1px solid #fca5a5; display: block !important; }
-
-        /* --- ESTILOS DO CARTÃO QR --- */
-        #area-impressao { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        .cartao-qr { display: inline-block; border: 2px dashed #cbd5e1; padding: 18px; background: #fff; border-radius: 12px; width: 160px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .cartao-qr h3 { margin-top: 0; margin-bottom: 12px; color: #1e293b; font-size: 13px; font-weight: 700; word-wrap: break-word; line-height: 1.4; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+        /* --- ANIMAÇÕES DE TELA --- */
+        .tela { display: none; max-width: 700px; margin: 0 auto; animation: slideFadeUp 0.4s ease-out forwards; }
+        @keyframes slideFadeUp {
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- IMPRESSÃO DO QR CODE --- */
+        /* --- TELA DE LOGIN --- */
+        #tela-login { 
+            display: block; 
+            max-width: 380px; 
+            margin: 8vh auto; 
+            background: var(--white); 
+            padding: 40px 30px; 
+            border-radius: var(--radius-lg); 
+            box-shadow: var(--shadow-lg); 
+            position: relative;
+            overflow: hidden;
+        }
+        #tela-login::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--purple));
+        }
+        #tela-login h2 { margin-bottom: 5px; font-size: 26px; font-weight: 700; color: var(--text-main); }
+        #tela-login input { 
+            text-align: center; 
+            font-size: 20px; 
+            letter-spacing: 6px; 
+            border-width: 2px; 
+            padding: 16px;
+            margin-top: 15px;
+            background: #f1f5f9;
+        }
+        #tela-login button { 
+            width: 100%; 
+            font-size: 16px; 
+            padding: 16px; 
+            background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%);
+            margin-top: 10px; 
+        }
+        #status-conexao { font-size: 13px; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--text-muted); }
+        .status-dot.online { background-color: var(--success); box-shadow: 0 0 8px var(--success); }
+
+        /* --- CARDS DE CONTEÚDO --- */
+        .card { 
+            background: var(--white); 
+            padding: 25px; 
+            border-radius: var(--radius-lg); 
+            box-shadow: var(--shadow-md); 
+            margin-bottom: 25px; 
+            text-align: left; 
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .card h3 { 
+            font-size: 16px; 
+            color: #334155; 
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .linha-form { display: flex; gap: 12px; margin-bottom: 5px; flex-wrap: wrap; }
+        .linha-form input { flex: 1; min-width: 150px; margin: 0; }
+        .linha-form button { margin: 0; white-space: nowrap; }
+        
+        /* --- LISTAS MODERNAS --- */
+        .lista-itens { list-style: none; padding: 0; margin: 15px 0 0 0; max-height: 250px; overflow-y: auto; }
+        .lista-itens::-webkit-scrollbar { width: 6px; }
+        .lista-itens::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .lista-itens::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .lista-itens li { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px 16px; 
+            margin-bottom: 8px;
+            border-radius: var(--radius-md); 
+            background: #f8fafc; 
+            border: 1px solid var(--border-color);
+            font-size: 14px; color: var(--text-main); 
+            transition: transform 0.2s;
+        }
+        .lista-itens li:hover { transform: scale(1.01); border-color: #cbd5e1; }
+        .btn-remover { background-color: #fee2e2; color: var(--danger); font-size: 12px; padding: 6px 12px; }
+        .btn-remover:hover { background-color: var(--danger); color: var(--white); box-shadow: none; }
+
+        /* --- TABELAS (DIRETOR) --- */
+        .table-container { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
+        table { width: 100%; border-collapse: collapse; background: var(--white); font-size: 14px; text-align: left; }
+        th, td { padding: 16px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f1f5f9; }
+        
+        /* Badges de Status */
+        .badge { padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 12px; display: inline-block; text-align: center; min-width: 50px; }
+        .badge-ok { background-color: #dcfce7; color: #166534; }
+        .badge-cheio { background-color: #fee2e2; color: #991b1b; }
+
+        /* --- PROFESSOR (CÂMERA E LISTA) --- */
+        #leitor-container { 
+            background: var(--white); padding: 15px; border-radius: var(--radius-lg); 
+            box-shadow: var(--shadow-md); margin-bottom: 25px; border: 1px solid var(--border-color); 
+        }
+        #reader { width: 100%; border-radius: var(--radius-md); overflow: hidden; border: none !important; }
+        #reader video { object-fit: cover; border-radius: var(--radius-md); }
+        #reader img { display: none !important; } /* Esconde logo padrão do html5-qrcode */
+        .btn-camera { width: 100%; margin-top: 15px; background: #64748b; font-size: 15px; }
+        .btn-camera:hover { background: #475569; }
+        
+        .painel-alunos h3 { justify-content: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 15px; }
+        
+        #lista-prof-alunos { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 0; margin: 0; list-style: none; }
+        #lista-prof-alunos li { 
+            background: var(--white); padding: 16px; border-radius: var(--radius-md); 
+            border: 1px solid var(--border-color); font-size: 15px; transition: all 0.2s; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px;
+        }
+        .aluno-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .aluno-nome { font-weight: 600; color: var(--text-main); }
+        .aluno-horas { font-size: 12px; color: var(--text-muted); background: #f1f5f9; padding: 6px 10px; border-radius: 6px; display: inline-block; width: fit-content; }
+        
+        .limite-atingido { border-color: #fca5a5 !important; background-color: #fff5f5 !important; }
+        
+        /* --- MENSAGENS E ALERTAS --- */
+        #mensagem { 
+            font-size: 15px; font-weight: 500; margin: 20px 0; padding: 16px 20px; 
+            border-radius: var(--radius-md); display: none; line-height: 1.5; 
+            box-shadow: var(--shadow-sm); animation: slideFadeUp 0.3s ease-out;
+        }
+        .verde { color: #065f46; background-color: #d1fae5; border: 1px solid #a7f3d0; display: block !important; }
+        .vermelho { color: #991b1b; background-color: #fee2e2; border: 1px solid #fca5a5; display: block !important; }
+
+        /* --- IMPRESSÃO QR CODE --- */
+        #area-impressao { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .cartao-qr { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 2px dashed #cbd5e1; padding: 20px; background: var(--white); 
+            border-radius: var(--radius-md); width: 170px; text-align: center; 
+            transition: transform 0.2s;
+        }
+        .cartao-qr:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow-sm); }
+        .cartao-qr h3 { margin: 0 0 15px 0; color: var(--text-main); font-size: 14px; font-weight: 700; line-height: 1.3; }
+
         @media print {
             body * { visibility: hidden; }
             #area-impressao, #area-impressao * { visibility: visible; }
-            #area-impressao { position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 0; justify-content: flex-start; }
-            .cartao-qr { border: 1px solid #000; padding: 15px; margin: 5px; page-break-inside: avoid; background: white; border-radius: 0; box-shadow: none; }
+            #area-impressao { position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 0; justify-content: flex-start; gap: 10px; }
+            .cartao-qr { border: 1px solid #000; padding: 15px; margin: 5px; page-break-inside: avoid; background: white; border-radius: 0; box-shadow: none; transform: none !important; }
             .btn-imprimir { display: none !important; }
+            body { background: white; }
         }
     </style>
 </head>
 <body>
 
     <div id="tela-login" class="tela">
-        <h2>Acesso ao Sistema</h2>
-        <div id="status-conexao">Carregando banco de dados...</div>
-        <input type="password" id="input-login" placeholder="Sua Senha" onkeypress="verificarEnterLogin(event)" disabled>
-        <button id="btn-entrar" onclick="fazerLogin()" disabled>Entrar</button>
+        <h2>Bem-vindo</h2>
+        <div id="status-conexao">
+            <span class="status-dot" id="dot-conexao"></span>
+            <span id="texto-conexao">Conectando ao servidor...</span>
+        </div>
+        <input type="password" id="input-login" placeholder="Digite sua senha" onkeypress="verificarEnterLogin(event)" disabled>
+        <button id="btn-entrar" onclick="fazerLogin()" disabled>Acessar Sistema</button>
     </div>
 
     <div id="tela-gerenciamento" class="tela">
-        <div class="topo-barra">
-            <h2>⚙️ Painel de Gerenciamento</h2>
+        <div class="topo-barra" style="background: var(--grad-adm);">
+            <h2>⚙️ Painel de Administração</h2>
             <button class="btn-sair" onclick="fazerLogout()">Sair</button>
         </div>
 
-        <div class="card-gerencia">
-            <h3>Senha Mestra (Acesso do Diretor)</h3>
+        <div class="card">
+            <h3>🔑 Senha Mestra (Acesso do Diretor)</h3>
             <div class="linha-form">
-                <input type="text" id="input-senha-diretor" placeholder="Nova senha mestre">
-                <button onclick="salvarSenhaDiretor()" style="background-color: var(--cor-sucesso);">Atualizar</button>
+                <input type="text" id="input-senha-diretor" placeholder="Definir nova senha">
+                <button onclick="salvarSenhaDiretor()" style="background-color: var(--success);">Atualizar</button>
             </div>
-            <small style="color:#64748b; font-weight: 500;">A senha atual está oculta por segurança. Digite uma nova para substituir.</small>
+            <small style="color: var(--text-muted);">A senha atual está protegida. Digite uma nova para substituir.</small>
         </div>
 
-        <div class="card-gerencia">
-            <h3>Passo 1: Criar Turma e Senha do Professor</h3>
+        <div class="card">
+            <h3>📚 Passo 1: Criar Turma e Senha</h3>
             <div class="linha-form">
-                <input type="text" id="input-nova-turma" placeholder="Nome da turma (Ex: 1_ANO)">
+                <input type="text" id="input-nova-turma" placeholder="Nome (Ex: 1_ANO)">
                 <input type="text" id="input-senha-turma" placeholder="Senha da turma">
-                <button onclick="criarTurmaESenha()">Criar Turma</button>
+                <button onclick="criarTurmaESenha()">Criar</button>
             </div>
             <ul class="lista-itens" id="lista-adm-turmas"></ul>
         </div>
 
-        <div class="card-gerencia">
-            <h3>Passo 2: Cadastrar Aluno e Gerar QR Code</h3>
-            <select id="select-turma-aluno" onchange="carregarAlunosDaTurma()" style="width:100%; font-weight: 600;"></select>
+        <div class="card">
+            <h3>👤 Passo 2: Alunos e QR Codes</h3>
+            <select id="select-turma-aluno" onchange="carregarAlunosDaTurma()"></select>
             <div class="linha-form">
-                <input type="text" id="input-novo-aluno" placeholder="NOME DO ALUNO" style="text-transform: uppercase;" onkeypress="if(event.key === 'Enter') cadastrarAlunoEGerarQR()">
-                <button onclick="cadastrarAlunoEGerarQR()">Cadastrar</button>
+                <input type="text" id="input-novo-aluno" placeholder="Nome Completo" style="text-transform: uppercase;" onkeypress="if(event.key === 'Enter') cadastrarAlunoEGerarQR()">
+                <button onclick="cadastrarAlunoEGerarQR()">Adicionar</button>
             </div>
             
-            <button onclick="gerarImpressaoColetiva()" style="width:100%; background-color:#6366f1; margin-bottom: 15px;">🖨️ Gerar e Imprimir TODOS da Turma</button>
+            <button onclick="gerarImpressaoColetiva()" style="width:100%; background: linear-gradient(135deg, var(--purple) 0%, #6d28d9 100%); margin: 10px 0 20px 0;">
+                🖨️ Gerar QR Codes de Toda a Turma
+            </button>
 
             <ul class="lista-itens" id="lista-adm-alunos"></ul>
 
-            <div id="area-acoes-impressao" style="display:none; margin-top:20px; padding: 20px; border: 1px solid var(--borda); background: #fff; border-radius: 12px;">
-                <button class="btn-imprimir" onclick="window.print()" style="background-color: #06b6d4; width: 100%; margin-bottom: 20px; padding: 15px; font-weight:bold;">🖨️ Imprimir Cartões Abaixo</button>
+            <div id="area-acoes-impressao" style="display:none; margin-top:25px; padding: 20px; border: 1px solid var(--border-color); background: #f8fafc; border-radius: var(--radius-md);">
+                <button class="btn-imprimir" onclick="window.print()" style="background: var(--teal); width: 100%; margin-bottom: 20px; padding: 16px; font-size: 16px;">🖨️ Imprimir Cartões Gerados</button>
                 <div id="area-impressao"></div>
             </div>
         </div>
     </div>
 
     <div id="tela-diretor" class="tela">
-        <div class="topo-barra" style="background: var(--cor-diretor);">
-            <h2>📊 Painel do Diretor</h2>
+        <div class="topo-barra" style="background: var(--grad-dir);">
+            <h2>📊 Painel da Diretoria</h2>
             <button class="btn-sair" onclick="fazerLogout()">Sair</button>
         </div>
 
-        <div class="filtro-diretor">
-            <label>Monitoramento ao vivo da turma:</label>
-            <select id="select-diretor-turma" onchange="diretorMudarTurma()"></select>
+        <div class="card" style="padding: 20px;">
+            <label style="display:block; font-weight:600; color:var(--text-muted); margin-bottom:10px; text-align:left;">Monitoramento em Tempo Real:</label>
+            <select id="select-diretor-turma" onchange="diretorMudarTurma()" style="margin-bottom:0; font-weight:600; background:#f1f5f9;"></select>
         </div>
 
-        <div style="overflow-x: auto;">
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>Nome do Aluno</th>
-                        <th>Saídas</th>
+                        <th>Aluno</th>
+                        <th style="text-align:center;">Status</th>
                         <th>1ª Saída</th>
                         <th>2ª Saída</th>
                     </tr>
@@ -255,23 +362,25 @@
                 <tbody id="tabela-diretor-corpo"></tbody>
             </table>
         </div>
-        <button style="margin-top:20px; background-color:var(--cor-erro); width:100%;" onclick="zerarTurmaDiretor()">Zerar Contagens desta Turma</button>
+        <button style="margin-top:25px; background: var(--danger); width:100%; font-size: 15px; padding: 16px;" onclick="zerarTurmaDiretor()">
+            🔄 Resetar Contagens desta Turma
+        </button>
     </div>
 
     <div id="tela-professor" class="tela">
-        <div class="topo-barra" style="background: var(--cor-professor);">
-            <h2 id="titulo-turma-prof">Turma</h2>
+        <div class="topo-barra" style="background: var(--grad-prof);">
+            <h2 id="titulo-turma-prof">🏫 Turma</h2>
             <button class="btn-sair" onclick="fazerLogout()">Sair</button>
         </div>
 
         <div id="leitor-container">
             <div id="reader"></div>
-            <button class="btn-camera" onclick="alternarCamera()">📷 Inverter Câmera (Frente/Trás)</button>
+            <button class="btn-camera" onclick="alternarCamera()">🔄 Inverter Câmera</button>
         </div>
 
         <div id="mensagem"></div>
 
-        <div class="painel-alunos">
+        <div class="card painel-alunos">
             <h3>Controle de Saídas (Limite: 2)</h3>
             <ul id="lista-prof-alunos"></ul>
         </div>
@@ -311,15 +420,18 @@
             } else {
                 dbConfig = {
                     senha_diretor: "diretor123",
-                    turmas: {
-                        "1_ANO": { senhas: ["senha1"] }
-                    }
+                    turmas: { "1_ANO": { senhas: ["senha1"] } }
                 };
                 refConfig.set(dbConfig);
             }
             
-            document.getElementById('status-conexao').innerText = "🟢 Sistema Online e Pronto";
-            document.getElementById('status-conexao').style.color = "var(--cor-sucesso)";
+            // Atualiza UI de Login
+            const dot = document.getElementById('dot-conexao');
+            const texto = document.getElementById('texto-conexao');
+            dot.classList.add('online');
+            texto.innerText = "Sistema Online e Pronto";
+            texto.style.color = "var(--success)";
+            
             document.getElementById('input-login').disabled = false;
             document.getElementById('btn-entrar').disabled = false;
 
@@ -407,7 +519,7 @@
             const novaSenha = document.getElementById('input-senha-diretor').value.trim();
             if(novaSenha.length < 4) { alert("A senha deve ter pelo menos 4 caracteres."); return; }
             refConfig.child('senha_diretor').set(novaSenha).then(() => {
-                alert("Senha mestre do Diretor updated!");
+                alert("Senha mestre do Diretor atualizada!");
                 document.getElementById('input-senha-diretor').value = '';
             });
         }
@@ -424,12 +536,11 @@
             refConfig.child(`turmas/${nome}`).set({ senhas: [senha] }).then(() => {
                 document.getElementById('input-nova-turma').value = "";
                 document.getElementById('input-senha-turma').value = "";
-                alert(`Turma ${nome} criada com sucesso!`);
             });
         }
 
         function removerTurma(nome) {
-            if(confirm(`Tem certeza? A turma ${nome} será excluída do sistema.`)) {
+            if(confirm(`Tem certeza? A turma ${nome} será excluída.`)) {
                 refConfig.child(`turmas/${nome}`).remove();
                 document.getElementById('area-acoes-impressao').style.display = "none";
             }
@@ -441,7 +552,7 @@
             if(dbConfig.turmas) {
                 Object.keys(dbConfig.turmas).forEach(t => {
                     let senhaDestaTurma = dbConfig.turmas[t].senhas ? dbConfig.turmas[t].senhas[0] : "Sem senha";
-                    ul.innerHTML += `<li><span><strong>${t}</strong> (Senha: ${senhaDestaTurma})</span> <button class="btn-remover" onclick="removerTurma('${t}')">Apagar</button></li>`;
+                    ul.innerHTML += `<li><span><strong>${t}</strong> <small style="color:var(--text-muted); margin-left:8px;">(Senha: ${senhaDestaTurma})</small></span> <button class="btn-remover" onclick="removerTurma('${t}')">Apagar</button></li>`;
                 });
             }
         }
@@ -462,7 +573,7 @@
                 const alunos = snapshot.val() || {};
                 
                 if(Object.keys(alunos).length === 0) {
-                    ul.innerHTML = '<li style="color:#888; justify-content: center; padding: 15px;">Nenhum aluno cadastrado.</li>';
+                    ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); border:none; background:transparent;">Nenhum aluno cadastrado.</li>';
                 } else {
                     Object.keys(alunos).sort().forEach(nome => {
                         ul.innerHTML += `<li>${nome} <button class="btn-remover" onclick="removerAluno('${turma}', '${nome}')">Excluir</button></li>`;
@@ -480,15 +591,16 @@
             divCartao.appendChild(h3);
 
             const divImg = document.createElement('div');
-            divImg.style.display = 'flex';
-            divImg.style.justifyContent = 'center';
+            divImg.style.background = "#fff";
+            divImg.style.padding = "5px";
+            divImg.style.borderRadius = "8px";
             divCartao.appendChild(divImg);
 
             new QRCode(divImg, {
                 text: nome,
-                width: 130,
-                height: 130,
-                colorDark : "#000000",
+                width: 120,
+                height: 120,
+                colorDark : "#1e293b",
                 colorLight : "#ffffff"
             });
 
@@ -499,7 +611,7 @@
             const turma = document.getElementById('select-turma-aluno').value;
             const nome = document.getElementById('input-novo-aluno').value.trim().toUpperCase();
             
-            if(!turma || !nome) { alert("Selecione uma turma e digite o nome do aluno!"); return; }
+            if(!turma || !nome) { alert("Selecione uma turma e digite o nome!"); return; }
             
             database.ref(`salas/${turma}/alunos/${nome}`).set({
                 limite: 2, contador: 0, hora1: "", hora2: ""
@@ -511,23 +623,19 @@
                 
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
-                
                 areaImprimir.appendChild(gerarCartaoQR(nome, turma));
             });
         }
 
         function gerarImpressaoColetiva() {
             const turma = document.getElementById('select-turma-aluno').value;
-            if(!turma) { alert("Selecione uma turma primeiro!"); return; }
+            if(!turma) return;
 
             database.ref(`salas/${turma}/alunos`).once('value').then(snapshot => {
                 const alunos = snapshot.val() || {};
                 const nomes = Object.keys(alunos).sort();
                 
-                if(nomes.length === 0) {
-                    alert(`A turma ${turma} ainda não tem alunos cadastrados.`);
-                    return;
-                }
+                if(nomes.length === 0) { alert("Turma vazia."); return; }
 
                 const divAcoes = document.getElementById('area-acoes-impressao');
                 const areaImprimir = document.getElementById('area-impressao');
@@ -542,19 +650,15 @@
         }
 
         function removerAluno(turma, nome) {
-            if(confirm(`Remover aluno ${nome} da turma?`)) {
+            if(confirm(`Remover aluno ${nome}?`)) {
                 database.ref(`salas/${turma}/alunos/${nome}`).remove();
                 document.getElementById('area-acoes-impressao').style.display = "none";
             }
         }
 
         // ==========================================
-        // 4. MÓDULO DO DIRETOR (MONITORAMENTO)
+        // 4. MÓDULO DO DIRETOR
         // ==========================================
-        function abrirDiretorMudarTurma() {
-            diretorMudarTurma();
-        }
-
         function iniciarModoDiretor() {
             const selectDiretor = document.getElementById('select-diretor-turma');
             selectDiretor.innerHTML = '';
@@ -583,7 +687,7 @@
             
             const alunosArr = Object.keys(dbAlunos).sort();
             if(alunosArr.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="color:#94a3b8; padding: 20px;">Sem alunos registrados.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Sem alunos.</td></tr>';
                 return;
             }
 
@@ -591,20 +695,22 @@
                 const d = dbAlunos[aluno];
                 const linha = document.createElement('tr');
                 
-                let contagemHTML = d.contador >= d.limite ? `<span class="status-cheio">${d.contador} / ${d.limite}</span>` : `<span class="status-ok">${d.contador} / ${d.limite}</span>`;
+                let contagemHTML = d.contador >= d.limite 
+                    ? `<span class="badge badge-cheio">${d.contador} / ${d.limite}</span>` 
+                    : `<span class="badge badge-ok">${d.contador} / ${d.limite}</span>`;
                 
                 linha.innerHTML = `
-                    <td style="text-align:left;"><strong>${aluno}</strong></td>
-                    <td>${contagemHTML}</td>
-                    <td style="color:#64748b; font-weight: 500;">${d.hora1 || '-'}</td>
-                    <td style="color:#64748b; font-weight: 500;">${d.hora2 || '-'}</td>
+                    <td><strong>${aluno}</strong></td>
+                    <td style="text-align:center;">${contagemHTML}</td>
+                    <td style="color:var(--text-muted); font-size:13px;">${d.hora1 || '--:--'}</td>
+                    <td style="color:var(--text-muted); font-size:13px;">${d.hora2 || '--:--'}</td>
                 `;
                 tbody.appendChild(linha);
             });
         }
 
         function zerarTurmaDiretor() {
-            if(confirm(`Atenção Diretor: Isso zerará a contagem de hoje de TODOS os alunos da turma ${turmaAtual}. Confirmar?`)) {
+            if(confirm(`Zerar a contagem de TODOS os alunos da turma ${turmaAtual}?`)) {
                 for (let aluno in dbAlunos) {
                     dbAlunos[aluno].contador = 0;
                     dbAlunos[aluno].hora1 = "";
@@ -615,7 +721,7 @@
         }
 
         // ==========================================
-        // 5. MÓDULO DO PROFESSOR (CÂMERA, VIBRAÇÃO E COMANDO EDUCADOR)
+        // 5. MÓDULO DO PROFESSOR (CÂMERA E VIBRAÇÃO)
         // ==========================================
         function iniciarModoProfessor(turma) {
             turmaAtual = turma;
@@ -639,7 +745,7 @@
             const alunosArr = Object.keys(dbAlunos).sort();
 
             if(alunosArr.length === 0) {
-                ul.innerHTML = '<li style="text-align:center; color: #64748b; padding: 15px;">Turma vazia. Solicite cadastro à diretoria.</li>';
+                ul.innerHTML = '<li style="text-align:center; color:var(--text-muted); box-shadow:none; background:transparent; border:none;">Turma vazia.</li>';
                 return;
             }
 
@@ -648,14 +754,20 @@
                 const d = dbAlunos[aluno];
                 
                 let horas = "";
-                if (d.contador === 1) horas = `<br><small style="color:#64748b; font-weight:500; margin-top:4px; display:inline-block;">1ª saída: ${d.hora1}</small>`;
-                else if (d.contador === 2) horas = `<br><small style="color:#64748b; font-weight:500; margin-top:4px; display:inline-block;">1ª: ${d.hora1} | 2ª: ${d.hora2}</small>`;
+                if (d.contador === 1) horas = `<span class="aluno-horas">1ª saída: <strong>${d.hora1}</strong></span>`;
+                else if (d.contador === 2) horas = `<span class="aluno-horas">1ª: <strong>${d.hora1}</strong> &nbsp;|&nbsp; 2ª: <strong>${d.hora2}</strong></span>`;
                 
-                li.innerHTML = `<div style="display:flex; justify-content:between; align-items:center; width:100%;">
-                                    <span style="flex:1;"><strong>${aluno}</strong></span>
-                                    <span style="font-weight:700;">${d.contador}/${d.limite}</span>
-                                </div>${horas}`;
-                if (d.contador >= d.limite) li.className = "limite-atingido";
+                let badgeClass = d.contador >= d.limite ? 'badge-cheio' : 'badge-ok';
+
+                li.innerHTML = `
+                    <div class="aluno-header">
+                        <span class="aluno-nome">${aluno}</span>
+                        <span class="badge ${badgeClass}">${d.contador}/${d.limite}</span>
+                    </div>
+                    ${horas ? `<div>${horas}</div>` : ''}
+                `;
+                
+                if (d.contador >= d.limite) li.classList.add('limite-atingido');
                 ul.appendChild(li);
             });
         }
@@ -678,7 +790,6 @@
 
         function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
 
-        // Evento disparado na leitura de QR Codes
         function aoLerQrCode(texto) {
             const qrLido = texto.trim().toUpperCase();
 
@@ -689,12 +800,12 @@
 
             const msgDiv = document.getElementById('mensagem');
 
-            // --- NOVO COMANDO: QR CODE "EDUCADOR" PARA REINICIAR TURMA ---
+            // --- COMANDO SECRETO PARA REINICIAR TURMA ---
             if (qrLido === "EDUCADOR") {
-                if (navigator.vibrate) navigator.vibrate([200, 100, 200]); // Vibração dupla longa
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]); 
 
                 if (Object.keys(dbAlunos).length === 0) {
-                    msgDiv.innerHTML = "Comando EDUCADOR lido,<br>mas a turma não possui alunos.";
+                    msgDiv.innerHTML = "Comando lido, mas a turma está vazia.";
                     msgDiv.className = "vermelho";
                     return;
                 }
@@ -706,12 +817,12 @@
                 }
                 
                 refAlunosAtuais.set(dbAlunos);
-                msgDiv.innerHTML = "🔄 <strong>Turma Reiniciada!</strong><br>Todas as contagens voltaram a zero.";
+                msgDiv.innerHTML = "🔄 <strong>Turma Reiniciada!</strong><br>As contagens voltaram a zero.";
                 msgDiv.className = "verde";
                 return;
             }
 
-            // --- Lógica Padrão de Alunos ---
+            // --- FLUXO NORMAL DO ALUNO ---
             if (dbAlunos[qrLido]) {
                 if (dbAlunos[qrLido].contador < dbAlunos[qrLido].limite) {
                     dbAlunos[qrLido].contador++;
@@ -729,15 +840,14 @@
                     msgDiv.innerHTML = `✅ <strong>${qrLido}</strong><br>Saída Liberada (${dbAlunos[qrLido].contador}/2)<br>⏰ Horário: ${horaAtual}`;
                     msgDiv.className = "verde";
                 } else {
-                    if (navigator.vibrate) navigator.vibrate([150, 100, 150]); // Vibração dupla de erro
+                    if (navigator.vibrate) navigator.vibrate([150, 100, 150]); // Vibração de erro
 
-                    msgDiv.innerHTML = `❌ <strong>${qrLido}</strong><br>Saída Negada!<br>O limite de saídas foi atingido.`;
+                    msgDiv.innerHTML = `❌ <strong>${qrLido}</strong><br>Saída Negada! Limite atingido.`;
                     msgDiv.className = "vermelho";
                 }
             } else {
-                if (navigator.vibrate) navigator.vibrate([150, 100, 150]); // Vibração dupla de erro
-                
-                msgDiv.innerHTML = `⚠️ <strong>Atenção:</strong> "${qrLido}"<br>Não pertence à turma ${turmaAtual}.`;
+                if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
+                msgDiv.innerHTML = `⚠️ <strong>Atenção:</strong> "${qrLido}"<br>Não pertence à turma.`;
                 msgDiv.className = "vermelho";
             }
         }
