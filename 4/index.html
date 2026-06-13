@@ -118,7 +118,7 @@
             <h3>Passo 2: Cadastrar Aluno e Gerar QR Code</h3>
             <select id="select-turma-aluno" onchange="carregarAlunosDaTurma()" style="width:100%;"></select>
             <div class="linha-form">
-                <input type="text" id="input-novo-aluno" placeholder="NOME DO ALUNO" style="text-transform: uppercase;">
+                <input type="text" id="input-novo-aluno" placeholder="NOME DO ALUNO" style="text-transform: uppercase;" onkeypress="if(event.key === 'Enter') cadastrarAlunoEGerarQR()">
                 <button onclick="cadastrarAlunoEGerarQR()">Cadastrar</button>
             </div>
             
@@ -476,6 +476,10 @@
             diretorMudarTurma();
         }
 
+        function abrirDiretorMudarTurma() {
+            diretorMudarTurma();
+        }
+
         function diretorMudarTurma() {
             turmaAtual = document.getElementById('select-diretor-turma').value;
             if(!turmaAtual) return;
@@ -569,20 +573,6 @@
             });
         }
 
-        function reiniciarContagemProf() {
-            if(confirm("Deseja zerar as saídas para começar uma nova aula?")) {
-                for (let aluno in dbAlunos) {
-                    dbAlunos[aluno].contador = 0;
-                    dbAlunos[aluno].hora1 = "";
-                    dbAlunos[aluno].hora2 = "";
-                }
-                refAlunosAtuais.set(dbAlunos); 
-                const msg = document.getElementById('mensagem');
-                msg.innerHTML = "Turma reiniciada!";
-                msg.className = "verde";
-            }
-        }
-
         // --- Lógica do QR Code ---
         function iniciarCamera() {
             const configCamera = cameraTraseira ? { facingMode: "environment" } : { facingMode: "user" };
@@ -609,8 +599,6 @@
             ultimoLido = qrLido;
             clearTimeout(tempoEspera);
             tempoEspera = setTimeout(() => { ultimoLido = ""; }, 4000);
-
-            if (qrLido === "EDUCADOR") { reiniciarContagemProf(); return; }
 
             const msgDiv = document.getElementById('mensagem');
 
