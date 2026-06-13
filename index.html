@@ -104,7 +104,7 @@
             padding: 0;
             margin: 0;
             display: grid;
-            grid-template-columns: 1fr; /* 1 coluna para caber bem os horários */
+            grid-template-columns: 1fr;
             gap: 10px;
         }
         #lista-alunos li {
@@ -154,11 +154,37 @@
             "WALLYSON", "YAN VICTOR"
         ];
 
-        // Cria o banco de dados incluindo os espaços para os horários
-        const bancoDados = {};
-        listaAlunos.forEach(aluno => {
-            bancoDados[aluno] = { limite: 2, contador: 0, hora1: "", hora2: "" };
-        });
+        let bancoDados = {};
+
+        // === NOVA FUNÇÃO: Carregar ou criar os dados salvos ===
+        function inicializarDados() {
+            const dadosSalvos = localStorage.getItem('controleDeSaidasAlunos');
+            
+            if (dadosSalvos) {
+                // Se já existe algo salvo, carrega para a memória
+                bancoDados = JSON.parse(dadosSalvos);
+                
+                // Atualização de segurança: Se você adicionar um aluno novo no código depois, 
+                // ele será incluído na lista salva sem apagar os outros.
+                listaAlunos.forEach(aluno => {
+                    if (!bancoDados[aluno]) {
+                        bancoDados[aluno] = { limite: 2, contador: 0, hora1: "", hora2: "" };
+                    }
+                });
+            } else {
+                // Se for a primeira vez abrindo a página, cria o banco do zero
+                listaAlunos.forEach(aluno => {
+                    bancoDados[aluno] = { limite: 2, contador: 0, hora1: "", hora2: "" };
+                });
+            }
+            // Salva para garantir que a estrutura esteja correta no navegador
+            salvarDados();
+        }
+
+        // === NOVA FUNÇÃO: Salvar os dados na memória do navegador ===
+        function salvarDados() {
+            localStorage.setItem('controleDeSaidasAlunos', JSON.stringify(bancoDados));
+        }
 
         // Função para pegar a hora atual formatada (HH:MM)
         function obterHoraAtual() {
@@ -180,7 +206,6 @@
                 let textoStatus = `<strong>${aluno}</strong>: ${dados.contador}/${dados.limite}`;
                 let textoHorarios = "";
 
-                // Verifica se tem horários registrados para exibir
                 if (dados.contador === 1) {
                     textoHorarios = `<span class="horario-texto">⏱ 1ª Saída: ${dados.hora1}</span>`;
                 } else if (dados.contador === 2) {
@@ -189,7 +214,6 @@
                 
                 li.innerHTML = textoStatus + textoHorarios;
                 
-                // Se atingiu o limite, muda a cor do item na lista
                 if (dados.contador >= dados.limite) {
                     li.className = "limite-atingido";
                 }
@@ -205,6 +229,8 @@
                 bancoDados[aluno].hora1 = "";
                 bancoDados[aluno].hora2 = "";
             });
+            
+            salvarDados(); // Salva os dados zerados permanentemente
             
             const msgDiv = document.getElementById('mensagem');
             msgDiv.innerHTML = "SISTEMA REINICIADO!<br><br>Todas as saídas foram zeradas com sucesso.";
@@ -253,13 +279,12 @@
         function aoLerQrCode(textoDecodificado) {
             const qrLido = textoDecodificado.trim().toUpperCase();
 
-            // Evita ler o mesmo código sem parar nos próximos 4 segundos
             if (qrLido === ultimoLido) return;
             ultimoLido = qrLido;
             clearTimeout(tempoEspera);
             tempoEspera = setTimeout(() => { ultimoLido = ""; }, 4000);
 
-            // Se for o QR Code do educador, reinicia o sistema
+            // Se for o QR Code do educador, reinicia o sistema e salva
             if (qrLido === "EDUCADOR") {
                 reiniciarContagem();
                 return;
@@ -280,6 +305,8 @@
                         bancoDados[qrLido].hora2 = horaAtual;
                     }
 
+                    salvarDados(); // <--- SALVA OS DADOS APÓS CADA SAÍDA
+
                     msgDiv.innerHTML = `${qrLido}<br><br>Saída permitida (${bancoDados[qrLido].contador}/2)<br>⏰ Horário: ${horaAtual}`;
                     msgDiv.className = "verde";
                 } else {
@@ -295,6 +322,7 @@
 
         // Inicializa as funções quando a página carrega
         window.onload = function() {
+            inicializarDados(); // Carrega os dados salvos antes de tudo
             iniciarCamera();
             atualizarListaTela();
         };
