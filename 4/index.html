@@ -525,7 +525,6 @@
         }
 
         function criarTurmaESenha() {
-            // AQUI FOI REMOVIDO O COMANDO QUE TROCAVA ESPAÇO POR UNDERLINE
             let nome = document.getElementById('input-nova-turma').value.trim().toUpperCase();
             let senha = document.getElementById('input-senha-turma').value.trim();
             
@@ -742,7 +741,8 @@
         function renderizarListaProfessor() {
             const ul = document.getElementById('lista-prof-alunos');
             ul.innerHTML = '';
-            const alunosArr = Object.keys(dbAlunos).sort();
+            // AQUI FOI APLICADO O LOCALE COMPARE PARA CORRIGIR A ORDEM ALFABÉTICA COM ACENTOS
+            const alunosArr = Object.keys(dbAlunos).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
             if(alunosArr.length === 0) {
                 ul.innerHTML = '<li style="text-align:center; color:var(--text-muted); box-shadow:none; background:transparent; border:none;">Turma vazia.</li>';
