@@ -340,7 +340,10 @@
 </head>
 <body>
 
-    <div id="fundo-imagens" class="fundo-midia"></div>
+    <video autoplay muted loop playsinline class="fundo-midia" id="video-fundo">
+        <source src="video.mp4" type="video/mp4">
+        Seu navegador não suporta a reprodução de vídeos HTML5.
+    </video>
 
     <div class="overlay-fundo"></div>
     <img src="logo.png" alt="Logo da Escola" class="logo-escola">
@@ -600,7 +603,7 @@
             const novaSenha = document.getElementById('input-senha-diretor').value.trim();
             if(novaSenha.length < 4) { alert("A senha deve ter pelo menos 4 caracteres."); return; }
             refConfig.child('senha_diretor').set(novaSenha).then(() => {
-                alert("Senha mestre do Diretor atualizada!");
+                alert("Senha mestre do Diretor updated!");
                 document.getElementById('input-senha-diretor').value = '';
             });
         }
@@ -1015,8 +1018,9 @@
         }
 
         // ==========================================
-        // 6. TROCA DE FOTOS DE FUNDO POR HORA
+        // 6. TROCA DE FOTOS DE FUNDO POR HORA (Desativado devido ao vídeo de fundo)
         // ==========================================
+        /*
         const imagensFundo = [
             "0.jpg", "1.jpg", "2.jpg", "3.jpg", "4.jpg",
             "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg"
@@ -1031,9 +1035,9 @@
             }
         }
 
-        // Executa a função na hora e configura para verificar a cada 1 minuto (60000 ms)
         atualizarFundoPorHora();
         setInterval(atualizarFundoPorHora, 60000);
+        */
 
     </script>
 </body>
