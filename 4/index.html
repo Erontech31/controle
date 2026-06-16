@@ -420,6 +420,14 @@
 
     <script>
         // ==========================================
+        // 0. FUNÇÕES UTILITÁRIAS
+        // ==========================================
+        // Esta função remove todos os acentos e cedilhas para evitar erros no banco e no QR Code
+        function normalizarTexto(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+        }
+
+        // ==========================================
         // 1. FIREBASE CONFIG & INICIALIZAÇÃO
         // ==========================================
         const firebaseConfig = {
@@ -446,8 +454,8 @@
         let cameraTraseira = true;
         
         // --- CONTROLES DE TEMPO DO LEITOR (GLOBAL) ---
-        let ultimaLeituraGeral = 0; // Guarda o timestamp da última leitura bem-sucedida de qualquer aluno
-        let bloqueioCamera = false; // Trava antiduplicação rápida de 2 segundos
+        let ultimaLeituraGeral = 0; 
+        let bloqueioCamera = false; 
 
         refConfig.on('value', (snapshot) => {
             if (snapshot.exists()) {
@@ -561,7 +569,7 @@
         }
 
         function criarTurmaESenha() {
-            let nome = document.getElementById('input-nova-turma').value.trim().toUpperCase();
+            let nome = normalizarTexto(document.getElementById('input-nova-turma').value.trim());
             let senha = document.getElementById('input-senha-turma').value.trim();
             
             if(!nome || !senha) { alert("Preencha o nome da turma E a senha!"); return; }
@@ -682,11 +690,14 @@
 
         function cadastrarAlunoEGerarQR() {
             const turma = document.getElementById('select-turma-aluno').value;
-            const nome = document.getElementById('input-novo-aluno').value.trim().toUpperCase();
+            const nomeBruto = document.getElementById('input-novo-aluno').value.trim();
             
-            if(!turma || !nome) { alert("Selecione uma turma e digite o nome!"); return; }
+            if(!turma || !nomeBruto) { alert("Selecione uma turma e digite o nome!"); return; }
+
+            // Usa a nova função para limpar os acentos do nome antes de salvar
+            const nomeFormatado = normalizarTexto(nomeBruto);
             
-            database.ref('salas').child(turma).child('alunos').child(nome).set({
+            database.ref('salas').child(turma).child('alunos').child(nomeFormatado).set({
                 limite: 2, contador: 0, hora1: "", hora2: ""
             }).then(() => {
                 document.getElementById('input-novo-aluno').value = "";
@@ -694,7 +705,7 @@
                 const areaImprimir = document.getElementById('area-impressao');
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
-                areaImprimir.appendChild(gerarCartaoQR(nome, turma));
+                areaImprimir.appendChild(gerarCartaoQR(nomeFormatado, turma));
             });
         }
 
@@ -799,7 +810,7 @@
         }
 
         // ==========================================
-        // 5. MÓDULO DO PROFESSOR (COM BANCO GLOBAL DE 10 MINUTOS)
+        // 5. MÓDULO DO PROFESSOR
         // ==========================================
         function iniciarModoProfessor(turma) {
             turmaAtual = turma;
@@ -847,26 +858,19 @@
             }
         }
 
-        function initInstancia(configCamera, configLeitor) {
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(configCamera, configLeitor, aoLerQrCode, () => {}).catch(() => alert("Erro na câmera."));
-        }
-
         function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
 
-        // --- SISTEMA CORRIGIDO COM TRAVA TOTAL DO LEITOR ---
         function aoLerQrCode(texto) {
-            if (bloqueioCamera) return; // Evita leitura duplicada acidental imediata
+            if (bloqueioCamera) return; 
             
-            const qrLido = texto.trim().toUpperCase();
+            // Aqui usamos a função para limpar acentos do que a câmera leu também
+            const qrLido = normalizarTexto(texto.trim());
             const msgDiv = document.getElementById('mensagem');
             const agora = Date.now();
 
-            // Ativa o bloqueio antiduplicação de 2 segundos para o processo respirar
             bloqueioCamera = true;
             setTimeout(() => { bloqueioCamera = false; }, 2000);
 
-            // --- COMANDO SECRETO PARA REINICIAR TURMA ---
             if (qrLido === "EDUCADOR") {
                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]); 
                 if (Object.keys(dbAlunos).length === 0) {
@@ -878,33 +882,29 @@
                     dbAlunos[aluno].contador = 0; dbAlunos[aluno].hora1 = ""; dbAlunos[aluno].hora2 = "";
                 }
                 
-                ultimaLeituraGeral = 0; // Libera o cronômetro geral de 10 minutos também
+                ultimaLeituraGeral = 0; 
                 refAlunosAtuais.set(dbAlunos);
                 msgDiv.innerHTML = "🔄 <strong>Turma Reiniciada!</strong><br>As contagens e o tempo de espera zeraram.";
                 msgDiv.className = "verde";
                 return;
             }
 
-            // --- TESTE DA TRAVA GLOBAL DE 10 MINUTOS ---
             const tempoDeEsperaMinutos = 10;
             const tempoDeEsperaMs = tempoDeEsperaMinutos * 60 * 1000;
 
             if (ultimaLeituraGeral && (agora - ultimaLeituraGeral < tempoDeEsperaMs)) {
-                // Calcula os minutos que ainda restam para liberar o leitor de novo
                 const tempoRestante = Math.ceil((tempoDeEsperaMs - (agora - ultimaLeituraGeral)) / 60000);
                 
                 if (navigator.vibrate) navigator.vibrate([150, 50, 150]); 
                 msgDiv.innerHTML = `⏳ <strong>Leitor Bloqueado Temporariamente</strong><br>A última saída foi recente. Aguarde mais ${tempoRestante} minuto(s) para a próxima leitura.`;
                 msgDiv.className = "vermelho";
-                return; // Bloqueia e impede qualquer leitura de aluno
+                return; 
             }
 
-            // --- FLUXO DO ALUNO ---
             if (dbAlunos[qrLido]) {
                 if (dbAlunos[qrLido].contador < dbAlunos[qrLido].limite) {
                     dbAlunos[qrLido].contador++;
                     
-                    // IMPORTANTE: Atualiza o marco temporal global! Trava o leitor por 10 minutos a partir de agora.
                     ultimaLeituraGeral = agora; 
                     
                     const dataHora = new Date();
