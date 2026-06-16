@@ -284,7 +284,7 @@
             transition: transform 0.2s;
         }
         .cartao-qr:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow-sm); }
-        .cartao-qr h3 { margin: 0 0 15px 0; color: var(--text-main); font-size: 14px; font-weight: 700; line-height: 1.3; }
+        .cartao-qr h3 { margin: 0 0 15px 0; color: var(--text-main); font-size: 14px; font-weight: 700; line-height: 1.3; word-break: break-word; }
 
         /* Ajustes de tela para a logo no celular */
         @media (max-width: 600px) {
@@ -349,7 +349,7 @@
             <h3>👤 Passo 2: Alunos e QR Codes</h3>
             <select id="select-turma-aluno" onchange="carregarAlunosDaTurma()"></select>
             <div class="linha-form">
-                <input type="text" id="input-novo-aluno" placeholder="Nome Completo" style="text-transform: uppercase;" onkeypress="if(event.key === 'Enter') cadastrarAlunoEGerarQR()">
+                <input type="text" id="input-novo-aluno" placeholder="Nome Completo (Ex: João Antônio)" onkeypress="if(event.key === 'Enter') cadastrarAlunoEGerarQR()">
                 <button onclick="cadastrarAlunoEGerarQR()">Adicionar</button>
             </div>
             
@@ -422,9 +422,9 @@
         // ==========================================
         // 0. FUNÇÕES UTILITÁRIAS
         // ==========================================
-        // Esta função remove todos os acentos e cedilhas para evitar erros no banco e no QR Code
-        function normalizarTexto(str) {
-            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+        // Esta função remove APENAS os caracteres que quebram o banco de dados do Firebase (. # $ [ ]), mantendo acentos intactos.
+        function higienizarNome(str) {
+            return str.replace(/[.#$\[\]]/g, "").trim();
         }
 
         // ==========================================
@@ -569,7 +569,7 @@
         }
 
         function criarTurmaESenha() {
-            let nome = normalizarTexto(document.getElementById('input-nova-turma').value.trim());
+            let nome = higienizarNome(document.getElementById('input-nova-turma').value);
             let senha = document.getElementById('input-senha-turma').value.trim();
             
             if(!nome || !senha) { alert("Preencha o nome da turma E a senha!"); return; }
@@ -690,14 +690,12 @@
 
         function cadastrarAlunoEGerarQR() {
             const turma = document.getElementById('select-turma-aluno').value;
-            const nomeBruto = document.getElementById('input-novo-aluno').value.trim();
+            // O nome agora é pego exatamente como foi digitado, apenas garantindo que caracteres ilegais para banco de dados (. # $ [ ]) sejam removidos.
+            const nomeExato = higienizarNome(document.getElementById('input-novo-aluno').value);
             
-            if(!turma || !nomeBruto) { alert("Selecione uma turma e digite o nome!"); return; }
-
-            // Usa a nova função para limpar os acentos do nome antes de salvar
-            const nomeFormatado = normalizarTexto(nomeBruto);
+            if(!turma || !nomeExato) { alert("Selecione uma turma e digite o nome!"); return; }
             
-            database.ref('salas').child(turma).child('alunos').child(nomeFormatado).set({
+            database.ref('salas').child(turma).child('alunos').child(nomeExato).set({
                 limite: 2, contador: 0, hora1: "", hora2: ""
             }).then(() => {
                 document.getElementById('input-novo-aluno').value = "";
@@ -705,7 +703,7 @@
                 const areaImprimir = document.getElementById('area-impressao');
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
-                areaImprimir.appendChild(gerarCartaoQR(nomeFormatado, turma));
+                areaImprimir.appendChild(gerarCartaoQR(nomeExato, turma));
             });
         }
 
@@ -720,8 +718,18 @@
             divImg.style.background = "#fff"; divImg.style.padding = "5px"; divImg.style.borderRadius = "8px";
             divCartao.appendChild(divImg);
 
+            // CORREÇÃO MÁGICA: Converte o nome com acentos para UTF-8 antes de entregar para a biblioteca qrcode.js.
+            // Isso evita que ela quebre ou desconfigure os acentos.
+            let textoQRSeguro = nome;
+            try { 
+                textoQRSeguro = unescape(encodeURIComponent(nome)); 
+            } catch(e) {
+                console.error("Erro ao converter caracteres, usando texto puro.", e);
+            }
+
             new QRCode(divImg, {
-                text: nome, width: 120, height: 120, colorDark : "#1e293b", colorLight : "#ffffff"
+                text: textoQRSeguro, 
+                width: 120, height: 120, colorDark : "#1e293b", colorLight : "#ffffff"
             });
             return divCartao;
         }
@@ -858,13 +866,21 @@
             }
         }
 
+        function initInstancia(configCamera, configLeitor) {
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(configCamera, configLeitor, aoLerQrCode).catch(e => {
+                document.getElementById('mensagem').innerHTML = "Câmera não permitida ou não encontrada.";
+                document.getElementById('mensagem').className = "vermelho";
+            });
+        }
+
         function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
 
         function aoLerQrCode(texto) {
             if (bloqueioCamera) return; 
             
-            // Aqui usamos a função para limpar acentos do que a câmera leu também
-            const qrLido = normalizarTexto(texto.trim());
+            // O leitor HTML5-QRCode já traduz os acentos nativamente. Mantemos apenas o .trim() para evitar espaços em branco.
+            const qrLido = texto.trim();
             const msgDiv = document.getElementById('mensagem');
             const agora = Date.now();
 
@@ -901,6 +917,7 @@
                 return; 
             }
 
+            // A comparação agora é exata. Se leu "João", vai buscar "João" no banco de dados.
             if (dbAlunos[qrLido]) {
                 if (dbAlunos[qrLido].contador < dbAlunos[qrLido].limite) {
                     dbAlunos[qrLido].contador++;
