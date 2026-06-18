@@ -53,27 +53,28 @@
             font-family: 'Poppins', sans-serif; 
             text-align: center; 
             padding: 15px; 
+            /* O background do body agora é transparente para vermos o fundo */
             background: transparent; 
             margin: 0; 
             color: var(--text-main); 
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
-            position: relative; 
+            position: relative; /* Necessário para a logo absoluta */
         }
 
-        /* --- ESTILOS DO FUNDO --- */
+        /* --- ESTILOS DO FUNDO (VÍDEO OU FOTOS) --- */
         .fundo-midia {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            object-fit: cover; 
-            background-size: cover; 
+            object-fit: cover; /* Para o vídeo */
+            background-size: cover; /* Para a foto */
             background-position: center;
             z-index: -2;
             pointer-events: none;
-            transition: background-image 1s ease-in-out; 
+            transition: background-image 1s ease-in-out; /* Troca suave de fotos */
             opacity: 1;
         }
 
@@ -83,6 +84,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
+            /* Cor de fundo original com 85% de opacidade para garantir a leitura perfeita do app */
             background-color: rgba(240, 244, 248, 0.40); 
             z-index: -1;
             pointer-events: none;
@@ -95,8 +97,8 @@
             left: 20px;
             width: 70px;
             height: 70px;
-            border-radius: 50%; 
-            object-fit: cover; 
+            border-radius: 50%; /* Garante o formato redondo */
+            object-fit: cover; /* Evita que a imagem fique esticada */
             border: 3px solid var(--white);
             box-shadow: var(--shadow-md);
             z-index: 1000;
@@ -323,102 +325,17 @@
                 border-width: 2px;
             }
             .topo-barra {
-                padding-left: 75px; 
+                padding-left: 75px; /* Empurra o conteúdo para não ficar atrás da logo */
             }
         }
 
-        /* ==========================================
-           CORREÇÃO: SISTEMA DE IMPRESSÃO
-        ========================================== */
         @media print {
-            .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra {
-                display: none !important;
-            }
-
-            body { 
-                background: white !important; 
-                margin: 0; 
-                padding: 0; 
-                min-height: auto;
-            }
-
-            .tela { display: none !important; }
-            
-            #tela-gerenciamento { 
-                display: block !important; 
-                max-width: 100% !important; 
-                margin: 0 !important; 
-                padding: 0 !important; 
-                animation: none !important; 
-            }
-
-            #tela-gerenciamento > .card:nth-child(2),
-            #tela-gerenciamento > .card:nth-child(3) { 
-                display: none !important; 
-            }
-
-            .card {
-                border: none !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                background: transparent !important;
-            }
-
-            #tela-gerenciamento .card h3,
-            #tela-gerenciamento .card select,
-            #tela-gerenciamento .card .linha-form,
-            #tela-gerenciamento .card button,
-            #tela-gerenciamento .card ul,
-            #btn-remover-selecionados {
-                display: none !important;
-            }
-
-            #area-acoes-impressao {
-                display: block !important;
-                border: none !important;
-                background: transparent !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-
-            #area-impressao { 
-                display: flex !important; 
-                flex-wrap: wrap !important; 
-                justify-content: flex-start !important; 
-                gap: 15px !important; 
-                position: relative !important; 
-                width: 100% !important; 
-            }
-
-            .cartao-qr { 
-                border: 1px dashed #000 !important; 
-                padding: 15px !important; 
-                margin: 5px !important; 
-                page-break-inside: avoid !important; 
-                background: white !important; 
-                border-radius: 0 !important; 
-                box-shadow: none !important; 
-                transform: none !important; 
-                width: 160px !important;
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-            }
-
-            .cartao-qr h3 {
-                display: block !important;
-                color: #000 !important;
-                font-size: 14px !important;
-                margin: 0 0 10px 0 !important;
-                text-align: center !important;
-            }
-
-            .cartao-qr img, .cartao-qr canvas {
-                display: block !important;
-                max-width: 100% !important;
-                height: auto !important;
-            }
+            body * { visibility: hidden; }
+            #area-impressao, #area-impressao * { visibility: visible; }
+            #area-impressao { position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 0; justify-content: flex-start; gap: 10px; }
+            .cartao-qr { border: 1px solid #000; padding: 15px; margin: 5px; page-break-inside: avoid; background: white; border-radius: 0; box-shadow: none; transform: none !important; }
+            .btn-imprimir, .logo-escola { display: none !important; }
+            body { background: white; }
         }
     </style>
 </head>
@@ -691,7 +608,7 @@
             const novaSenha = document.getElementById('input-senha-diretor').value.trim();
             if(novaSenha.length < 4) { alert("A senha deve ter pelo menos 4 caracteres."); return; }
             refConfig.child('senha_diretor').set(novaSenha).then(() => {
-                alert("Senha mestre do Diretor atualizada!");
+                alert("Senha mestre do Diretor updated!");
                 document.getElementById('input-senha-diretor').value = '';
             });
         }
@@ -826,49 +743,6 @@
             }
         }
 
-        // ==========================================
-        // NOVA LÓGICA DE CRIAÇÃO DO QR CODE (CORRIGIDA)
-        // ==========================================
-        function adicionarCartaoNaTela(nome, turma) {
-            const areaImprimir = document.getElementById('area-impressao');
-            
-            const divCartao = document.createElement('div');
-            divCartao.className = 'cartao-qr';
-            
-            const h3 = document.createElement('h3');
-            // Mantemos o nome original apenas para exibição visual
-            h3.innerText = `${nome}\n(${turma})`;
-            divCartao.appendChild(h3);
-
-            const divImg = document.createElement('div');
-            divImg.style.background = "#fff";
-            divImg.style.padding = "5px";
-            divImg.style.borderRadius = "8px";
-            divCartao.appendChild(divImg);
-            
-            // 1º PASSO: Adiciona fisicamente a div na tela para que o navegador calcule a largura dela
-            areaImprimir.appendChild(divCartao);
-
-            // 2º PASSO: Adiciona um pequeno "delay" para o navegador processar o visual, depois desenha o código
-            setTimeout(() => {
-                try {
-                    // encodeURIComponent converte acentos para códigos seguros (ex: 'Á' vira '%C3%81')
-                    // unescape faz a tradução para o formato que o gerador de QR Code aceita
-                    const nomeParaQR = unescape(encodeURIComponent(nome));
-
-                    new QRCode(divImg, {
-                        text: nomeParaQR,
-                        width: 120,
-                        height: 120,
-                        colorDark : "#1e293b",
-                        colorLight : "#ffffff"
-                    });
-                } catch (e) {
-                    console.error("Falha ao gerar o QR de " + nome, e);
-                }
-            }, 50);
-        }
-
         function cadastrarAlunoEGerarQR() {
             const turma = document.getElementById('select-turma-aluno').value;
             const nome = document.getElementById('input-novo-aluno').value.trim().toUpperCase();
@@ -883,13 +757,36 @@
                 const divAcoes = document.getElementById('area-acoes-impressao');
                 const areaImprimir = document.getElementById('area-impressao');
                 
-                // Exibe a área primeiro
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
-                
-                // Dispara a criação segura
-                adicionarCartaoNaTela(nome, turma);
+                areaImprimir.appendChild(gerarCartaoQR(nome, turma));
             });
+        }
+
+        function gerarCartaoQR(nome, turma) {
+            const divCartao = document.createElement('div');
+            divCartao.className = 'cartao-qr';
+            
+            const h3 = document.createElement('h3');
+            h3.innerText = `${nome}\n(${turma})`;
+            divCartao.appendChild(h3);
+
+            const divImg = document.createElement('div');
+            divImg.style.background = "#fff";
+            divImg.style.padding = "5px";
+            divImg.style.borderRadius = "8px";
+            divCartao.appendChild(divImg);
+
+            // CORREÇÃO DOS ACENTOS APLICADA AQUI (Geração)
+            new QRCode(divImg, {
+                text: unescape(encodeURIComponent(nome)),
+                width: 120,
+                height: 120,
+                colorDark : "#1e293b",
+                colorLight : "#ffffff"
+            });
+
+            return divCartao;
         }
 
         function gerarImpressaoColetiva() {
@@ -900,18 +797,16 @@
                 const alunos = snapshot.val() || {};
                 const nomes = Object.keys(alunos).sort();
                 
-                if(nomes.length === 0) { alert("A Turma selecionada está vazia."); return; }
+                if(nomes.length === 0) { alert("Turma vazia."); return; }
 
                 const divAcoes = document.getElementById('area-acoes-impressao');
                 const areaImprimir = document.getElementById('area-impressao');
                 
-                // Exibe a área PRIMEIRO antes de iniciar o loop para garantir a visibilidade
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
                 
-                // Dispara a criação de cada cartão de forma segura
                 nomes.forEach(nome => {
-                    adicionarCartaoNaTela(nome, turma);
+                    areaImprimir.appendChild(gerarCartaoQR(nome, turma));
                 });
             });
         }
@@ -1069,7 +964,7 @@
         function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
 
         function aoLerQrCode(texto) {
-            // CORREÇÃO DOS ACENTOS NA LEITURA DA CÂMERA
+            // CORREÇÃO DOS ACENTOS APLICADA AQUI (Leitura)
             let qrDecodificado = texto;
             try {
                 qrDecodificado = decodeURIComponent(escape(texto));
