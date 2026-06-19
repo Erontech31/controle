@@ -313,6 +313,11 @@
 
         /* --- MODO IMPRESSÃO CORRIGIDO --- */
         @media print {
+            @page {
+                size: A4 portrait;
+                margin: 10mm;
+            }
+
             .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra { display: none !important; }
             body { background: white !important; margin: 0; padding: 0; min-height: auto; }
             .tela { display: none !important; }
@@ -342,26 +347,47 @@
             }
 
             #area-impressao { 
-                display: flex !important; flex-wrap: wrap !important; 
-                justify-content: flex-start !important; gap: 15px !important; 
-                position: relative !important; width: 100% !important; 
+                display: grid !important; 
+                grid-template-columns: repeat(4, 1fr) !important; 
+                grid-auto-rows: 50mm !important; 
+                gap: 5mm !important; 
+                width: 100% !important; 
             }
 
             .cartao-qr { 
-                border: 1px dashed #000 !important; padding: 15px !important; margin: 5px !important; 
-                page-break-inside: avoid !important; background: white !important; 
-                border-radius: 0 !important; box-shadow: none !important; 
-                transform: none !important; width: 160px !important;
-                display: flex !important; flex-direction: column !important; align-items: center !important;
+                border: 1px dashed #000 !important; 
+                padding: 5px !important; 
+                margin: 0 !important; 
+                page-break-inside: avoid !important; 
+                background: white !important; 
+                border-radius: 0 !important; 
+                box-shadow: none !important; 
+                transform: none !important; 
+                width: 100% !important;
+                height: 100% !important;
+                display: flex !important; 
+                flex-direction: column !important; 
+                align-items: center !important;
+                justify-content: center !important;
+                box-sizing: border-box !important;
             }
 
             .cartao-qr h3 {
-                display: block !important; color: #000 !important; font-size: 14px !important;
-                margin: 0 0 10px 0 !important; text-align: center !important;
+                display: block !important; color: #000 !important; font-size: 11px !important;
+                margin: 0 0 5px 0 !important; text-align: center !important;
+                line-height: 1.1 !important;
             }
 
             .cartao-qr img, .cartao-qr canvas {
-                display: block !important; max-width: 100% !important; height: auto !important;
+                display: block !important; 
+                max-width: 100% !important; 
+                max-height: 32mm !important; 
+                width: auto !important;
+                height: auto !important;
+            }
+
+            .cartao-qr:nth-child(20n) {
+                page-break-after: always !important;
             }
         }
     </style>
