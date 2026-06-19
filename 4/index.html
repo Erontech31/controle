@@ -11,7 +11,7 @@
     
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Script adicionado exclusivamente para o download do cartão em PNG -->
+    <!-- Script adicionado exclusivamente para viabilizar o download do bloco em PNG -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -574,7 +574,7 @@
             let turmaEncontrada = null;
             if (dbConfig.turmas) {
                 for (let turma in dbConfig.turmas) {
-                    let senhasDaTurma = dbConfig.turmas[turma].senhas || [];
+                    let senhasDaTurma = dbConfig.turmas[turna].senhas || [];
                     if (senhasDaTurma.includes(senhaDigitada)) {
                         turmaEncontrada = turma;
                         break;
@@ -765,23 +765,18 @@
         }
 
         // ==========================================
-        // NOVA LÓGICA DE CRIAÇÃO DO QR CODE (MUDANÇA EXCLUSIVA)
+        // NOVA LÓGICA DE CRIAÇÃO DO QR CODE (COM DOWNLOAD PNG POR CLIQUE)
         // ==========================================
         function adicionarCartaoNaTela(nome, turma) {
             const areaImprimir = document.getElementById('area-impressao');
             
             const divCartao = document.createElement('div');
             divCartao.className = 'cartao-qr';
-            divCartao.style.cursor = 'pointer';
+            divCartao.style.cursor = 'pointer'; 
             
-            // Ao clicar ou tocar no cartão, converte o bloco HTML em uma imagem PNG e realiza o download
+            // Evento configurado para que o clique dispare o download do cartão em PNG
             divCartao.onclick = function() {
-                html2canvas(divCartao, { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `QR_${nome.replace(/\s+/g, '_')}_${turma.replace(/\s+/g, '_')}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                }).catch(e => console.error("Erro ao gerar o download do PNG:", e));
+                baixarCartaoComoPNG(divCartao, nome, turma);
             };
             
             const h3 = document.createElement('h3');
@@ -811,6 +806,25 @@
                     console.error("Falha ao gerar o QR de " + nome, e);
                 }
             }, 50);
+        }
+
+        // Função responsável por converter o elemento HTML em uma imagem de alta definição (PNG)
+        function baixarCartaoComoPNG(elemento, nomeAluno, turmaAluno) {
+            const opcoes = {
+                scale: 3, 
+                backgroundColor: "#ffffff",
+                useCORS: true
+            };
+
+            html2canvas(elemento, opcoes).then(canvas => {
+                const link = document.createElement('a');
+                const nomeArquivo = `QR_${nomeAluno.replace(/\s+/g, '_')}_${turmaAluno.replace(/\s+/g, '_')}.png`;
+                link.download = nomeArquivo;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error("Erro ao converter e baixar cartão em PNG", err);
+            });
         }
 
         function cadastrarAlunoEGerarQR() {
