@@ -290,13 +290,13 @@
         .verde { color: #065f46; background-color: #d1fae5; border: 1px solid #a7f3d0; display: block !important; }
         .vermelho { color: #991b1b; background-color: #fee2e2; border: 1px solid #fca5a5; display: block !important; }
 
-        /* --- IMPRESSÃO QR CODE --- */
+        /* --- IMPRESSÃO QR CODE NO NAVEGADOR --- */
         #area-impressao { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
         .cartao-qr { 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             border: 2px dashed #cbd5e1; padding: 20px; background: var(--white); 
             border-radius: var(--radius-md); width: 170px; text-align: center; 
-            transition: transform 0.2s; box-sizing: border-box;
+            transition: transform 0.2s;
         }
         .cartao-qr:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow-sm); }
         .cartao-qr h3 { margin: 0 0 15px 0; color: var(--text-main); font-size: 14px; font-weight: 700; line-height: 1.3; }
@@ -312,8 +312,13 @@
             .topo-barra { padding-left: 75px; }
         }
 
-        /* --- MODO IMPRESSÃO CORRIGIDO PARA 4 POR LINHA --- */
+        /* --- MODO IMPRESSÃO CORRIGIDO (4 COLUNAS X 5 LINHAS) --- */
         @media print {
+            @page {
+                size: A4 portrait;
+                margin: 10mm; /* Margem segura padrão da folha A4 */
+            }
+
             .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra { display: none !important; }
             body { background: white !important; margin: 0; padding: 0; min-height: auto; }
             .tela { display: none !important; }
@@ -342,31 +347,52 @@
                 background: transparent !important; padding: 0 !important; margin: 0 !important;
             }
 
+            .btn-imprimir { display: none !important; } /* Oculta o botão imprimir na folha */
+
+            /* Criação do Grid Exato de Impressão */
             #area-impressao { 
-                display: flex !important; flex-wrap: wrap !important; 
-                justify-content: flex-start !important; gap: 10px !important; 
-                position: relative !important; width: 100% !important; 
+                display: grid !important; 
+                grid-template-columns: repeat(4, 1fr) !important; /* Exatamente 4 por linha */
+                gap: 5mm !important; /* Espaço entre os cartões */
+                width: 100% !important; 
+                margin: 0 !important;
+                padding: 0 !important;
             }
 
-            /* AQUI: 25% da tela menos o espaçamento entre eles para dar exatamente 4 cartões na mesma linha */
             .cartao-qr { 
-                width: calc(25% - 10px) !important;
-                margin: 0 0 15px 0 !important; 
+                border: 1px dashed #000 !important; 
+                padding: 5mm !important; 
+                margin: 0 !important; 
+                page-break-inside: avoid !important; 
+                background: white !important; 
+                border-radius: 0 !important; 
+                box-shadow: none !important; 
+                transform: none !important; 
+                width: 100% !important;
+                height: 52mm !important; /* Altura controlada para caber exatas 5 linhas na folha A4 */
+                display: flex !important; 
+                flex-direction: column !important; 
+                align-items: center !important;
+                justify-content: center !important;
                 box-sizing: border-box !important;
-                border: 1px dashed #000 !important; padding: 15px !important; 
-                page-break-inside: avoid !important; background: white !important; 
-                border-radius: 0 !important; box-shadow: none !important; 
-                transform: none !important;
-                display: flex !important; flex-direction: column !important; align-items: center !important;
             }
 
             .cartao-qr h3 {
-                display: block !important; color: #000 !important; font-size: 13px !important;
-                margin: 0 0 10px 0 !important; text-align: center !important;
+                display: block !important; color: #000 !important; 
+                font-size: 11px !important; /* Ajustado para não cortar na folha */
+                margin: 0 0 5px 0 !important; text-align: center !important;
+                line-height: 1.2 !important;
+            }
+
+            .cartao-qr div {
+                padding: 0 !important; /* Remove preenchimento extra da div do QR */
             }
 
             .cartao-qr img, .cartao-qr canvas {
-                display: block !important; max-width: 100% !important; height: auto !important;
+                display: block !important; 
+                max-width: 85px !important; /* Trava o tamanho do QR code na impressão */
+                max-height: 85px !important;
+                height: auto !important;
             }
         }
     </style>
@@ -610,7 +636,7 @@
         }
 
         // ==========================================
-        // 3. MÓDULO DE GERENCIAMENTO (ADM)
+        // 3. MÓDULO DE GERENCIAMENTO (ADM) 
         // ==========================================
         function atualizarListasGerenciamento() {
             const selectAlunos = document.getElementById('select-turma-aluno');
@@ -768,7 +794,7 @@
         }
 
         // ==========================================
-        // GERAÇÃO DO QR CODE E DOWNLOAD (HTML2CANVAS)
+        // NOVA LÓGICA DE CRIAÇÃO DO QR CODE (COM DOWNLOAD)
         // ==========================================
         function adicionarCartaoNaTela(nome, turma) {
             const areaImprimir = document.getElementById('area-impressao');
@@ -777,6 +803,7 @@
             divCartao.className = 'cartao-qr';
             divCartao.style.cursor = 'pointer';
             
+            // Ao clicar ou tocar no cartão, converte o bloco HTML em uma imagem PNG e realiza o download
             divCartao.onclick = function() {
                 html2canvas(divCartao, { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(canvas => {
                     const link = document.createElement('a');
@@ -796,8 +823,10 @@
             divImg.style.borderRadius = "8px";
             divCartao.appendChild(divImg);
             
+            // 1º PASSO: Adiciona fisicamente a div na tela para que o navegador calcule a largura dela
             areaImprimir.appendChild(divCartao);
 
+            // 2º PASSO: Adiciona um pequeno "delay" para o navegador processar o visual, depois desenha o código
             setTimeout(() => {
                 try {
                     new QRCode(divImg, {
@@ -827,9 +856,11 @@
                 const divAcoes = document.getElementById('area-acoes-impressao');
                 const areaImprimir = document.getElementById('area-impressao');
                 
+                // Exibe a área primeiro
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
                 
+                // Dispara a criação segura
                 adicionarCartaoNaTela(nome, turma);
             });
         }
@@ -847,9 +878,11 @@
                 const divAcoes = document.getElementById('area-acoes-impressao');
                 const areaImprimir = document.getElementById('area-impressao');
                 
+                // Exibe a área PRIMEIRO antes de iniciar o loop para garantir a visibilidade
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
                 
+                // Dispara a criação de cada cartão de forma segura
                 nomes.forEach(nome => {
                     adicionarCartaoNaTela(nome, turma);
                 });
