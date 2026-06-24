@@ -298,6 +298,14 @@ Profissão</textarea>
     let jogadoresRegistrados = null; // Variável para controlar os jogadores e emitir notificações
     let lastRespostasHash = ""; // Variável global para controlar quando a tela de votação precisa atualizar palavras novas
 
+    // NOVO: Recupera o nome salvo no navegador assim que a página carrega
+    window.addEventListener('DOMContentLoaded', () => {
+        const nomeSalvo = localStorage.getItem('adedonhaNomeJogador');
+        if (nomeSalvo) {
+            document.getElementById('inputNome').value = nomeSalvo;
+        }
+    });
+
     function emitirAviso(titulo, texto, tipo = 'error') {
         if (typeof Swal !== 'undefined') {
             Swal.fire({ title: titulo, text: texto, icon: tipo, background: '#111827', color: '#fff', confirmButtonColor: '#6366f1', customClass: { popup: 'rounded-3xl border border-slate-800' } });
@@ -348,6 +356,9 @@ Profissão</textarea>
         meuNome = document.getElementById("inputNome").value.trim().toUpperCase();
         if (!meuNome) return emitirAviso("Atenção!", "Precisa digitar o seu apelido primeiro.");
 
+        // NOVO: Salva o nome no navegador do jogador
+        localStorage.setItem('adedonhaNomeJogador', meuNome);
+
         salaAtual = Math.floor(100000 + Math.random() * 900000).toString();
         
         try {
@@ -371,6 +382,9 @@ Profissão</textarea>
 
         if (!meuNome) return emitirAviso("Atenção", "Por favor, digite o seu apelido.");
         if (salaAtual.length !== 6) return emitirAviso("Código Inválido", "O código deve conter 6 números.");
+
+        // NOVO: Salva o nome no navegador do jogador
+        localStorage.setItem('adedonhaNomeJogador', meuNome);
 
         try {
             const snapshot = await db.ref('salas/' + salaAtual).once('value');
