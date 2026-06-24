@@ -109,9 +109,9 @@
 
                 <div class="text-center text-slate-500 text-xs font-black uppercase tracking-widest">OU JUNTAR-SE</div>
 
-                <div class="flex gap-2">
-                    <input type="text" id="inputCodigo" maxlength="6" inputmode="numeric" placeholder="CÓDIGO" class="input-premium flex-1 rounded-2xl px-4 py-4 text-xl font-black text-center tracking-widest text-indigo-300 placeholder-slate-600">
-                    <button onclick="alternarLeitorQR()" class="bg-slate-800 hover:bg-slate-700 text-white rounded-2xl px-5 transition-colors shadow-md">
+                <div class="flex justify-center gap-3">
+                    <input type="text" id="inputCodigo" maxlength="6" inputmode="numeric" placeholder="CÓDIGO" class="input-premium w-40 rounded-2xl px-4 py-4 text-xl font-black text-center tracking-widest text-indigo-300 placeholder-slate-600">
+                    <button onclick="alternarLeitorQR()" class="bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center rounded-2xl px-6 transition-colors shadow-md">
                         📷
                     </button>
                 </div>
@@ -218,6 +218,7 @@ Objeto</textarea>
             <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 max-h-[55vh] overflow-y-auto no-scrollbar pb-4">
                 </div>
 
+            <!-- Adicionado classe "hidden" aqui inicialmente -->
             <button onclick="submeterRespostasStop(false)" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-5 font-black text-2xl tracking-widest uppercase transition-colors shadow-lg">
                 🚨 STOP!
             </button>
