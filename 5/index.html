@@ -7,61 +7,86 @@
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<!-- 🔽 BIBLIOTECAS DO QR CODE -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
     *{-webkit-tap-highlight-color:transparent}
     input:focus,textarea:focus{outline:none}
     .letra-gigante{font-size:5.5rem;font-weight:900;line-height:1}
     .tela{display:none}
     .tela.ativa{display:block}
+    #leitor-qr video{border-radius:16px}
+    #qrcode img{margin:0 auto}
 
-    /* ========== IMAGEM DE FUNDO NA TELA INICIAL ========== */
-    /* Tenta PNG primeiro, depois JPG, depois JPEG — se nenhuma existir, usa o gradiente */
+    /* 🖼️ IMAGEM DE FUNDO SÓ NA TELA INICIAL */
     .fundo-inicial{
         min-height:100vh;
         background-image:
-            linear-gradient(135deg, rgba(88,28,135,0.78), rgba(219,39,119,0.72), rgba(251,146,60,0.65)),
-            url("imagem.png"),
-            url("imagem.jpg"),
-            url("imagem.jpeg");
-        background-size: cover;
-        background-position: center center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+            linear-gradient(135deg, rgba(88,28,135,.82), rgba(219,39,119,.76), rgba(251,146,60,.68)),
+            url("imagem.png"), url("imagem.jpg"), url("imagem.jpeg");
+        background-size:cover; background-position:center; background-attachment:fixed;
     }
-    /* Demais telas mantém fundo colorido original */
     .fundo-padrao{
         min-height:100vh;
-        background: linear-gradient(135deg, #4c1d95 0%, #db2777 50%, #fb923c 100%);
+        background:linear-gradient(135deg,#4c1d95,#db2777,#fb923c);
     }
 </style>
 </head>
 <body class="text-white">
 
-<!-- A classe muda sozinha: fundo-inicial só na tela 1 -->
 <div id="corpo" class="fundo-inicial">
 <div class="container mx-auto px-4 py-5 max-w-md">
 
-    <!-- TELA 1 - INÍCIO ✅ COM IMAGEM DE FUNDO ✅ -->
+    <!-- ✅ TELA 1 - INÍCIO -->
     <div id="t1" class="tela ativa">
-        <h1 class="text-4xl font-black text-center mb-1 drop-shadow-[0_3px_8px_rgba(0,0,0,0.55)]">🎮 ADEDONHA</h1>
-        <p class="text-center mb-10 opacity-95 text-sm drop-shadow">Jogue online com amigos</p>
-        <input id="nome" maxlength="14" placeholder="✏️ Seu nome" class="w-full px-4 py-4 rounded-2xl bg-white/20 backdrop-blur border border-white/30 placeholder-white/75 text-lg mb-4">
-        <button onclick="criarSala()" class="w-full py-4 rounded-2xl bg-white text-purple-700 font-bold text-lg shadow-xl mb-4 active:scale-95">➕ CRIAR SALA</button>
-        <div class="flex gap-2">
-            <input id="codigo" maxlength="6" placeholder="CÓDIGO" class="flex-1 px-4 py-4 rounded-2xl bg-white/20 backdrop-blur border border-white/30 text-center text-xl uppercase tracking-widest">
-            <button onclick="entrarSala()" class="px-5 rounded-2xl bg-green-400 text-green-900 font-bold shadow-xl active:scale-95">ENTRAR</button>
+        <h1 class="text-4xl font-black text-center mb-1 drop-shadow-[0_3px_8px_rgba(0,0,0,.6)]">🎮 ADEDONHA</h1>
+        <p class="text-center mb-8 opacity-95 text-sm drop-shadow">Jogue online com amigos</p>
+
+        <input id="nome" maxlength="14" inputmode="text" placeholder="✏️ Seu nome"
+            class="w-full px-4 py-4 rounded-2xl bg-white/20 backdrop-blur border border-white/30 placeholder-white/75 text-lg mb-4">
+
+        <button onclick="criarSala()"
+            class="w-full py-4 rounded-2xl bg-white text-purple-700 font-bold text-lg shadow-xl mb-4 active:scale-95">
+            ➕ CRIAR SALA
+        </button>
+
+        <p class="text-xs opacity-80 mb-1">Digite o código de 6 números:</p>
+        <div class="flex gap-2 mb-2">
+            <input id="codigo" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="000000"
+                class="flex-1 px-4 py-4 rounded-2xl bg-white/20 backdrop-blur border border-white/30 text-center text-2xl font-bold tracking-[0.4em]">
+            <button onclick="abrirLeitorQR()" title="Ler QR Code"
+                class="px-4 rounded-2xl bg-blue-500 text-white font-bold shadow-xl active:scale-95 text-xl">📷</button>
         </div>
+
+        <!-- ÁREA DO LEITOR DE QR -->
+        <div id="leitor-qr" class="hidden rounded-2xl overflow-hidden mb-3 border border-white/30"></div>
+        <button onclick="pararLeitorQR()" id="btnFecharQR" class="hidden w-full mb-3 py-2 rounded-xl bg-red-500/80 text-sm">❌ FECHAR CÂMERA</button>
+
+        <button onclick="entrarSala()"
+            class="w-full py-4 rounded-2xl bg-green-400 text-green-900 font-bold text-lg shadow-xl active:scale-95">
+            ENTRAR NA SALA
+        </button>
+
         <p id="aviso" class="text-center mt-5 text-yellow-200 text-sm min-h-[1.5rem] drop-shadow"></p>
     </div>
 
-    <!-- TELA 2 - SALA DE ESPERA -->
+    <!-- ✅ TELA 2 - SALA DE ESPERA COM QR CODE -->
     <div id="t2" class="tela">
-        <div class="text-center mb-5">
+        <div class="text-center mb-4">
             <p class="text-xs opacity-80">CÓDIGO DA SALA</p>
-            <p id="mostraCodigo" class="letra-gigante text-yellow-300 tracking-[0.3em]"></p>
+            <p id="mostraCodigo" class="letra-gigante text-yellow-300 tracking-[0.2em] font-mono"></p>
+            
+            <!-- 🔽 AQUI GERA O QR CODE AUTOMATICAMENTE -->
+            <div class="mt-3 inline-block bg-white p-3 rounded-2xl shadow-xl">
+                <div id="qrcode"></div>
+                <p class="text-[10px] text-gray-600 mt-1">Aponte a câmera de quem for entrar</p>
+            </div>
         </div>
+
         <h3 class="font-bold mb-2">👥 Jogadores: <span id="qtd">0</span></h3>
         <ul id="jogadores" class="space-y-2 mb-5"></ul>
+
         <div id="painelDono" class="hidden space-y-3">
             <label class="block text-sm">⏱️ Tempo: <span id="vt">60</span>s
                 <input type="range" id="tempo" min="30" max="180" step="10" value="60" class="w-full" oninput="mudaTempo()">
@@ -76,12 +101,13 @@ Profissão
 Comida
 Marca</textarea>
             </label>
-            <button onclick="iniciar()" class="w-full py-4 rounded-2xl bg-green-400 text-green-900 font-bold text-lg shadow-xl active:scale-95">▶️ INICIAR JOGO</button>
+            <button onclick="iniciar()"
+                class="w-full py-4 rounded-2xl bg-green-400 text-green-900 font-bold text-lg shadow-xl active:scale-95">▶️ INICIAR JOGO</button>
         </div>
         <p id="avisoSala" class="text-center mt-3 text-yellow-200 text-sm">Aguardando o dono começar...</p>
     </div>
 
-    <!-- TELA 3 - JOGANDO -->
+    <!-- ✅ TELA 3 - JOGANDO -->
     <div id="t3" class="tela">
         <div class="flex justify-between items-center mb-2">
             <div><p class="text-xs opacity-80">LETRA</p><p id="letra" class="letra-gigante text-yellow-300"></p></div>
@@ -92,7 +118,7 @@ Marca</textarea>
         <button onclick="stop()" id="btnStop" class="w-full mt-4 py-3 rounded-2xl bg-red-500 font-bold shadow-xl active:scale-95">✋ STOP / PAREI</button>
     </div>
 
-    <!-- TELA 4 - CORREÇÃO -->
+    <!-- ✅ TELA 4 - CORREÇÃO -->
     <div id="t4" class="tela">
         <h2 class="text-2xl font-bold text-center mb-2">✅ CORREÇÃO</h2>
         <p class="text-center mb-4">Letra: <b id="lC" class="text-yellow-300"></b></p>
@@ -100,7 +126,7 @@ Marca</textarea>
         <button onclick="prox()" id="btnProx" class="w-full mt-4 py-3 rounded-2xl bg-white text-purple-700 font-bold shadow-xl active:scale-95 hidden">➡️ PRÓXIMA RODADA</button>
     </div>
 
-    <!-- TELA 5 - FIM DE JOGO -->
+    <!-- ✅ TELA 5 - FIM -->
     <div id="t5" class="tela text-center">
         <h2 class="text-3xl font-black mb-5">🏆 FIM DE JOGO!</h2>
         <div id="ranking" class="space-y-2"></div>
@@ -127,33 +153,47 @@ const DB = firebase.database();
 const ALFA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 let sala="", meuId="", dono=false, cats=[], crono=null, tempo=60;
+let leitorQR = null;
 const corpo = document.getElementById("corpo");
 const aviso = m => document.getElementById("aviso").innerText=m;
 
-// Troca fundo automaticamente: imagem só na tela inicial
+// Troca fundo: imagem só na entrada
 const ir = n => {
     document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));
     document.getElementById("t"+n).classList.add("ativa");
     corpo.className = n===1 ? "fundo-inicial" : "fundo-padrao";
+    pararLeitorQR(); // sempre fecha câmera ao mudar de tela
 };
 
-const gerarCod = () => Array.from({length:6},()=>ALFA[~~(Math.random()*26)]).join("");
+// 🎲 AGORA GERA 6 NÚMEROS, NÃO MAIS LETRAS
+const gerarCodigo = async () => {
+    let cod;
+    do {
+        cod = String(Math.floor(100000 + Math.random() * 900000)); // 100000 ~ 999999
+    } while( (await DB.ref("salas/"+cod).get()).exists() );
+    return cod;
+};
 
-function criarSala(){
+// ➕ CRIAR SALA
+async function criarSala(){
     const n=document.getElementById("nome").value.trim();
     if(!n) return aviso("Digite seu nome!");
-    sala=gerarCod(); meuId=DB.ref("salas/"+sala).push().key; dono=true;
-    DB.ref("salas/"+sala).set({
+    sala = await gerarCodigo();
+    meuId=DB.ref("salas/"+sala).push().key; dono=true;
+    await DB.ref("salas/"+sala).set({
         dono:meuId, status:"aguardando", tempo:60, rodada:1, rodadas:5, letra:"",
         letrasUsadas:[], categorias:document.getElementById("cats").value, parou:"", respostas:{}
     });
-    DB.ref("salas/"+sala+"/jogadores/"+meuId).set({nome:n,pontos:0});
+    await DB.ref("salas/"+sala+"/jogadores/"+meuId).set({nome:n,pontos:0});
     abrirSala();
 }
+
+// 🚪 ENTRAR
 function entrarSala(){
-    const n=document.getElementById("nome").value.trim(), c=document.getElementById("codigo").value.trim().toUpperCase();
+    const n=document.getElementById("nome").value.trim();
+    const c=document.getElementById("codigo").value.trim();
     if(!n) return aviso("Digite seu nome!");
-    if(c.length!==6) return aviso("Código tem 6 letras");
+    if(!/^\d{6}$/.test(c)) return aviso("Código deve ter 6 números");
     DB.ref("salas/"+c).get().then(s=>{
         if(!s.exists()) return aviso("Sala não existe");
         if(s.val().status!=="aguardando") return aviso("Jogo já começou");
@@ -162,11 +202,66 @@ function entrarSala(){
         abrirSala();
     });
 }
+
 function abrirSala(){
-    ir(2); document.getElementById("mostraCodigo").innerText=sala;
-    if(dono){document.getElementById("painelDono").classList.remove("hidden");document.getElementById("avisoSala").classList.add("hidden")}
+    ir(2);
+    document.getElementById("mostraCodigo").innerText=sala;
+    // 🟢 GERA QR CODE NA HORA — conteúdo = só os 6 números
+    document.getElementById("qrcode").innerHTML="";
+    new QRCode(document.getElementById("qrcode"), {
+        text: sala,
+        width: 180,
+        height: 180,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.M
+    });
+    if(dono){
+        document.getElementById("painelDono").classList.remove("hidden");
+        document.getElementById("avisoSala").classList.add("hidden");
+    }
     ouvirSala();
 }
+
+// 📷 ABRIR CÂMERA PARA LER QR
+async function abrirLeitorQR(){
+    const el = document.getElementById("leitor-qr");
+    const btn = document.getElementById("btnFecharQR");
+    el.classList.remove("hidden");
+    btn.classList.remove("hidden");
+    try{
+        leitorQR = new Html5Qrcode("leitor-qr");
+        await leitorQR.start(
+            { facingMode: "environment" }, // câmera de trás
+            { fps:10, qrbox:{width:250, height:250} },
+            (dado) => {
+                // quando ler com sucesso
+                const soNumero = dado.replace(/\D/g,"").slice(0,6);
+                if(/^\d{6}$/.test(soNumero)){
+                    document.getElementById("codigo").value = soNumero;
+                    pararLeitorQR();
+                    aviso("✅ Código lido! Clique em ENTRAR");
+                } else {
+                    aviso("⚠️ QR inválido, use o da sala");
+                }
+            },
+            ()=>{}
+        );
+    }catch(e){
+        aviso("❌ Não foi possível abrir a câmera. Permita o acesso ou digite o código");
+        el.classList.add("hidden");
+        btn.classList.add("hidden");
+    }
+}
+async function pararLeitorQR(){
+    if(leitorQR && leitorQR.isScanning){
+        try{ await leitorQR.stop(); }catch(e){}
+    }
+    document.getElementById("leitor-qr").classList.add("hidden");
+    document.getElementById("btnFecharQR").classList.add("hidden");
+}
+
+// ==== RESTANTE DO JOGO (SEM ALTERAÇÕES NO FUNCIONAMENTO) ====
 function mudaTempo(){
     const v=document.getElementById("tempo").value;
     document.getElementById("vt").innerText=v;
@@ -260,10 +355,10 @@ function carregaCorrecao(){
 }
 function prox(){
     DB.ref("salas/"+sala).get().then(d=>{
-        const s=d.val(), prox=s.rodada+1;
-        if(prox>s.rodadas) return DB.ref("salas/"+sala).update({status:"fim"});
+        const s=d.val(), nx=s.rodada+1;
+        if(nx>s.rodadas) return DB.ref("salas/"+sala).update({status:"fim"});
         let l; do l=ALFA[~~(Math.random()*26)]; while(s.letrasUsadas.includes(l));
-        DB.ref("salas/"+sala).update({status:"jogando",rodada:prox,letra:l,letrasUsadas:[...s.letrasUsadas,l],parou:"",tempoRestante:s.tempo,respostas:{}});
+        DB.ref("salas/"+sala).update({status:"jogando",rodada:nx,letra:l,letrasUsadas:[...s.letrasUsadas,l],parou:"",tempoRestante:s.tempo,respostas:{}});
     });
 }
 function carregaFim(){
