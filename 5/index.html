@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -39,26 +39,26 @@
         }
 
         .cartao-glass {
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(15, 23, 42, 0.65);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.8);
         }
 
         .tela { display: none; }
-        .tela.ativa { display: block; animation: abrirTela 0.35s ease-out forwards; }
+        .tela.ativa { display: block; animation: abrirTela 0.3s ease-out forwards; }
         
         @keyframes abrirTela {
-            from { opacity: 0; transform: translateY(8px) scale(0.99); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .input-premium {
-            background: rgba(7, 10, 19, 0.5);
+            background: rgba(7, 10, 19, 0.4);
             border: 2px solid #1e293b;
             transition: all 0.25s ease;
         }
-        .input-premium:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 16px rgba(99, 102, 241, 0.35); }
+        .input-premium:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 16px rgba(99, 102, 241, 0.3); }
 
         .btn-gradiente {
             background: linear-gradient(135deg, #6366f1, #7c3aed);
@@ -71,15 +71,15 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-efeito min-h-screen flex items-center justify-center p-4">
+<body class="bg-efeito min-h-screen flex items-center justify-center p-4 md:p-8">
 
-    <div class="w-full max-w-md">
+    <div class="w-full mx-auto">
 
-        <div id="status-conexao" class="hidden mb-4 p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-center text-sm font-semibold text-rose-300">
-            ⚠️ Erro de ligação ao Firebase. Verifique as regras do seu Banco de Dados.
+        <div id="status-conexao" class="hidden max-w-md mx-auto mb-4 p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-center text-sm font-semibold text-rose-300">
+            ⚠️ Erro de gravação no Firebase. Verifique suas regras no console.
         </div>
 
-        <div id="tela-inicio" class="tela ativa">
+        <div id="tela-inicio" class="tela ativa max-w-md mx-auto">
             <div class="text-center mb-8">
                 <h1 class="text-5xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-extrabold">Adedonha</h1>
                 <p class="text-slate-400 font-medium text-sm tracking-wide">Jogo Online de Palavras • Máx. 10 Amigos</p>
@@ -87,7 +87,7 @@
 
             <div class="cartao-glass rounded-3xl p-6 space-y-5">
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">O Seu Apelido</label>
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Seu Apelido</label>
                     <input type="text" id="inputNome" maxlength="12" placeholder="Ex: André" class="input-premium w-full rounded-2xl px-5 py-4 text-lg font-bold text-center text-white placeholder-slate-600">
                 </div>
 
@@ -113,67 +113,74 @@
             </div>
         </div>
 
-        <div id="tela-lobby" class="tela">
-            <div class="cartao-glass rounded-3xl p-6 relative overflow-hidden">
+        <div id="tela-lobby" class="tela max-w-5xl mx-auto">
+            <div class="cartao-glass rounded-3xl p-6 md:p-8 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
                 
-                <div class="text-center mb-6 mt-2">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Código da Sala</p>
-                    <p id="lblCodigoSala" class="text-5xl font-black text-indigo-400 tracking-widest font-extrabold"></p>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <div class="md:col-span-5 flex flex-col justify-center items-center md:items-start border-b md:border-b-0 md:border-r border-slate-800 pb-6 md:pb-0 md:pr-8">
+                        <div class="text-center md:text-left mb-4 w-full">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Código da Sala</p>
+                            <p id="lblCodigoSala" class="text-5xl font-black text-indigo-400 tracking-widest font-extrabold"></p>
+                        </div>
 
-                <div class="flex justify-center mb-6">
-                    <div class="p-2 bg-white rounded-xl shadow-xl"><div id="qrcodeBox"></div></div>
-                </div>
+                        <div class="p-2 bg-white rounded-xl shadow-xl mb-6">
+                            <div id="qrcodeBox"></div>
+                        </div>
 
-                <div class="flex justify-between items-end border-b border-slate-800 pb-2 mb-4">
-                    <h3 class="font-bold text-base text-slate-300">👥 Jogadores na Sala</h3>
-                    <span class="text-xs font-bold px-3 py-1 bg-slate-900 rounded-full text-indigo-300"><span id="qtdJogadores">0</span>/10</span>
-                </div>
-
-                <ul id="listaJogadores" class="space-y-2 mb-6 max-h-40 overflow-y-auto no-scrollbar">
-                    </ul>
-
-                <div id="painelConfig" class="hidden bg-slate-900/60 rounded-2xl p-4 mb-4 border border-slate-800">
-                    <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3">⚙️ Configurações do Jogo</p>
-                    
-                    <label class="block text-xs font-semibold mb-1 text-slate-400">Categorias (uma por linha)</label>
-                    <textarea id="inputCategorias" rows="4" class="input-premium w-full rounded-xl p-3 text-sm mb-3">Nome
+                        <div id="painelConfig" class="hidden w-full bg-slate-900/60 rounded-2xl p-4 border border-slate-800">
+                            <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3">⚙️ Configurações do Jogo</p>
+                            
+                            <label class="block text-xs font-semibold mb-1 text-slate-400">Categorias (uma por linha)</label>
+                            <textarea id="inputCategorias" rows="4" class="input-premium w-full rounded-xl p-3 text-sm mb-3 text-white">Nome
 Animal
 Cor
 País ou Cidade
 Fruta
 Objeto</textarea>
-                    
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div>
-                            <label class="block text-xs font-semibold mb-1 text-slate-400">Tempo (Segundos)</label>
-                            <input type="number" id="inputTempo" value="60" class="input-premium w-full rounded-xl p-2 text-center font-bold text-white">
+                            
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1 text-slate-400">Tempo (S)</label>
+                                    <input type="number" id="inputTempo" value="60" class="input-premium w-full rounded-xl p-2 text-center font-bold text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1 text-slate-400">Rodadas</label>
+                                    <input type="number" id="inputRodadas" value="3" class="input-premium w-full rounded-xl p-2 text-center font-bold text-white">
+                                </div>
+                            </div>
+                            
+                            <button onclick="iniciarRodada()" class="btn-gradiente w-full rounded-xl py-3 font-bold text-white shadow-md">
+                                ▶️ Começar Partida
+                            </button>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold mb-1 text-slate-400">Total Rodadas</label>
-                            <input type="number" id="inputRodadas" value="3" class="input-premium w-full rounded-xl p-2 text-center font-bold text-white">
+
+                        <div id="msgAguardando" class="text-center md:text-left text-slate-400 text-sm py-2 animate-pulse w-full">
+                            Aguardando o líder iniciar o jogo...
                         </div>
                     </div>
-                    
-                    <button onclick="iniciarRodada()" class="btn-gradiente w-full rounded-xl py-3 font-bold text-white shadow-md">
-                        ▶️ Começar Partida
-                    </button>
-                </div>
 
-                <div id="msgAguardando" class="text-center text-slate-400 text-sm py-2 animate-pulse">
-                    Aguardando que o líder inicie o jogo...
+                    <div class="md:col-span-7 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-lg text-slate-300">👥 Amigos na Sala</h3>
+                                <span class="text-xs font-bold px-3 py-1 bg-slate-900 rounded-full text-indigo-300"><span id="qtdJogadores">0</span>/10</span>
+                            </div>
+                            <ul id="listaJogadores" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 md:max-h-[400px] overflow-y-auto no-scrollbar">
+                                </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="tela-jogo" class="tela">
+        <div id="tela-jogo" class="tela max-w-5xl mx-auto">
             <div class="flex justify-between items-center mb-6">
-                <div class="cartao-glass px-5 py-3 rounded-2xl border-l-4 border-indigo-500">
+                <div class="cartao-glass px-6 py-3 rounded-2xl border-l-4 border-indigo-500">
                     <p class="text-xs text-slate-400 font-bold tracking-wider">LETRA</p>
                     <p id="letraSorteada" class="text-4xl font-black text-amber-400 font-extrabold"></p>
                 </div>
-                <div class="cartao-glass px-5 py-3 rounded-2xl text-right border-r-4 border-rose-500">
+                <div class="cartao-glass px-6 py-3 rounded-2xl text-right border-r-4 border-rose-500">
                     <p class="text-xs text-slate-400 font-bold tracking-wider">TEMPO</p>
                     <p id="tempoRestante" class="text-4xl font-black text-rose-400 font-extrabold">60</p>
                 </div>
@@ -183,30 +190,32 @@ Objeto</textarea>
                 Rodada <span id="rodadaAtualL" class="text-indigo-400"></span> de <span id="rodadasTotalL"></span>
             </div>
 
-            <div id="areaInputs" class="space-y-3 max-h-[50vh] overflow-y-auto no-scrollbar mb-6 pb-4">
+            <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 max-h-[55vh] overflow-y-auto no-scrollbar pb-4">
                 </div>
 
-            <button onclick="submeterRespostasStop(false)" id="btnStop" class="w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-5 font-black text-2xl tracking-widest uppercase transition-colors shadow-lg shadow-rose-600/10">
+            <button onclick="submeterRespostasStop(false)" id="btnStop" class="w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-5 font-black text-2xl tracking-widest uppercase transition-colors shadow-lg">
                 🚨 STOP!
             </button>
         </div>
 
-        <div id="tela-votacao" class="tela">
+        <div id="tela-votacao" class="tela max-w-6xl mx-auto">
             <div class="text-center mb-6">
-                <h2 class="text-2xl font-black mb-1">⚖️ Tribunal de Validação</h2>
-                <p class="text-slate-400 text-sm">Avalie as respostas para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-xl"></span></p>
+                <h2 class="text-3xl font-black mb-1">⚖️ Tribunal de Validação</h2>
+                <p class="text-slate-400 text-sm">Avalie as respostas para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-2xl"></span></p>
             </div>
 
-            <div id="areaVotacao" class="space-y-5 max-h-[60vh] overflow-y-auto no-scrollbar pb-4">
+            <div id="areaVotacao" class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-[58vh] overflow-y-auto no-scrollbar pb-4">
                 </div>
 
-            <button id="btnApurar" onclick="processarEAvancar()" class="hidden btn-gradiente w-full rounded-2xl py-4 mt-6 font-bold text-lg text-white shadow-lg">
-                ✅ Concluir Votação e Avançar
-            </button>
-            <p id="msgVotacao" class="text-center text-slate-400 text-sm mt-4 animate-pulse">Aguardando que o líder encerre a apuração...</p>
+            <div class="max-w-md mx-auto mt-4">
+                <button id="btnApurar" onclick="processarEAvancar()" class="hidden btn-gradiente w-full rounded-2xl py-4 font-bold text-lg text-white shadow-lg">
+                    ✅ Concluir Votação e Avançar
+                </button>
+                <p id="msgVotacao" class="text-center text-slate-400 text-sm py-2 animate-pulse">Aguardando o líder encerrar a apuração...</p>
+            </div>
         </div>
 
-        <div id="tela-ranking" class="tela">
+        <div id="tela-ranking" class="tela max-w-xl mx-auto">
             <div class="text-center mb-8">
                 <div class="text-5xl mb-3">🏆</div>
                 <h2 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500 font-extrabold">Fim de Jogo!</h2>
@@ -229,32 +238,27 @@ Objeto</textarea>
 
 <script>
     // ==========================================
-    // CONFIGURAÇÃO DO FIREBASE (Suas Credenciais Originais)
+    // CONFIGURAÇÃO DO FIREBASE (Pronto e Conectado)
     // ==========================================
     const firebaseConfig = {
         apiKey: "AIzaSyAXDRmj8tQzxszosyxQi5cLDG87t91ZlGs",
         authDomain: "adedonha-30f7b.firebaseapp.com",
-        databaseURL: "https://adedonha-30f7b-default-rtdb.firebaseio.com/", 
+        databaseURL: "https://adedonha-30f7b-default-rtdb.firebaseio.com", 
         projectId: "adedonha-30f7b",
         storageBucket: "adedonha-30f7b.firebasestorage.app",
         messagingSenderId: "513068782357",
         appId: "1:513068782357:web:06c58a649c3cdf6002cf1c"
     };
 
-    // Inicialização Protegida do Firebase
     let db = null;
     try {
         if (typeof firebase !== 'undefined') {
             firebase.initializeApp(firebaseConfig);
             db = firebase.database();
-        } else {
-            console.error("SDK do Firebase não carregou corretamente.");
         }
-    } catch(e) {
-        console.error("Falha ao inicializar o Firebase:", e);
-    }
+    } catch(e) { console.error(e); }
 
-    // Variáveis Globais de Estado
+    // Estados Globais
     let meuId = "";
     let meuNome = "";
     let salaAtual = "";
@@ -265,21 +269,10 @@ Objeto</textarea>
 
     const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    // Função de Alerta Resiliente (Caso o CDN do SweetAlert2 falhe, usa o nativo)
     function emitirAviso(titulo, texto, tipo = 'error') {
         if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: titulo,
-                text: texto,
-                icon: tipo,
-                background: '#111827',
-                color: '#fff',
-                confirmButtonColor: '#6366f1',
-                customClass: { popup: 'rounded-3xl border border-slate-800' }
-            });
-        } else {
-            alert(`${titulo}\n\n${texto}`);
-        }
+            Swal.fire({ title: titulo, text: texto, icon: tipo, background: '#111827', color: '#fff', confirmButtonColor: '#6366f1', customClass: { popup: 'rounded-3xl border border-slate-800' } });
+        } else { alert(`${titulo}\n\n${texto}`); }
     }
 
     function gerirNavegacaoEcras(idEcran) {
@@ -290,15 +283,13 @@ Objeto</textarea>
     }
 
     // ==========================================
-    // LÓGICA DE GERENCIAMENTO DE SALAS
+    // CONTROLE DE SALAS
     // ==========================================
     async function criarSala() {
         if (!db) return mostrarErroBancoDados();
-        
         meuNome = document.getElementById("inputNome").value.trim().toUpperCase();
-        if (!meuNome) return emitirAviso("Atenção!", "Precisa de digitar o seu apelido primeiro.");
+        if (!meuNome) return emitirAviso("Atenção!", "Precisa digitar o seu apelido primeiro.");
 
-        // Código numérico aleatório de 6 dígitos
         salaAtual = Math.floor(100000 + Math.random() * 900000).toString();
         
         try {
@@ -311,38 +302,31 @@ Objeto</textarea>
                 letrasUsadas: [],
                 endTime: 0
             });
-            
             vincularJogadorESala();
-        } catch (error) {
-            console.error("Erro ao criar sala:", error);
-            mostrarErroBancoDados(error.message);
-        }
+        } catch (error) { mostrarErroBancoDados(error.message); }
     }
 
     async function entrarSala() {
         if (!db) return mostrarErroBancoDados();
-
         meuNome = document.getElementById("inputNome").value.trim().toUpperCase();
         salaAtual = document.getElementById("inputCodigo").value.trim();
 
         if (!meuNome) return emitirAviso("Atenção", "Por favor, digite o seu apelido.");
-        if (salaAtual.length !== 6) return emitirAviso("Código Inválido", "O código deve conter exatamente 6 algarismos.");
+        if (salaAtual.length !== 6) return emitirAviso("Código Inválido", "O código deve conter 6 números.");
 
         try {
             const snapshot = await db.ref('salas/' + salaAtual).once('value');
-            if (!snapshot.exists()) return emitirAviso("Não Encontrada", "Esta sala não existe ou já expirou.");
+            if (!snapshot.exists()) return emitirAviso("Não Encontrada", "Esta sala não existe.");
             
             const dados = snapshot.val();
-            if (dados.status !== 'lobby') return emitirAviso("Partida Iniciada", "Lamento, o jogo nesta sala já começou.");
+            if (dados.status !== 'lobby') return emitirAviso("Partida Iniciada", "O jogo nesta sala já começou.");
 
             const totalJogadores = dados.jogadores ? Object.keys(dados.jogadores).length : 0;
-            if (totalJogadores >= 10) return emitirAviso("Sala Cheia", "Esta sala já atingiu o limite máximo de 10 amigos.");
+            if (totalJogadores >= 10) return emitirAviso("Sala Cheia", "Esta sala já atingiu o limite de 10 amigos.");
 
             isDono = false;
             vincularJogadorESala();
-        } catch (error) {
-            emitirAviso("Erro de Conexão", "Não foi possível verificar os dados da sala.");
-        }
+        } catch (error) { emitirAviso("Erro", "Falha de conexão com a sala."); }
     }
 
     function vincularJogadorESala() {
@@ -351,7 +335,7 @@ Objeto</textarea>
         meuId = novaConexaoRef.key;
 
         novaConexaoRef.set({ nome: meuNome, pontos: 0 });
-        novaConexaoRef.onDisconnect().remove(); // Remove automaticamente da lista se a aba for fechada
+        novaConexaoRef.onDisconnect().remove(); 
 
         escutarAlteracoesSala();
         configurarLobbyVisual();
@@ -359,14 +343,11 @@ Objeto</textarea>
 
     function mostrarErroBancoDados(detalhe = "") {
         document.getElementById("status-conexao").classList.remove("hidden");
-        emitirAviso(
-            "Falha Crítica no Banco", 
-            "As regras de gravação do seu Firebase Realtime Database podem estar bloqueadas ou expiradas. Detalhe: " + detalhe
-        );
+        emitirAviso("Falha no Banco", "Verifique as regras do Firebase Realtime Database.");
     }
 
     // ==========================================
-    // ESCUTA EM TEMPO REAL (REALTIME ENGINE)
+    // SINCRONIZAÇÃO EM TEMPO REAL
     // ==========================================
     function escutarAlteracoesSala() {
         db.ref(`salas/${salaAtual}`).on('value', snapshot => {
@@ -374,9 +355,9 @@ Objeto</textarea>
             if (!dados) return;
 
             sincronizarListaLobby(dados);
-
             const ecranAtual = document.querySelector('.tela.ativa')?.id;
             
+            if (dados.status === 'lobby' && ecranAtual !== 'tela-lobby') configurarLobbyVisual();
             if (dados.status === 'jogando' && ecranAtual !== 'tela-jogo') construirAmbienteJogo(dados);
             if (dados.status === 'votacao' && ecranAtual !== 'tela-votacao') construirAmbienteVotacao(dados);
             if (dados.status === 'ranking' && ecranAtual !== 'tela-ranking') construirAmbienteRanking(dados);
@@ -386,34 +367,34 @@ Objeto</textarea>
     function sincronizarListaLobby(dados) {
         if (!dados.jogadores) return;
         const listaInstanciada = Object.values(dados.jogadores);
-        
         document.getElementById("qtdJogadores").innerText = listaInstanciada.length;
         
         const htmlElementos = listaInstanciada.map(j => `
-            <li class="bg-slate-900/50 px-4 py-3 rounded-xl border border-slate-800/80 flex justify-between items-center animate-pulse">
-                <span class="font-bold text-slate-200 text-sm">${j.nome}</span>
+            <li class="bg-slate-900/50 px-4 py-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                <span class="font-bold text-slate-200 text-sm">👤 ${j.nome}</span>
                 <span class="text-xs bg-slate-950 font-semibold px-2.5 py-1 rounded-md text-indigo-400 border border-indigo-950">${j.pontos} pts</span>
             </li>
         `).join('');
-        
         document.getElementById("listaJogadores").innerHTML = htmlElementos;
     }
 
     function configurarLobbyVisual() {
         gerirNavegacaoEcras('tela-lobby');
         document.getElementById("lblCodigoSala").innerText = salaAtual;
-        
         document.getElementById("qrcodeBox").innerHTML = "";
-        new QRCode(document.getElementById("qrcodeBox"), { text: salaAtual, width: 130, height: 130 });
+        new QRCode(document.getElementById("qrcodeBox"), { text: salaAtual, width: 120, height: 120 });
 
         if (isDono) {
             document.getElementById("painelConfig").classList.remove('hidden');
             document.getElementById("msgAguardando").classList.add('hidden');
+        } else {
+            document.getElementById("painelConfig").classList.add('hidden');
+            document.getElementById("msgAguardando").classList.remove('hidden');
         }
     }
 
     // ==========================================
-    // DINÂMICA DE JOGO E CONTROLADORES
+    // MOTOR DE RODADAS E JOGO
     // ==========================================
     async function iniciarRodada() {
         const areaTexto = document.getElementById("inputCategorias").value;
@@ -421,7 +402,7 @@ Objeto</textarea>
         const totalRodadas = parseInt(document.getElementById("inputRodadas").value) || 3;
         
         const arrCategorias = areaTexto.split('\n').map(c => c.trim()).filter(c => c !== "");
-        if (arrCategorias.length < 2) return emitirAviso("Configuração Incompleta", "Insira pelo menos 2 categorias para jogar.");
+        if (arrCategorias.length < 2) return emitirAviso("Atenção", "Insira pelo menos 2 categorias.");
 
         const snapshot = await db.ref(`salas/${salaAtual}`).once('value');
         const dadosAtuais = snapshot.val();
@@ -431,7 +412,7 @@ Objeto</textarea>
         do { 
             letraEscolhida = ALFABETO[Math.floor(Math.random() * ALFABETO.length)]; 
             tentativasLetra++;
-        } while (dadosAtuais.letrasUsadas && dadosAtuais.letrasUsadas.includes(letraChosen) && tentativasLetra < 30);
+        } while (dadosAtuais.letrasUsadas && dadosAtuais.letrasUsadas.includes(letraEscolhida) && tentativasLetra < 30);
 
         const tempoMilisegundosFinal = Date.now() + (tempoLimite * 1000);
 
@@ -455,9 +436,9 @@ Objeto</textarea>
         document.getElementById("rodadasTotalL").innerText = dados.config.rodadas;
         
         const htmlGerado = categoriasJogo.map((cat, idx) => `
-            <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800/60 focus-within:border-indigo-500/80 transition-all">
-                <label class="block text-[11px] font-bold text-indigo-400/80 uppercase tracking-widest mb-1.5">${cat}</label>
-                <input type="text" id="resposta_campo_${idx}" class="w-full bg-transparent text-white font-bold text-lg outline-none" autocomplete="off" placeholder="...">
+            <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 focus-within:border-indigo-500 transition-all">
+                <label class="block text-[11px] font-bold text-indigo-400 uppercase tracking-widest mb-1.5">${cat}</label>
+                <input type="text" id="resposta_campo_${idx}" class="w-full bg-transparent text-white font-bold text-lg outline-none" autocomplete="off" placeholder="Digitar...">
             </div>
         `).join('');
         
@@ -477,12 +458,13 @@ Objeto</textarea>
 
     async function submeterRespostasStop(porTempoEsgotado = false) {
         clearInterval(cronometro);
-        document.getElementById("btnStop").innerText = "A Enviar Dados...";
+        document.getElementById("btnStop").innerText = "Enviando...";
         document.getElementById("btnStop").disabled = true;
 
         const respostasColetadas = {};
         categoriasJogo.forEach((_, idx) => {
-            respostasColetadas[idx] = document.getElementById(`resposta_campo_${idx}`).value.trim().toUpperCase();
+            const campo = document.getElementById(`resposta_campo_${idx}`);
+            respostasColetadas[idx] = campo ? campo.value.trim().toUpperCase() : "";
         });
 
         await db.ref(`salas/${salaAtual}/respostas/${meuId}`).set(respostasColetadas);
@@ -493,11 +475,12 @@ Objeto</textarea>
     }
 
     // ==========================================
-    // SISTEMA DE VOTAÇÃO E VALIDAÇÃO DE PONTOS
+    // VOTAÇÃO E CORREÇÃO DO BOTÃO AVANÇAR
     // ==========================================
     function construirAmbienteVotacao(dados) {
         gerirNavegacaoEcras('tela-votacao');
         document.getElementById("letraVotacao").innerText = dados.letraAtual;
+        categoriasJogo = dados.config.categorias;
         
         if (isDono) {
             document.getElementById("btnApurar").classList.remove('hidden');
@@ -512,30 +495,30 @@ Objeto</textarea>
 
         categoriasJogo.forEach((categoriaNome, idxCat) => {
             estruturaVisualVotos += `
-                <div class="cartao-glass p-4 rounded-2xl border border-slate-800/80">
-                    <h3 class="text-indigo-400 font-extrabold tracking-wider text-xs uppercase mb-3 border-b border-slate-800/60 pb-1.5">${categoriaNome}</h3>
+                <div class="cartao-glass p-4 rounded-2xl border border-slate-800">
+                    <h3 class="text-indigo-400 font-extrabold tracking-wider text-xs uppercase mb-3 border-b border-slate-800 pb-1.5">📂 ${categoriaNome}</h3>
                     <div class="space-y-2.5">
             `;
 
             idsListaJogadores.forEach(jogadorId => {
                 const nomeDoJogador = dados.jogadores[jogadorId].nome;
-                const respostaTexto = (dados.respostas && dados.respostas[jogadorId] && dados.respostas[jogadorId][idxCat]) || "";
+                const respostaTexto = (dados.respostas && dados.respostas[jogadorId] && dados.respostas[jogadorId][idxCat]) ? String(dados.respostas[jogadorId][idxCat]).trim().toUpperCase() : "";
                 
-                const comecaComLetraCerta = respostaTexto.startsWith(dados.letraAtual);
+                const comecaComLetraCerta = respostaTexto.length > 0 && respostaTexto.startsWith(dados.letraAtual);
                 const stringExibicao = respostaTexto || "<span class='text-slate-600 italic font-normal text-sm'>Em branco</span>";
-                const classeBorda = comecaComLetraCerta ? 'border-slate-800' : 'border-rose-950/40 bg-rose-950/5';
+                const classeBorda = comecaComLetraCerta ? 'border-slate-800/80 bg-slate-950/20' : 'border-rose-950/40 bg-rose-950/5';
 
                 estruturaVisualVotos += `
-                    <div class="bg-slate-950/40 rounded-xl p-3 border ${classeBorda} flex justify-between items-center gap-2">
+                    <div class="rounded-xl p-3 border ${classeBorda} flex justify-between items-center gap-2">
                         <div>
-                            <span class="text-[10px] text-slate-500 font-bold block mb-0.5">${jogadorId === meuId ? '🫵 A sua resposta' : nomeDoJogador}</span>
+                            <span class="text-[10px] text-slate-500 font-bold block mb-0.5">${jogadorId === meuId ? '🫵 Sua Resposta' : nomeDoJogador}</span>
                             <span class="text-base font-bold ${comecaComLetraCerta ? 'text-slate-200' : 'text-rose-400/80 line-through'}">${stringExibicao}</span>
                         </div>
                         
                         ${(jogadorId !== meuId && comecaComLetraCerta && respostaTexto) ? `
                             <div class="flex gap-1 shrink-0">
-                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', true, this)" class="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 text-xs rounded-lg font-bold border border-emerald-500/20 active:scale-95 transition-all">👍 Sim</button>
-                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', false, this)" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 text-xs rounded-lg font-bold border border-rose-500/20 active:scale-95 transition-all">👎 Não</button>
+                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', true, this)" class="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 text-xs rounded-lg font-bold border border-emerald-500/20 transition-all">👍 Sim</button>
+                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', false, this)" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 text-xs rounded-lg font-bold border border-rose-500/20 transition-all">👎 Não</button>
                             </div>
                         ` : ''}
                     </div>
@@ -552,7 +535,6 @@ Objeto</textarea>
         if (!db) return;
         db.ref(`salas/${salaAtual}/votos/${indiceCategoria}/${alvoId}/${meuId}`).set(valorDoVoto);
         
-        // Ajuste visual imediato no ecrã para confirmar a escolha
         const conteinerPai = elementoBotao.parentNode;
         conteinerPai.querySelectorAll('button').forEach(b => {
             b.style.opacity = '0.3';
@@ -562,71 +544,95 @@ Objeto</textarea>
         elementoBotao.style.borderColor = valorDoVoto ? '#10b981' : '#f43f5e';
     }
 
+    // FUNÇÃO CORRIGIDA: Avança rodada lendo direto do Banco de Dados de forma assíncrona e segura
     async function processarEAvancar() {
-        const snapshot = await db.ref(`salas/${salaAtual}`).once('value');
-        const dados = snapshot.val();
-        
-        const jogadoresObjeto = dados.jogadores || {};
-        const chavesJogadores = Object.keys(jogadoresObjeto);
-        
-        let calculoPontosRodada = {};
-        chavesJogadores.forEach(id => calculoPontosRodada[id] = 0);
+        if (!isDono) return;
+        document.getElementById("btnApurar").disabled = true;
+        document.getElementById("btnApurar").innerText = "Processando...";
 
-        categoriasJogo.forEach((_, idxCat) => {
-            let palavrasValidadasDaCategoria = [];
+        try {
+            const snapshot = await db.ref(`salas/${salaAtual}`).once('value');
+            const dados = snapshot.val();
+            
+            const jogadoresObjeto = dados.jogadores || {};
+            const chavesJogadores = Object.keys(jogadoresObjeto);
+            
+            let calculoPontosRodada = {};
+            chavesJogadores.forEach(id => calculoPontosRodada[id] = 0);
 
-            chavesJogadores.forEach(id => {
-                const textoResp = (dados.respostas && dados.respostas[id] && dados.respostas[id][idxCat]) || "";
-                if (!textoResp.startsWith(dados.letraAtual)) return; 
+            categoriasJogo.forEach((_, idxCat) => {
+                let palavrasValidadasDaCategoria = [];
 
-                const votosDestaResposta = (dados.votos && dados.votos[idxCat] && dados.votos[idxCat][id]) || {};
-                let votosSim = 0; 
-                let votosNao = 0;
-                
-                Object.values(votosDesteResposta).forEach(v => v ? votosSim++ : votosNao++);
+                chavesJogadores.forEach(id => {
+                    const textoResp = (dados.respostas && dados.respostas[id] && dados.respostas[id][idxCat]) ? String(dados.respostas[id][idxCat]).trim().toUpperCase() : "";
+                    if (!textoResp.startsWith(dados.letraAtual)) return; 
 
-                // Validação democrática: se tiver mais "Não" do que "Sim", a palavra é invalidada
-                if (votosNao > votosSim) return; 
+                    const votosDestaResposta = (dados.votos && dados.votos[idxCat] && dados.votos[idxCat][id]) || {};
+                    let votosSim = 0; 
+                    let votosNao = 0;
+                    Object.values(votosDestaResposta).forEach(v => v ? votosSim++ : votosNao++);
 
-                palavrasValidadasDaCategoria.push({ id: id, palavra: textoResp });
+                    if (votosNao > votosSim) return; 
+
+                    palavrasValidadasDaCategoria.push({ id: id, palavra: textoResp });
+                });
+
+                palavrasValidadasDaCategoria.forEach(itemAtual => {
+                    const totalRepetidas = palavrasValidadasDaCategoria.filter(p => p.palavra === itemAtual.palavra).length;
+                    calculoPontosRodada[itemAtual.id] += (totalRepetidas > 1) ? 5 : 10;
+                });
             });
 
-            // Distribuição de pontuação padrão do Stop: 5 para repetidas, 10 para únicas
-            palavrasValidadasDaCategoria.forEach(itemAtual => {
-                const totalRepetidas = palavrasValidadasDaCategoria.filter(p => p.palavra === itemAtual.palavra).length;
-                calculoPontosRodada[itemAtual.id] += (totalRepetidas > 1) ? 5 : 10;
-            });
-        });
+            for (let id of chavesJogadores) {
+                const pontosAcumulados = (jogadoresObjeto[id].pontos || 0) + calculoPontosRodada[id];
+                await db.ref(`salas/${salaAtual}/jogadores/${id}/pontos`).set(pontosAcumulados);
+            }
 
-        // Atualização incremental de pontos no banco
-        for (let id of chavesJogadores) {
-            const pontosAcumulados = (jogadoresObjeto[id].pontos || 0) + calculoPontosRodada[id];
-            await db.ref(`salas/${salaAtual}/jogadores/${id}/pontos`).set(pontosAcumulados);
-        }
+            const seguinteRodada = (dados.rodadaAtual || 1) + 1;
+            
+            if (seguinteRodada > parseInt(dados.config.rodadas)) {
+                await db.ref(`salas/${salaAtual}/status`).set('ranking');
+            } else {
+                let proximaLetra = "";
+                let tentativasLetra = 0;
+                do { 
+                    proximaLetra = ALFABETO[Math.floor(Math.random() * ALFABETO.length)]; 
+                    tentativasLetra++;
+                } while (dados.letrasUsadas && dados.letrasUsadas.includes(proximaLetra) && tentativasLetra < 30);
 
-        const seguinteRodada = (dados.rodadaAtual || 1) + 1;
-        if (seguinteRodada > parseInt(dados.config.rodadas)) {
-            await db.ref(`salas/${salaAtual}/status`).set('ranking');
-        } else {
-            await db.ref(`salas/${salaAtual}/rodadaAtual`).set(seguinteRodada);
-            iniciarRodada(); 
+                const tempoLimite = parseInt(dados.config.tempo) || 60;
+                const tempoMilisegundosFinal = Date.now() + (tempoLimite * 1000);
+
+                await db.ref(`salas/${salaAtual}`).update({
+                    status: 'jogando',
+                    rodadaAtual: seguinteRodada,
+                    letraAtual: proximaLetra,
+                    letrasUsadas: [...(dados.letrasUsadas || []), proximaLetra],
+                    endTime: tempoMilisegundosFinal,
+                    respostas: null, 
+                    votos: null      
+                });
+            }
+        } catch (err) {
+            console.error(err);
+            emitirAviso("Erro na Apuração", "Não foi possível avançar para a próxima rodada.");
+        } finally {
+            document.getElementById("btnApurar").disabled = false;
+            document.getElementById("btnApurar").innerText = "✅ Concluir Votação e Avançar";
         }
     }
 
     // ==========================================
-    // ECRÃ FINAL DE RANKING E LEADERBOARD
+    // RANKING E FINALIZAÇÃO
     // ==========================================
     function construirAmbienteRanking(dados) {
         gerirNavegacaoEcras('tela-ranking');
-        
         if (isDono) document.getElementById("btnJogarNovamente").classList.remove('hidden');
 
         const arrayOrdenado = Object.values(dados.jogadores || {}).sort((a,b) => b.pontos - a.pontos);
-        
         const htmlRanking = arrayOrdenado.map((jogador, posicao) => {
             let classeEstiloEstetica = "bg-slate-900/60 border-slate-800"; 
-            let medalhaIcone = "";
-            
+            let medalhaIcone = "👤 ";
             if (posicao === 0) { classeEstiloEstetica = "bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border-amber-500/30 text-amber-300"; medalhaIcone = "🥇 "; }
             else if (posicao === 1) { classeEstiloEstetica = "bg-gradient-to-r from-slate-400/20 to-slate-500/10 border-slate-400/30 text-slate-300"; medalhaIcone = "🥈 "; }
             else if (posicao === 2) { classeEstiloEstetica = "bg-gradient-to-r from-amber-800/20 to-amber-900/10 border-amber-800/30 text-amber-600"; medalhaIcone = "🥉 "; }
@@ -638,37 +644,26 @@ Objeto</textarea>
                 </div>
             `;
         }).join('');
-
         document.getElementById("areaPodio").innerHTML = htmlRanking;
     }
 
     async function reiniciarPartidaCompleta() {
         const snapshot = await db.ref(`salas/${salaAtual}/jogadores`).once('value');
         const jogadoresExistentes = snapshot.val() || {};
-        
         for (let jogadorId in jogadoresExistentes) {
             await db.ref(`salas/${salaAtual}/jogadores/${jogadorId}/pontos`).set(0);
         }
-
         await db.ref(`salas/${salaAtual}`).update({
-            status: 'lobby', 
-            rodadaAtual: 1, 
-            letraAtual: "", 
-            letrasUsadas: [], 
-            respostas: null, 
-            votos: null
+            status: 'lobby', rodadaAtual: 1, letraAtual: "", letrasUsadas: [], respostas: null, votos: null
         });
     }
 
     // ==========================================
-    // COMPONENTE DE LEITURA DE QR CODE
+    // COMPONENTE CÂMERA QR CODE
     // ==========================================
     function alternarLeitorQR() {
         const divCamera = document.getElementById("leitor-qr");
-        if (!divCamera.classList.contains("hidden")) {
-            fecharCameraQr();
-            return;
-        }
+        if (!divCamera.classList.contains("hidden")) { fecharCameraQr(); return; }
 
         divCamera.classList.remove("hidden");
         scannerQr = new Html5Qrcode("leitor-qr");
@@ -680,22 +675,15 @@ Objeto</textarea>
                     fecharCameraQr();
                     entrarSala();
                 }
-            },
-            () => {} 
-        ).catch(() => emitirAviso("Câmara Indisponível", "Ative as permissões de acesso à câmara nas configurações do seu navegador."));
+            }, () => {} 
+        ).catch(() => emitirAviso("Câmera Indisponível", "Ative as permissões de acesso à câmera."));
     }
 
     function fecharCameraQr() {
         if (scannerQr) {
-            scannerQr.stop().then(() => {
-                scannerQr.clear();
-                document.getElementById("leitor-qr").classList.add("hidden");
-            }).catch(() => {});
-        } else {
-            document.getElementById("leitor-qr").classList.add("hidden");
-        }
+            scannerQr.stop().then(() => { scannerQr.clear(); document.getElementById("leitor-qr").classList.add("hidden"); }).catch(() => {});
+        } else { document.getElementById("leitor-qr").classList.add("hidden"); }
     }
 </script>
-
 </body>
 </html>
