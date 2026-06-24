@@ -5,15 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Adedonha Online 🎮</title>
     
+    <!-- Tailwind CSS para Design Responsivo Avançado -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     
+    <!-- SweetAlert2 para Alertas Elegantes -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
     
+    <!-- Geradores de QR Code e Leitor de Câmera -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
@@ -69,55 +74,96 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .btn-voltar {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.5rem 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 9999px;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        .btn-voltar:hover {
+            color: #f87171;
+            border-color: #f87171;
+            background: rgba(248, 113, 113, 0.1);
+        }
     </style>
 </head>
-<body class="bg-efeito min-h-screen flex items-center justify-center p-4 md:p-8">
+<body class="bg-efeito min-h-screen flex items-center justify-center p-4 md:p-8 relative">
 
     <div class="w-full mx-auto">
 
+        <!-- ALERTA DE CONFIGURAÇÃO DO FIREBASE -->
         <div id="status-conexao" class="hidden max-w-md mx-auto mb-4 p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-center text-sm font-semibold text-rose-300">
             ⚠️ Erro de gravação no Firebase. Verifique suas regras no console.
         </div>
 
-        <div id="tela-inicio" class="tela ativa max-w-md mx-auto">
-            <div class="text-center mb-8">
-                <h1 class="text-5xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-extrabold">Adedonha</h1>
-                <p class="text-slate-400 font-medium text-sm tracking-wide">Jogo Online de Palavras • Máx. 10 Amigos</p>
-            </div>
-
-            <div class="cartao-glass rounded-3xl p-6 space-y-5">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Seu Apelido</label>
-                    <input type="text" id="inputNome" maxlength="12" placeholder="Ex: André" class="input-premium w-full rounded-2xl px-5 py-4 text-lg font-bold text-center text-white placeholder-slate-600">
+        <!-- ECRÃ 1: LOGIN / TELA INICIAL -->
+        <div id="tela-inicio" class="tela ativa max-w-md mx-auto flex flex-col min-h-[90vh] md:min-h-0 justify-center">
+            
+            <div class="flex-grow flex flex-col justify-center">
+                <div class="text-center mb-8">
+                    <h1 class="text-5xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-extrabold">Adedonha</h1>
+                    <p class="text-slate-400 font-medium text-sm tracking-wide">Jogo Online de Palavras • Máx. 10 Amigos</p>
                 </div>
 
-                <hr class="border-slate-800">
+                <div class="cartao-glass rounded-3xl p-6 space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Seu Apelido</label>
+                        <input type="text" id="inputNome" maxlength="12" placeholder="Ex: André" class="input-premium w-full rounded-2xl px-5 py-4 text-lg font-bold text-center text-white placeholder-slate-600">
+                    </div>
 
-                <button onclick="criarSala()" class="btn-gradiente w-full rounded-2xl py-4 font-bold text-lg shadow-lg shadow-indigo-500/20 text-white">
-                    ✨ Criar Nova Sala
-                </button>
+                    <hr class="border-slate-800">
 
-                <div class="text-center text-slate-500 text-xs font-black uppercase tracking-widest">OU JUNTAR-SE</div>
+                    <button onclick="criarSala()" class="btn-gradiente w-full rounded-2xl py-4 font-bold text-lg shadow-lg shadow-indigo-500/20 text-white">
+                        ✨ Criar Nova Sala
+                    </button>
 
-                <div class="flex gap-2">
-                    <input type="text" id="inputCodigo" maxlength="6" inputmode="numeric" placeholder="CÓDIGO" class="input-premium flex-1 rounded-2xl px-4 py-4 text-xl font-black text-center tracking-widest text-indigo-300 placeholder-slate-600">
-                    <button onclick="alternarLeitorQR()" class="bg-slate-800 hover:bg-slate-700 text-white rounded-2xl px-5 transition-colors shadow-md">
-                        📷
+                    <div class="text-center text-slate-500 text-xs font-black uppercase tracking-widest">OU JUNTAR-SE</div>
+
+                    <div class="flex gap-2">
+                        <input type="text" id="inputCodigo" maxlength="6" inputmode="numeric" placeholder="CÓDIGO" class="input-premium flex-1 rounded-2xl px-4 py-4 text-xl font-black text-center tracking-widest text-indigo-300 placeholder-slate-600">
+                        <button onclick="alternarLeitorQR()" class="bg-slate-800 hover:bg-slate-700 text-white rounded-2xl px-5 transition-colors shadow-md">
+                            📷
+                        </button>
+                    </div>
+                    <div id="leitor-qr" class="hidden rounded-2xl overflow-hidden border-2 border-indigo-500/30 mt-2"></div>
+                    
+                    <button onclick="entrarSala()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-lg transition-colors shadow-lg shadow-emerald-600/10">
+                        Entrar na Sala Pronta ➡️
                     </button>
                 </div>
-                <div id="leitor-qr" class="hidden rounded-2xl overflow-hidden border-2 border-indigo-500/30 mt-2"></div>
-                
-                <button onclick="entrarSala()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-lg transition-colors shadow-lg shadow-emerald-600/10">
-                    Entrar na Sala Pronta ➡️
-                </button>
+            </div>
+
+            <!-- RODAPÉ DE DIREITOS AUTORAIS NA TELA INICIAL -->
+            <div class="mt-10 pt-6 border-t border-slate-800/60 text-center pb-4">
+                <p class="text-slate-400 text-sm font-medium tracking-wide">
+                    Desenvolvido com ⚡ por <span class="text-indigo-400 font-bold">Eronildo Tavares</span> &copy; 2026
+                </p>
+                <p class="text-slate-600 text-xs mt-1">Pronto para rodadas épicas com os amigos!</p>
             </div>
         </div>
 
+        <!-- ECRÃ 2: LOBBY DE ESPERA -->
         <div id="tela-lobby" class="tela max-w-5xl mx-auto">
+            <button onclick="sairDaSala()" class="btn-voltar">
+                ⬅ Voltar ao Início
+            </button>
+            
             <div class="cartao-glass rounded-3xl p-6 md:p-8 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <!-- Coluna Esquerda: Sala, QR e Configurações -->
                     <div class="md:col-span-5 flex flex-col justify-center items-center md:items-start border-b md:border-b-0 md:border-r border-slate-800 pb-6 md:pb-0 md:pr-8">
                         <div class="text-center md:text-left mb-4 w-full">
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Código da Sala</p>
@@ -128,6 +174,7 @@
                             <div id="qrcodeBox"></div>
                         </div>
 
+                        <!-- Painel Configurações do Líder -->
                         <div id="painelConfig" class="hidden w-full bg-slate-900/60 rounded-2xl p-4 border border-slate-800">
                             <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3">⚙️ Configurações do Jogo</p>
                             
@@ -160,6 +207,7 @@ Objeto</textarea>
                         </div>
                     </div>
 
+                    <!-- Coluna Direita: Jogadores Conectados -->
                     <div class="md:col-span-7 flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-center mb-4">
@@ -167,14 +215,20 @@ Objeto</textarea>
                                 <span class="text-xs font-bold px-3 py-1 bg-slate-900 rounded-full text-indigo-300"><span id="qtdJogadores">0</span>/10</span>
                             </div>
                             <ul id="listaJogadores" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 md:max-h-[400px] overflow-y-auto no-scrollbar">
-                                </ul>
+                                <!-- Inserido dinamicamente -->
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- ECRÃ 3: EM JOGO -->
         <div id="tela-jogo" class="tela max-w-5xl mx-auto">
+            <button onclick="sairDaSala()" class="btn-voltar">
+                🚨 Abandonar Partida
+            </button>
+
             <div class="flex justify-between items-center mb-6">
                 <div class="cartao-glass px-6 py-3 rounded-2xl border-l-4 border-indigo-500">
                     <p class="text-xs text-slate-400 font-bold tracking-wider">LETRA</p>
@@ -191,21 +245,28 @@ Objeto</textarea>
             </div>
 
             <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 max-h-[55vh] overflow-y-auto no-scrollbar pb-4">
-                </div>
+                <!-- Inputs dinâmicos -->
+            </div>
 
             <button onclick="submeterRespostasStop(false)" id="btnStop" class="w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-5 font-black text-2xl tracking-widest uppercase transition-colors shadow-lg">
                 🚨 STOP!
             </button>
         </div>
 
+        <!-- ECRÃ 4: TRIBUNAL DE VOTAÇÃO -->
         <div id="tela-votacao" class="tela max-w-6xl mx-auto">
+            <button onclick="sairDaSala()" class="btn-voltar">
+                🚪 Sair da Sala
+            </button>
+
             <div class="text-center mb-6">
                 <h2 class="text-3xl font-black mb-1">⚖️ Tribunal de Validação</h2>
                 <p class="text-slate-400 text-sm">Avalie as respostas para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-2xl"></span></p>
             </div>
 
             <div id="areaVotacao" class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-[58vh] overflow-y-auto no-scrollbar pb-4">
-                </div>
+                <!-- Painel de votação estruturado -->
+            </div>
 
             <div class="max-w-md mx-auto mt-4">
                 <button id="btnApurar" onclick="processarEAvancar()" class="hidden btn-gradiente w-full rounded-2xl py-4 font-bold text-lg text-white shadow-lg">
@@ -215,6 +276,7 @@ Objeto</textarea>
             </div>
         </div>
 
+        <!-- ECRÃ 5: CLASSIFICAÇÃO FINAL -->
         <div id="tela-ranking" class="tela max-w-xl mx-auto">
             <div class="text-center mb-8">
                 <div class="text-5xl mb-3">🏆</div>
@@ -223,14 +285,15 @@ Objeto</textarea>
             </div>
 
             <div id="areaPodio" class="cartao-glass rounded-3xl p-6 space-y-3 mb-6">
-                </div>
+                <!-- Leaderboard final -->
+            </div>
 
             <button id="btnJogarNovamente" onclick="reiniciarPartidaCompleta()" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-lg mb-3 shadow-md">
                 🔄 Começar Nova Partida
             </button>
             
-            <button onclick="location.reload()" class="bg-slate-800 hover:bg-slate-700 w-full text-slate-300 rounded-2xl py-4 font-bold transition-colors">
-                🏠 Voltar ao Início
+            <button onclick="sairDaSala()" class="bg-slate-800 hover:bg-slate-700 w-full text-slate-300 rounded-2xl py-4 font-bold transition-colors">
+                🏠 Sair e Voltar ao Início
             </button>
         </div>
 
@@ -238,7 +301,7 @@ Objeto</textarea>
 
 <script>
     // ==========================================
-    // CONFIGURAÇÃO DO FIREBASE (Pronto e Conectado)
+    // CONFIGURAÇÃO DO FIREBASE
     // ==========================================
     const firebaseConfig = {
         apiKey: "AIzaSyAXDRmj8tQzxszosyxQi5cLDG87t91ZlGs",
@@ -280,6 +343,22 @@ Objeto</textarea>
         const alvo = document.getElementById(idEcran);
         if (alvo) alvo.classList.add('ativa');
         window.scrollTo(0,0);
+    }
+
+    // ==========================================
+    // FUNÇÃO DE VOLTAR / SAIR DA SALA
+    // ==========================================
+    function sairDaSala() {
+        if(confirm("Tem certeza que deseja sair desta sala? O seu progresso será perdido.")) {
+            // Remove o jogador do Firebase imediatamente para não ficar como fantasma
+            if(db && salaAtual && meuId) {
+                db.ref(`salas/${salaAtual}/jogadores/${meuId}`).remove()
+                  .then(() => { location.reload(); })
+                  .catch(() => { location.reload(); });
+            } else {
+                location.reload();
+            }
+        }
     }
 
     // ==========================================
@@ -544,7 +623,6 @@ Objeto</textarea>
         elementoBotao.style.borderColor = valorDoVoto ? '#10b981' : '#f43f5e';
     }
 
-    // FUNÇÃO CORRIGIDA: Avança rodada lendo direto do Banco de Dados de forma assíncrona e segura
     async function processarEAvancar() {
         if (!isDono) return;
         document.getElementById("btnApurar").disabled = true;
