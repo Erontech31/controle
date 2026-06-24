@@ -18,8 +18,8 @@
     #leitor-qr video{border-radius:16px}
     #qrcode img{margin:0 auto}
 
-    .btn-tempo{flex:1;padding:10px 4px;border-radius:12px;font-weight:700;font-size:.82rem;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff}
-    .btn-tempo.ativo{background:#fff;color:#7e22ce;border-color:#fff;box-shadow:0 6px 14px rgba(0,0,0,.25)}
+    .btn-opcao{flex:1;padding:10px 4px;border-radius:12px;font-weight:700;font-size:.82rem;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;transition:.15s}
+    .btn-opcao.ativo{background:#fff;color:#7e22ce;border-color:#fff;box-shadow:0 6px 14px rgba(0,0,0,.25)}
 
     .voto-sim{background:#16a34a;color:#fff}
     .voto-nao{background:#dc2626;color:#fff}
@@ -58,7 +58,7 @@
         <p id="aviso" class="text-center mt-5 text-yellow-200 text-sm min-h-[1.5rem]"></p>
     </div>
 
-    <!-- TELA 2 - SALA / QR -->
+    <!-- TELA 2 - SALA / QR / CONFIGURAÇÕES -->
     <div id="t2" class="tela">
         <div class="text-center mb-4">
             <p class="text-xs opacity-80">CÓDIGO DA SALA</p>
@@ -67,17 +67,33 @@
         </div>
         <h3 class="font-bold mb-2">👥 Jogadores: <span id="qtd">0</span></h3>
         <ul id="jogadores" class="space-y-2 mb-5"></ul>
-        <div id="painelDono" class="hidden space-y-3">
+
+        <div id="painelDono" class="hidden space-y-4">
+            <!-- ⏱️ TEMPO -->
             <div>
                 <p class="text-sm font-bold mb-2">⏱️ Tempo por rodada</p>
                 <div class="flex gap-2">
-                    <button class="btn-tempo ativo" data-seg="60"  onclick="escolherTempo(this)">1 MIN</button>
-                    <button class="btn-tempo"      data-seg="180" onclick="escolherTempo(this)">3 MIN</button>
-                    <button class="btn-tempo"      data-seg="300" onclick="escolherTempo(this)">5 MIN</button>
-                    <button class="btn-tempo"      data-seg="600" onclick="escolherTempo(this)">10 MIN</button>
+                    <button class="btn-opcao ativo" data-valor="60"  data-grupo="tempo" onclick="escolherOpcao(this)">1 MIN</button>
+                    <button class="btn-opcao"      data-valor="180" data-grupo="tempo" onclick="escolherOpcao(this)">3 MIN</button>
+                    <button class="btn-opcao"      data-valor="300" data-grupo="tempo" onclick="escolherOpcao(this)">5 MIN</button>
+                    <button class="btn-opcao"      data-valor="600" data-grupo="tempo" onclick="escolherOpcao(this)">10 MIN</button>
                 </div>
                 <input type="hidden" id="tempo" value="60">
             </div>
+
+            <!-- 🎲 NOVO: QUANTIDADE DE RODADAS 1 A 5 -->
+            <div>
+                <p class="text-sm font-bold mb-2">🎲 Quantidade de rodadas</p>
+                <div class="flex gap-2">
+                    <button class="btn-opcao"      data-valor="1" data-grupo="rodadas" onclick="escolherOpcao(this)">1</button>
+                    <button class="btn-opcao"      data-valor="2" data-grupo="rodadas" onclick="escolherOpcao(this)">2</button>
+                    <button class="btn-opcao ativo" data-valor="3" data-grupo="rodadas" onclick="escolherOpcao(this)">3</button>
+                    <button class="btn-opcao"      data-valor="4" data-grupo="rodadas" onclick="escolherOpcao(this)">4</button>
+                    <button class="btn-opcao"      data-valor="5" data-grupo="rodadas" onclick="escolherOpcao(this)">5</button>
+                </div>
+                <input type="hidden" id="rodadas" value="3">
+            </div>
+
             <label class="block text-sm">📋 Categorias <span class="opacity-70">(uma por linha)</span>
                 <textarea id="cats" rows="6" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/20 border border-white/30 text-sm">Nome
 Cor
@@ -88,23 +104,24 @@ Profissão
 Comida
 Marca</textarea>
             </label>
+
             <button onclick="iniciar()" class="w-full py-4 rounded-2xl bg-green-400 text-green-900 font-bold text-lg shadow-xl active:scale-95">▶️ INICIAR JOGO</button>
         </div>
         <p id="avisoSala" class="text-center mt-3 text-yellow-200 text-sm">Aguardando o dono começar...</p>
     </div>
 
-    <!-- TELA 3 - JOGO -->
+    <!-- TELA 3 - JOGANDO -->
     <div id="t3" class="tela">
         <div class="flex justify-between items-center mb-2">
             <div><p class="text-xs opacity-80">LETRA</p><p id="letra" class="letra-gigante text-yellow-300"></p></div>
             <div class="text-right"><p class="text-xs opacity-80">TEMPO</p><p id="crono" class="text-5xl font-black"></p></div>
         </div>
-        <p class="text-center text-xs mb-3">Rodada <span id="nr">1</span></p>
+        <p class="text-center text-xs mb-3">Rodada <span id="nr">1</span> de <span id="totalRodadas">3</span></p>
         <div id="respostas" class="space-y-2 max-h-[54vh] overflow-y-auto"></div>
         <button onclick="stop()" id="btnStop" class="w-full mt-4 py-4 rounded-2xl bg-red-500 font-bold text-lg shadow-xl active:scale-95">✋ STOP / PAREI</button>
     </div>
 
-    <!-- ✅ TELA 4 - ANÁLISE E VOTAÇÃO COMPLETA -->
+    <!-- TELA 4 - ANÁLISE E VOTAÇÃO -->
     <div id="t4" class="tela">
         <h2 class="text-2xl font-bold text-center mb-1">⚖️ ANÁLISE DAS PALAVRAS</h2>
         <p class="text-center mb-3">Letra: <b id="lC" class="text-yellow-300 text-xl"></b> · <span id="statusVotacao" class="text-sm">Carregando votos...</span></p>
@@ -112,7 +129,7 @@ Marca</textarea>
         <button onclick="prox()" id="btnProx" class="w-full mt-4 py-3 rounded-2xl bg-white text-purple-700 font-bold shadow-xl active:scale-95 hidden">➡️ PRÓXIMA RODADA</button>
     </div>
 
-    <!-- TELA 5 - FIM -->
+    <!-- TELA 5 - FIM / RANKING -->
     <div id="t5" class="tela text-center">
         <h2 class="text-3xl font-black mb-5">🏆 FIM DE JOGO!</h2>
         <div id="ranking" class="space-y-2"></div>
@@ -138,7 +155,7 @@ firebase.initializeApp(firebaseConfig);
 const DB = firebase.database();
 const ALFA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-let sala="", meuId="", dono=false, cats=[], crono=null, tempo=60, totalJog=0;
+let sala="", meuId="", dono=false, cats=[], crono=null, tempo=60, totalRodadas=3, totalJog=0;
 let leitorQR=null;
 const corpo = document.getElementById("corpo");
 const aviso = m => document.getElementById("aviso").innerText=m;
@@ -150,12 +167,21 @@ const ir = n => {
     pararLeitorQR();
 };
 
-function escolherTempo(el){
-    document.querySelectorAll(".btn-tempo").forEach(b=>b.classList.remove("ativo"));
+// ✅ Função única para tempo E rodadas
+function escolherOpcao(el){
+    const grupo = el.dataset.grupo;
+    const valor = +el.dataset.valor;
+    document.querySelectorAll(`.btn-opcao[data-grupo='${grupo}']`).forEach(b=>b.classList.remove("ativo"));
     el.classList.add("ativo");
-    const seg = +el.dataset.seg;
-    document.getElementById("tempo").value = seg;
-    if(sala && dono) DB.ref("salas/"+sala).update({tempo:seg, categorias:document.getElementById("cats").value});
+    document.getElementById(grupo).value = valor;
+    if(grupo==="rodadas") totalRodadas = valor;
+    if(sala && dono){
+        DB.ref("salas/"+sala).update({
+            tempo: +document.getElementById("tempo").value,
+            rodadas: +document.getElementById("rodadas").value,
+            categorias: document.getElementById("cats").value
+        });
+    }
 }
 
 const gerarCodigo = async () => {
@@ -167,12 +193,16 @@ const gerarCodigo = async () => {
 async function criarSala(){
     const n=document.getElementById("nome").value.trim();
     if(!n) return aviso("Digite seu nome!");
+    totalRodadas = +document.getElementById("rodadas").value;
     sala = await gerarCodigo();
     meuId=DB.ref("salas/"+sala).push().key; dono=true;
     await DB.ref("salas/"+sala).set({
-        dono:meuId, status:"aguardando", tempo:+document.getElementById("tempo").value,
-        rodada:1, rodadas:5, letra:"", letrasUsadas:[],
-        categorias:document.getElementById("cats").value, parou:"", respostas:{}, votos:{}
+        dono:meuId, status:"aguardando",
+        tempo:+document.getElementById("tempo").value,
+        rodadas:totalRodadas,
+        rodada:1, letra:"", letrasUsadas:[],
+        categorias:document.getElementById("cats").value,
+        parou:"", respostas:{}, votos:{}
     });
     await DB.ref("salas/"+sala+"/jogadores/"+meuId).set({nome:n,pontos:0});
     abrirSala();
@@ -185,6 +215,7 @@ function entrarSala(){
         if(!s.exists()) return aviso("Sala não existe");
         if(s.val().status!=="aguardando") return aviso("Jogo já começou");
         sala=c; meuId=DB.ref("salas/"+sala).push().key; dono=s.val().dono===meuId;
+        totalRodadas = +(s.val().rodadas||3);
         DB.ref("salas/"+sala+"/jogadores/"+meuId).set({nome:n,pontos:0});
         abrirSala();
     });
@@ -226,6 +257,7 @@ function ouvirSala(){
             </li>`).join("");
     });
     DB.ref("salas/"+sala+"/dono").on("value",s=>dono=s.val()===meuId);
+    DB.ref("salas/"+sala+"/rodadas").on("value",s=>{totalRodadas=+s.val()||3;document.getElementById("rodadas").value=totalRodadas});
     DB.ref("salas/"+sala+"/status").on("value",s=>{
         if(s.val()==="jogando") carregaRodada();
         if(s.val()==="correcao") carregaCorrecao();
@@ -234,11 +266,18 @@ function ouvirSala(){
 }
 
 function iniciar(){
-    DB.ref("salas/"+sala).update({tempo:+document.getElementById("tempo").value,categorias:document.getElementById("cats").value});
+    DB.ref("salas/"+sala).update({
+        tempo:+document.getElementById("tempo").value,
+        rodadas:+document.getElementById("rodadas").value,
+        categorias:document.getElementById("cats").value
+    });
     DB.ref("salas/"+sala).get().then(d=>{
         const u=d.val().letrasUsadas||[]; let l;
         do l=ALFA[~~(Math.random()*26)]; while(u.includes(l));
-        DB.ref("salas/"+sala).update({status:"jogando",rodada:1,letra:l,letrasUsadas:[...u,l],parou:"",tempoRestante:d.val().tempo,respostas:{},votos:{}});
+        DB.ref("salas/"+sala).update({
+            status:"jogando",rodada:1,letra:l,letrasUsadas:[...u,l],
+            parou:"",tempoRestante:d.val().tempo,respostas:{},votos:{}
+        });
     });
 }
 
@@ -246,9 +285,11 @@ function carregaRodada(){
     DB.ref("salas/"+sala).get().then(d=>{
         const s=d.val();
         cats=s.categorias.split("\n").map(c=>c.trim()).filter(Boolean);
-        tempo=s.tempo; ir(3);
+        tempo=s.tempo; totalRodadas=+s.rodadas||3;
+        ir(3);
         document.getElementById("letra").innerText=s.letra;
         document.getElementById("nr").innerText=s.rodada;
+        document.getElementById("totalRodadas").innerText=totalRodadas;
         document.getElementById("crono").innerText=tempo;
         document.getElementById("btnStop").disabled=false;
         document.getElementById("btnStop").innerText="✋ STOP / PAREI";
@@ -268,13 +309,13 @@ function carregaRodada(){
     });
 }
 
-// ⚡ STOP AGORA É INSTANTÂNEO — VAI DIRETO PARA CORREÇÃO
+// ⚡ STOP INSTANTÂNEO
 function stop(){
     clearInterval(crono);
     DB.ref("salas/"+sala).update({parou:meuId, status:"correcao"});
 }
 
-// ✅ TELA DE VOTAÇÃO COMPLETA
+// ✅ VOTAÇÃO COMPLETA
 function carregaCorrecao(){
     clearInterval(crono); ir(4);
     DB.ref("salas/"+sala).once("value",d=>{
@@ -282,95 +323,88 @@ function carregaCorrecao(){
         document.getElementById("lC").innerText=s.letra;
         const jogs = Object.entries(s.jogadores||{});
         const resps = s.respostas||{};
+        const totalRespostas = cats.length * jogs.length;
 
         const montar = () => {
-            let html="", totalVotosNecessarios = cats.length * (jogs.length-1) * jogs.length;
-            let totalVotosFeitos=0;
-
+            let html="", votosFeitos=0;
             cats.forEach((cat,ic)=>{
                 html += `<div class="bg-white/15 backdrop-blur rounded-xl p-3"><p class="font-bold mb-2">📌 ${cat}</p>`;
                 jogs.forEach(([jid,j])=>{
                     const palavra = (resps[jid]?.[ic]||"").trim() || "—";
-                    const comecaLetra = palavra!=="—" && palavra.startsWith(s.letra);
                     const caminhoVoto = `salas/${sala}/votos/${ic}/${jid}`;
+                    html += `<div id="res-${ic}-${jid}" class="border-t border-white/10 py-2"></div>`;
 
                     DB.ref(caminhoVoto).once("value",vv=>{
                         const votos = vv.val()||{};
                         const sim = Object.values(votos).filter(v=>v===true).length;
                         const nao = Object.values(votos).filter(v=>v===false).length;
                         const meuVoto = votos[meuId];
-                        const total = jogs.length-1; // sem o próprio
+                        const total = jogs.length-1;
                         const maioria = Math.ceil(total/2);
                         const aceita = sim>=maioria && sim>0;
                         const cheio = sim===total && total>0;
-                        totalVotosFeitos += sim+nao;
+                        const comeca = palavra!=="—" && palavra.startsWith(s.letra);
+                        const pts = !comeca ? 0 : cheio?15 : aceita?10:0;
+                        const cor = !comeca ? "text-red-300" : aceita?"text-green-300":"text-red-300";
 
-                        const statusCor = !comecaLetra ? "text-red-300" : aceita ? "text-green-300" : "text-red-300";
-                        const pts = !comecaLetra ? 0 : cheio ? 15 : aceita ? 10 : 0;
+                        if(sim+nao === total) votosFeitos++;
+                        const progresso = document.querySelectorAll(`[data-votado='1']`).length;
 
                         document.getElementById(`res-${ic}-${jid}`).innerHTML = `
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center" data-votado="${sim+nao===total?1:0}">
                                 <div>
                                     <div class="text-sm">${jid===meuId?"🫵 ":""}${j.nome}</div>
-                                    <div class="font-bold ${statusCor}">${palavra}</div>
+                                    <div class="font-bold ${cor}">${palavra}</div>
                                     <div class="text-[11px] opacity-80">✅ ${sim} / ❌ ${nao} ${pts>0?`· <b>${pts} pts</b>`:""}</div>
                                 </div>
-                                ${jid===meuId ? `<span class="text-[10px] opacity-60">não vota em si</span>` : `
+                                ${jid===meuId ? `<span class="text-[10px] opacity-60">você</span>` : `
                                 <div class="flex gap-1">
                                     <button onclick="votar('${ic}','${jid}',true)" class="voto-sim px-3 py-1.5 rounded-lg text-xs ${meuVoto===true?'selecionado':''}">✅</button>
                                     <button onclick="votar('${ic}','${jid}',false)" class="voto-nao px-3 py-1.5 rounded-lg text-xs ${meuVoto===false?'selecionado':''}">❌</button>
                                 </div>`}
                             </div>`;
 
-                        const feito = document.querySelectorAll("[data-feito='1']").length;
-                        const falta = cats.length * jogs.length;
-                        document.getElementById("statusVotacao").innerText = `Votos: ${feito}/${falta}`;
+                        document.getElementById("statusVotacao").innerText = `Votos concluídos: ${votosFeitos}/${totalRespostas}`;
 
-                        // Quando TODOS votaram tudo → salva pontos e libera botão
-                        if(feito === falta && dono){
-                            // salva pontos 1x
+                        // 100% = salva pontos e libera botão pro dono
+                        if(votosFeitos === totalRespostas && dono){
                             const ptsFinais={};
                             jogs.forEach(([jid2])=>ptsFinais[jid2]=0);
                             cats.forEach((_,icc)=>jogs.forEach(([jid2])=>{
-                                const vv2 = (s.votos?.[icc]?.[jid2])||{};
+                                const vv2=(s.votos?.[icc]?.[jid2])||{};
                                 const s2=Object.values(vv2).filter(v=>v).length;
-                                const n2=Object.values(vv2).filter(v=>v===false).length;
                                 const tt=jogs.length-1, mj=Math.ceil(tt/2);
-                                const p = (resps[jid2]?.[icc]||"").startsWith(s.letra)
-                                    ? (s2===tt?15 : s2>=mj?10 : 0) : 0;
+                                const p=(resps[jid2]?.[icc]||"").startsWith(s.letra)?(s2===tt?15:s2>=mj?10:0):0;
                                 ptsFinais[jid2]+=p;
                             }));
-                            jogs.forEach(([jid2,j2])=>{
-                                DB.ref(`salas/${sala}/jogadores/${jid2}/pontos`).set((j2.pontos||0)+ptsFinais[jid2]);
-                            });
+                            jogs.forEach(([jid2,j2])=>DB.ref(`salas/${sala}/jogadores/${jid2}/pontos`).set((j2.pontos||0)+ptsFinais[jid2]));
                             document.getElementById("btnProx").classList.remove("hidden");
                         }
                     });
-
-                    html += `<div id="res-${ic}-${jid}" data-feito="0" class="border-t border-white/10 py-2 last:border-0"></div>`;
                 });
                 html += `</div>`;
             });
             document.getElementById("correcao").innerHTML = html;
         };
         montar();
-
-        // Atualiza em tempo real sempre que alguém vota
         DB.ref("salas/"+sala+"/votos").on("value",()=>montar());
     });
 }
 
-function votar(cat, alvo, valor){
-    DB.ref(`salas/${sala}/votos/${cat}/${alvo}/${meuId}`).set(valor);
-}
+function votar(cat,alvo,valor){ DB.ref(`salas/${sala}/votos/${cat}/${alvo}/${meuId}`).set(valor) }
 
+// ✅ AGORA USA O VALOR QUE O DONO ESCOLHEU (1-5)
 function prox(){
     DB.ref("salas/"+sala+"/votos").off();
     DB.ref("salas/"+sala).get().then(d=>{
         const s=d.val(), nx=s.rodada+1;
-        if(nx>s.rodadas) return DB.ref("salas/"+sala).update({status:"fim"});
+        // AQUI É A MUDANÇA: NÃO É MAIS FIXO EM 5
+        if(nx > (+s.rodadas||3)) return DB.ref("salas/"+sala).update({status:"fim"});
         let l; do l=ALFA[~~(Math.random()*26)]; while(s.letrasUsadas.includes(l));
-        DB.ref("salas/"+sala).update({status:"jogando",rodada:nx,letra:l,letrasUsadas:[...s.letrasUsadas,l],parou:"",tempoRestante:s.tempo,respostas:{},votos:{}});
+        DB.ref("salas/"+sala).update({
+            status:"jogando",rodada:nx,letra:l,letrasUsadas:[...s.letrasUsadas,l],
+            parou:"",tempoRestante:s.tempo,respostas:{},votos:{}
+        });
     });
 }
 
