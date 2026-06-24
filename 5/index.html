@@ -218,7 +218,7 @@ Objeto</textarea>
             <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 max-h-[55vh] overflow-y-auto no-scrollbar pb-4">
                 </div>
 
-            <button onclick="submeterRespostasStop(false)" id="btnStop" class="w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-5 font-black text-2xl tracking-widest uppercase transition-colors shadow-lg">
+            <button onclick="submeterRespostasStop(false)" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-5 font-black text-2xl tracking-widest uppercase transition-colors shadow-lg">
                 🚨 STOP!
             </button>
         </div>
@@ -297,13 +297,29 @@ Objeto</textarea>
     let categoriasJogo = [];
     let cronometro = null;
     let scannerQr = null;
-
-    const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let jogadoresRegistrados = null; // Variável para controlar os jogadores e emitir notificações
 
     function emitirAviso(titulo, texto, tipo = 'error') {
         if (typeof Swal !== 'undefined') {
             Swal.fire({ title: titulo, text: texto, icon: tipo, background: '#111827', color: '#fff', confirmButtonColor: '#6366f1', customClass: { popup: 'rounded-3xl border border-slate-800' } });
         } else { alert(`${titulo}\n\n${texto}`); }
+    }
+
+    // Função de notificação tipo toast para entradas e saídas
+    function mostrarNotificacaoToast(texto, tipo) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                title: texto,
+                icon: tipo,
+                background: '#111827',
+                color: '#fff',
+                customClass: { popup: 'rounded-xl border border-slate-800' }
+            });
+        }
     }
 
     function gerirNavegacaoEcras(idEcran) {
@@ -373,6 +389,7 @@ Objeto</textarea>
     }
 
     function vincularJogadorESala() {
+        jogadoresRegistrados = null; // Reinicia rastreador de notificações ao vincular sala
         const refJogadores = db.ref(`salas/${salaAtual}/jogadores`);
         const novaConexaoRef = refJogadores.push();
         meuId = novaConexaoRef.key;
@@ -408,8 +425,31 @@ Objeto</textarea>
     }
 
     function sincronizarListaLobby(dados) {
-        if (!dados.jogadores) return;
-        const listaInstanciada = Object.values(dados.jogadores);
+        if (!dados.jogadores) {
+            jogadoresRegistrados = {};
+            document.getElementById("qtdJogadores").innerText = "0";
+            document.getElementById("listaJogadores").innerHTML = "";
+            return;
+        }
+
+        const jogadoresAtuais = dados.jogadores;
+
+        // Lógica para disparar notificações de entrada e saída
+        if (jogadoresRegistrados !== null) {
+            for (let id in jogadoresAtuais) {
+                if (!jogadoresRegistrados[id]) {
+                    mostrarNotificacaoToast(`👋 ${jogadoresAtuais[id].nome} entrou na sala!`, 'success');
+                }
+            }
+            for (let id in jogadoresRegistrados) {
+                if (!jogadoresAtuais[id]) {
+                    mostrarNotificacaoToast(`🚶 ${jogadoresRegistrados[id].nome} saiu da sala.`, 'info');
+                }
+            }
+        }
+        jogadoresRegistrados = {...jogadoresAtuais};
+
+        const listaInstanciada = Object.values(jogadoresAtuais);
         document.getElementById("qtdJogadores").innerText = listaInstanciada.length;
         
         const htmlElementos = listaInstanciada.map(j => `
@@ -478,16 +518,20 @@ Objeto</textarea>
         document.getElementById("rodadaAtualL").innerText = dados.rodadaAtual;
         document.getElementById("rodadasTotalL").innerText = dados.config.rodadas;
         
+        // Input alterado para chamar "verificarPreenchimentoCategorias()" a cada digitação
         const htmlGerado = categoriasJogo.map((cat, idx) => `
             <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 focus-within:border-indigo-500 transition-all">
                 <label class="block text-[11px] font-bold text-indigo-400 uppercase tracking-widest mb-1.5">${cat}</label>
-                <input type="text" id="resposta_campo_${idx}" class="w-full bg-transparent text-white font-bold text-lg outline-none" autocomplete="off" placeholder="Digitar...">
+                <input type="text" id="resposta_campo_${idx}" oninput="verificarPreenchimentoCategorias()" class="w-full bg-transparent text-white font-bold text-lg outline-none" autocomplete="off" placeholder="Digitar...">
             </div>
         `).join('');
         
         document.getElementById("areaInputs").innerHTML = htmlGerado;
+        
+        // Garante que o botão comece com o texto correto, habilitado e oculto
         document.getElementById("btnStop").innerText = "🚨 STOP!";
         document.getElementById("btnStop").disabled = false;
+        document.getElementById("btnStop").classList.add("hidden"); 
 
         setTimeout(() => document.getElementById("resposta_campo_0")?.focus(), 400);
 
@@ -497,6 +541,24 @@ Objeto</textarea>
             document.getElementById("tempoRestante").innerText = restante;
             if (restante <= 0) submeterRespostasStop(true); 
         }, 1000);
+    }
+
+    // Função para verificar se todas as categorias estão preenchidas e exibir o botão STOP
+    function verificarPreenchimentoCategorias() {
+        let todasPreenchidas = true;
+        categoriasJogo.forEach((_, idx) => {
+            const campo = document.getElementById(`resposta_campo_${idx}`);
+            if (!campo || campo.value.trim() === "") {
+                todasPreenchidas = false;
+            }
+        });
+        
+        const btn = document.getElementById("btnStop");
+        if (todasPreenchidas) {
+            btn.classList.remove("hidden");
+        } else {
+            btn.classList.add("hidden");
+        }
     }
 
     async function submeterRespostasStop(porTempoEsgotado = false) {
