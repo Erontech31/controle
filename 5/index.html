@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Adedonha Online 🎮</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+        
+        .bg-efeito {
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a, #020617);
+            background-size: 200% 200%;
+            animation: moverGradiente 12s ease infinite;
+        }
+
+        @keyframes moverGradiente {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .cartao-glass {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+        }
+
+        .tela { display: none; }
+        .tela.ativa { display: block; animation: abrirTela 0.35s ease-out forwards; }
+        
+        @keyframes abrirTela {
+            from { opacity: 0; transform: translateY(8px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .input-premium {
+            background: rgba(7, 10, 19, 0.5);
+            border: 2px solid #1e293b;
+            transition: all 0.25s ease;
+        }
+        .input-premium:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 16px rgba(99, 102, 241, 0.35); }
+
+        .btn-gradiente {
+            background: linear-gradient(135deg, #6366f1, #7c3aed);
+            transition: transform 0.15s, filter 0.2s;
+        }
+        .btn-gradiente:active { transform: scale(0.97); }
+        .btn-gradiente:hover { filter: brightness(1.1); }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-efeito min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md">
+
+        <div id="status-conexao" class="hidden mb-4 p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-center text-sm font-semibold text-rose-300">
+            ⚠️ Erro de ligação ao Firebase. Verifique as regras do seu Banco de Dados.
+        </div>
+
+        <div id="tela-inicio" class="tela ativa">
+            <div class="text-center mb-8">
+                <h1 class="text-5xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-extrabold">Adedonha</h1>
+                <p class="text-slate-400 font-medium text-sm tracking-wide">Jogo Online de Palavras • Máx. 10 Amigos</p>
+            </div>
+
+            <div class="cartao-glass rounded-3xl p-6 space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">O Seu Apelido</label>
+                    <input type="text" id="inputNome" maxlength="12" placeholder="Ex: André" class="input-premium w-full rounded-2xl px-5 py-4 text-lg font-bold text-center text-white placeholder-slate-600">
+                </div>
+
+                <hr class="border-slate-800">
+
+                <button onclick="criarSala()" class="btn-gradiente w-full rounded-2xl py-4 font-bold text-lg shadow-lg shadow-indigo-500/20 text-white">
+                    ✨ Criar Nova Sala
+                </button>
+
+                <div class="text-center text-slate-500 text-xs font-black uppercase tracking-widest">OU JUNTAR-SE</div>
+
+                <div class="flex gap-2">
+                    <input type="text" id="inputCodigo" maxlength="6" inputmode="numeric" placeholder="CÓDIGO" class="input-premium flex-1 rounded-2xl px-4 py-4 text-xl font-black text-center tracking-widest text-indigo-300 placeholder-slate-600">
+                    <button onclick="alternarLeitorQR()" class="bg-slate-800 hover:bg-slate-700 text-white rounded-2xl px-5 transition-colors shadow-md">
+                        📷
+                    </button>
+                </div>
+                <div id="leitor-qr" class="hidden rounded-2xl overflow-hidden border-2 border-indigo-500/30 mt-2"></div>
+                
+                <button onclick="entrarSala()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-lg transition-colors shadow-lg shadow-emerald-600/10">
+                    Entrar na Sala Pronta ➡️
+                </button>
+            </div>
+        </div>
+
+        <div id="tela-lobby" class="tela">
+            <div class="cartao-glass rounded-3xl p-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                
+                <div class="text-center mb-6 mt-2">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Código da Sala</p>
+                    <p id="lblCodigoSala" class="text-5xl font-black text-indigo-400 tracking-widest font-extrabold"></p>
+                </div>
+
+                <div class="flex justify-center mb-6">
+                    <div class="p-2 bg-white rounded-xl shadow-xl"><div id="qrcodeBox"></div></div>
+                </div>
+
+                <div class="flex justify-between items-end border-b border-slate-800 pb-2 mb-4">
+                    <h3 class="font-bold text-base text-slate-300">👥 Jogadores na Sala</h3>
+                    <span class="text-xs font-bold px-3 py-1 bg-slate-900 rounded-full text-indigo-300"><span id="qtdJogadores">0</span>/10</span>
+                </div>
+
+                <ul id="listaJogadores" class="space-y-2 mb-6 max-h-40 overflow-y-auto no-scrollbar">
+                    </ul>
+
+                <div id="painelConfig" class="hidden bg-slate-900/60 rounded-2xl p-4 mb-4 border border-slate-800">
+                    <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3">⚙️ Configurações do Jogo</p>
+                    
+                    <label class="block text-xs font-semibold mb-1 text-slate-400">Categorias (uma por linha)</label>
+                    <textarea id="inputCategorias" rows="4" class="input-premium w-full rounded-xl p-3 text-sm mb-3">Nome
+Animal
+Cor
+País ou Cidade
+Fruta
+Objeto</textarea>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-400">Tempo (Segundos)</label>
+                            <input type="number" id="inputTempo" value="60" class="input-premium w-full rounded-xl p-2 text-center font-bold text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-400">Total Rodadas</label>
+                            <input type="number" id="inputRodadas" value="3" class="input-premium w-full rounded-xl p-2 text-center font-bold text-white">
+                        </div>
+                    </div>
+                    
+                    <button onclick="iniciarRodada()" class="btn-gradiente w-full rounded-xl py-3 font-bold text-white shadow-md">
+                        ▶️ Começar Partida
+                    </button>
+                </div>
+
+                <div id="msgAguardando" class="text-center text-slate-400 text-sm py-2 animate-pulse">
+                    Aguardando que o líder inicie o jogo...
+                </div>
+            </div>
+        </div>
+
+        <div id="tela-jogo" class="tela">
+            <div class="flex justify-between items-center mb-6">
+                <div class="cartao-glass px-5 py-3 rounded-2xl border-l-4 border-indigo-500">
+                    <p class="text-xs text-slate-400 font-bold tracking-wider">LETRA</p>
+                    <p id="letraSorteada" class="text-4xl font-black text-amber-400 font-extrabold"></p>
+                </div>
+                <div class="cartao-glass px-5 py-3 rounded-2xl text-right border-r-4 border-rose-500">
+                    <p class="text-xs text-slate-400 font-bold tracking-wider">TEMPO</p>
+                    <p id="tempoRestante" class="text-4xl font-black text-rose-400 font-extrabold">60</p>
+                </div>
+            </div>
+
+            <div class="text-center mb-4 text-xs font-bold tracking-widest text-slate-400 uppercase">
+                Rodada <span id="rodadaAtualL" class="text-indigo-400"></span> de <span id="rodadasTotalL"></span>
+            </div>
+
+            <div id="areaInputs" class="space-y-3 max-h-[50vh] overflow-y-auto no-scrollbar mb-6 pb-4">
+                </div>
+
+            <button onclick="submeterRespostasStop(false)" id="btnStop" class="w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-5 font-black text-2xl tracking-widest uppercase transition-colors shadow-lg shadow-rose-600/10">
+                🚨 STOP!
+            </button>
+        </div>
+
+        <div id="tela-votacao" class="tela">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-black mb-1">⚖️ Tribunal de Validação</h2>
+                <p class="text-slate-400 text-sm">Avalie as respostas para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-xl"></span></p>
+            </div>
+
+            <div id="areaVotacao" class="space-y-5 max-h-[60vh] overflow-y-auto no-scrollbar pb-4">
+                </div>
+
+            <button id="btnApurar" onclick="processarEAvancar()" class="hidden btn-gradiente w-full rounded-2xl py-4 mt-6 font-bold text-lg text-white shadow-lg">
+                ✅ Concluir Votação e Avançar
+            </button>
+            <p id="msgVotacao" class="text-center text-slate-400 text-sm mt-4 animate-pulse">Aguardando que o líder encerre a apuração...</p>
+        </div>
+
+        <div id="tela-ranking" class="tela">
+            <div class="text-center mb-8">
+                <div class="text-5xl mb-3">🏆</div>
+                <h2 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500 font-extrabold">Fim de Jogo!</h2>
+                <p class="text-slate-400 text-sm mt-1">Classificação final dos participantes</p>
+            </div>
+
+            <div id="areaPodio" class="cartao-glass rounded-3xl p-6 space-y-3 mb-6">
+                </div>
+
+            <button id="btnJogarNovamente" onclick="reiniciarPartidaCompleta()" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-lg mb-3 shadow-md">
+                🔄 Começar Nova Partida
+            </button>
+            
+            <button onclick="location.reload()" class="bg-slate-800 hover:bg-slate-700 w-full text-slate-300 rounded-2xl py-4 font-bold transition-colors">
+                🏠 Voltar ao Início
+            </button>
+        </div>
+
+    </div>
+
+<script>
+    // ==========================================
+    // CONFIGURAÇÃO DO FIREBASE (Suas Credenciais Originais)
+    // ==========================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyAXDRmj8tQzxszosyxQi5cLDG87t91ZlGs",
+        authDomain: "adedonha-30f7b.firebaseapp.com",
+        databaseURL: "https://adedonha-30f7b-default-rtdb.firebaseio.com", 
+        projectId: "adedonha-30f7b",
+        storageBucket: "adedonha-30f7b.firebasestorage.app",
+        messagingSenderId: "513068782357",
+        appId: "1:513068782357:web:06c58a649c3cdf6002cf1c"
+    };
+
+    // Inicialização Protegida do Firebase
+    let db = null;
+    try {
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } else {
+            console.error("SDK do Firebase não carregou corretamente.");
+        }
+    } catch(e) {
+        console.error("Falha ao inicializar o Firebase:", e);
+    }
+
+    // Variáveis Globais de Estado
+    let meuId = "";
+    let meuNome = "";
+    let salaAtual = "";
+    let isDono = false;
+    let categoriasJogo = [];
+    let cronometro = null;
+    let scannerQr = null;
+
+    const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    // Função de Alerta Resiliente (Caso o CDN do SweetAlert2 falhe, usa o nativo)
+    function emitirAviso(titulo, texto, tipo = 'error') {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: titulo,
+                text: texto,
+                icon: tipo,
+                background: '#111827',
+                color: '#fff',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-3xl border border-slate-800' }
+            });
+        } else {
+            alert(`${titulo}\n\n${texto}`);
+        }
+    }
+
+    function gerirNavegacaoEcras(idEcran) {
+        document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+        const alvo = document.getElementById(idEcran);
+        if (alvo) alvo.classList.add('ativa');
+        window.scrollTo(0,0);
+    }
+
+    // ==========================================
+    // LÓGICA DE GERENCIAMENTO DE SALAS
+    // ==========================================
+    async function criarSala() {
+        if (!db) return mostrarErroBancoDados();
+        
+        meuNome = document.getElementById("inputNome").value.trim().toUpperCase();
+        if (!meuNome) return emitirAviso("Atenção!", "Precisa de digitar o seu apelido primeiro.");
+
+        // Código numérico aleatório de 6 dígitos
+        salaAtual = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        try {
+            isDono = true;
+            await db.ref('salas/' + salaAtual).set({
+                status: 'lobby',
+                config: { categorias: "", tempo: 60, rodadas: 3 },
+                rodadaAtual: 1,
+                letraAtual: "",
+                letrasUsadas: [],
+                endTime: 0
+            });
+            
+            vincularJogadorESala();
+        } catch (error) {
+            console.error("Erro ao criar sala:", error);
+            mostrarErroBancoDados(error.message);
+        }
+    }
+
+    async function entrarSala() {
+        if (!db) return mostrarErroBancoDados();
+
+        meuNome = document.getElementById("inputNome").value.trim().toUpperCase();
+        salaAtual = document.getElementById("inputCodigo").value.trim();
+
+        if (!meuNome) return emitirAviso("Atenção", "Por favor, digite o seu apelido.");
+        if (salaAtual.length !== 6) return emitirAviso("Código Inválido", "O código deve conter exatamente 6 algarismos.");
+
+        try {
+            const snapshot = await db.ref('salas/' + salaAtual).once('value');
+            if (!snapshot.exists()) return emitirAviso("Não Encontrada", "Esta sala não existe ou já expirou.");
+            
+            const dados = snapshot.val();
+            if (dados.status !== 'lobby') return emitirAviso("Partida Iniciada", "Lamento, o jogo nesta sala já começou.");
+
+            const totalJogadores = dados.jogadores ? Object.keys(dados.jogadores).length : 0;
+            if (totalJogadores >= 10) return emitirAviso("Sala Cheia", "Esta sala já atingiu o limite máximo de 10 amigos.");
+
+            isDono = false;
+            vincularJogadorESala();
+        } catch (error) {
+            emitirAviso("Erro de Conexão", "Não foi possível verificar os dados da sala.");
+        }
+    }
+
+    function vincularJogadorESala() {
+        const refJogadores = db.ref(`salas/${salaAtual}/jogadores`);
+        const novaConexaoRef = refJogadores.push();
+        meuId = novaConexaoRef.key;
+
+        novaConexaoRef.set({ nome: meuNome, pontos: 0 });
+        novaConexaoRef.onDisconnect().remove(); // Remove automaticamente da lista se a aba for fechada
+
+        escutarAlteracoesSala();
+        configurarLobbyVisual();
+    }
+
+    function mostrarErroBancoDados(detalhe = "") {
+        document.getElementById("status-conexao").classList.remove("hidden");
+        emitirAviso(
+            "Falha Crítica no Banco", 
+            "As regras de gravação do seu Firebase Realtime Database podem estar bloqueadas ou expiradas. Detalhe: " + detalhe
+        );
+    }
+
+    // ==========================================
+    // ESCUTA EM TEMPO REAL (REALTIME ENGINE)
+    // ==========================================
+    function escutarAlteracoesSala() {
+        db.ref(`salas/${salaAtual}`).on('value', snapshot => {
+            const dados = snapshot.val();
+            if (!dados) return;
+
+            sincronizarListaLobby(dados);
+
+            const ecranAtual = document.querySelector('.tela.ativa')?.id;
+            
+            if (dados.status === 'jogando' && ecranAtual !== 'tela-jogo') construirAmbienteJogo(dados);
+            if (dados.status === 'votacao' && ecranAtual !== 'tela-votacao') construirAmbienteVotacao(dados);
+            if (dados.status === 'ranking' && ecranAtual !== 'tela-ranking') construirAmbienteRanking(dados);
+        });
+    }
+
+    function sincronizarListaLobby(dados) {
+        if (!dados.jogadores) return;
+        const listaInstanciada = Object.values(dados.jogadores);
+        
+        document.getElementById("qtdJogadores").innerText = listaInstanciada.length;
+        
+        const htmlElementos = listaInstanciada.map(j => `
+            <li class="bg-slate-900/50 px-4 py-3 rounded-xl border border-slate-800/80 flex justify-between items-center animate-pulse">
+                <span class="font-bold text-slate-200 text-sm">${j.nome}</span>
+                <span class="text-xs bg-slate-950 font-semibold px-2.5 py-1 rounded-md text-indigo-400 border border-indigo-950">${j.pontos} pts</span>
+            </li>
+        `).join('');
+        
+        document.getElementById("listaJogadores").innerHTML = htmlElementos;
+    }
+
+    function configurarLobbyVisual() {
+        gerirNavegacaoEcras('tela-lobby');
+        document.getElementById("lblCodigoSala").innerText = salaAtual;
+        
+        document.getElementById("qrcodeBox").innerHTML = "";
+        new QRCode(document.getElementById("qrcodeBox"), { text: salaAtual, width: 130, height: 130 });
+
+        if (isDono) {
+            document.getElementById("painelConfig").classList.remove('hidden');
+            document.getElementById("msgAguardando").classList.add('hidden');
+        }
+    }
+
+    // ==========================================
+    // DINÂMICA DE JOGO E CONTROLADORES
+    // ==========================================
+    async function iniciarRodada() {
+        const areaTexto = document.getElementById("inputCategorias").value;
+        const tempoLimite = parseInt(document.getElementById("inputTempo").value) || 60;
+        const totalRodadas = parseInt(document.getElementById("inputRodadas").value) || 3;
+        
+        const arrCategorias = areaTexto.split('\n').map(c => c.trim()).filter(c => c !== "");
+        if (arrCategorias.length < 2) return emitirAviso("Configuração Incompleta", "Insira pelo menos 2 categorias para jogar.");
+
+        const snapshot = await db.ref(`salas/${salaAtual}`).once('value');
+        const dadosAtuais = snapshot.val();
+        
+        let letraEscolhida = "";
+        let tentativasLetra = 0;
+        do { 
+            letraEscolhida = ALFABETO[Math.floor(Math.random() * ALFABETO.length)]; 
+            tentativasLetra++;
+        } while (dadosAtuais.letrasUsadas && dadosAtuais.letrasUsadas.includes(letraChosen) && tentativasLetra < 30);
+
+        const tempoMilisegundosFinal = Date.now() + (tempoLimite * 1000);
+
+        await db.ref(`salas/${salaAtual}`).update({
+            status: 'jogando',
+            config: { categorias: arrCategorias, tempo: tempoLimite, rodadas: totalRodadas },
+            letraAtual: letraEscolhida,
+            letrasUsadas: [...(dadosAtuais.letrasUsadas || []), letraEscolhida],
+            endTime: tempoMilisegundosFinal,
+            respostas: null, 
+            votos: null      
+        });
+    }
+
+    function construirAmbienteJogo(dados) {
+        gerirNavegacaoEcras('tela-jogo');
+        categoriasJogo = dados.config.categorias;
+        
+        document.getElementById("letraSorteada").innerText = dados.letraAtual;
+        document.getElementById("rodadaAtualL").innerText = dados.rodadaAtual;
+        document.getElementById("rodadasTotalL").innerText = dados.config.rodadas;
+        
+        const htmlGerado = categoriasJogo.map((cat, idx) => `
+            <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800/60 focus-within:border-indigo-500/80 transition-all">
+                <label class="block text-[11px] font-bold text-indigo-400/80 uppercase tracking-widest mb-1.5">${cat}</label>
+                <input type="text" id="resposta_campo_${idx}" class="w-full bg-transparent text-white font-bold text-lg outline-none" autocomplete="off" placeholder="...">
+            </div>
+        `).join('');
+        
+        document.getElementById("areaInputs").innerHTML = htmlGerado;
+        document.getElementById("btnStop").innerText = "🚨 STOP!";
+        document.getElementById("btnStop").disabled = false;
+
+        setTimeout(() => document.getElementById("resposta_campo_0")?.focus(), 400);
+
+        clearInterval(cronometro);
+        cronometro = setInterval(() => {
+            const restante = Math.max(0, Math.ceil((dados.endTime - Date.now()) / 1000));
+            document.getElementById("tempoRestante").innerText = restante;
+            if (restante <= 0) submeterRespostasStop(true); 
+        }, 1000);
+    }
+
+    async function submeterRespostasStop(porTempoEsgotado = false) {
+        clearInterval(cronometro);
+        document.getElementById("btnStop").innerText = "A Enviar Dados...";
+        document.getElementById("btnStop").disabled = true;
+
+        const respostasColetadas = {};
+        categoriasJogo.forEach((_, idx) => {
+            respostasColetadas[idx] = document.getElementById(`resposta_campo_${idx}`).value.trim().toUpperCase();
+        });
+
+        await db.ref(`salas/${salaAtual}/respostas/${meuId}`).set(respostasColetadas);
+
+        if (!porTempoEsgotado) {
+            await db.ref(`salas/${salaAtual}/status`).set('votacao');
+        }
+    }
+
+    // ==========================================
+    // SISTEMA DE VOTAÇÃO E VALIDAÇÃO DE PONTOS
+    // ==========================================
+    function construirAmbienteVotacao(dados) {
+        gerirNavegacaoEcras('tela-votacao');
+        document.getElementById("letraVotacao").innerText = dados.letraAtual;
+        
+        if (isDono) {
+            document.getElementById("btnApurar").classList.remove('hidden');
+            document.getElementById("msgVotacao").classList.add('hidden');
+        } else {
+            document.getElementById("btnApurar").classList.add('hidden');
+            document.getElementById("msgVotacao").classList.remove('hidden');
+        }
+
+        const idsListaJogadores = Object.keys(dados.jogadores || {});
+        let estruturaVisualVotos = "";
+
+        categoriasJogo.forEach((categoriaNome, idxCat) => {
+            estruturaVisualVotos += `
+                <div class="cartao-glass p-4 rounded-2xl border border-slate-800/80">
+                    <h3 class="text-indigo-400 font-extrabold tracking-wider text-xs uppercase mb-3 border-b border-slate-800/60 pb-1.5">${categoriaNome}</h3>
+                    <div class="space-y-2.5">
+            `;
+
+            idsListaJogadores.forEach(jogadorId => {
+                const nomeDoJogador = dados.jogadores[jogadorId].nome;
+                const respostaTexto = (dados.respostas && dados.respostas[jogadorId] && dados.respostas[jogadorId][idxCat]) || "";
+                
+                const comecaComLetraCerta = respostaTexto.startsWith(dados.letraAtual);
+                const stringExibicao = respostaTexto || "<span class='text-slate-600 italic font-normal text-sm'>Em branco</span>";
+                const classeBorda = comecaComLetraCerta ? 'border-slate-800' : 'border-rose-950/40 bg-rose-950/5';
+
+                estruturaVisualVotos += `
+                    <div class="bg-slate-950/40 rounded-xl p-3 border ${classeBorda} flex justify-between items-center gap-2">
+                        <div>
+                            <span class="text-[10px] text-slate-500 font-bold block mb-0.5">${jogadorId === meuId ? '🫵 A sua resposta' : nomeDoJogador}</span>
+                            <span class="text-base font-bold ${comecaComLetraCerta ? 'text-slate-200' : 'text-rose-400/80 line-through'}">${stringExibicao}</span>
+                        </div>
+                        
+                        ${(jogadorId !== meuId && comecaComLetraCerta && respostaTexto) ? `
+                            <div class="flex gap-1 shrink-0">
+                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', true, this)" class="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 text-xs rounded-lg font-bold border border-emerald-500/20 active:scale-95 transition-all">👍 Sim</button>
+                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', false, this)" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 text-xs rounded-lg font-bold border border-rose-500/20 active:scale-95 transition-all">👎 Não</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            estruturaVisualVotos += `</div></div>`;
+        });
+
+        document.getElementById("areaVotacao").innerHTML = estruturaVisualVotos;
+    }
+
+    function registarVotoNoBanco(indiceCategoria, alvoId, valorDoVoto, elementoBotao) {
+        if (!db) return;
+        db.ref(`salas/${salaAtual}/votos/${indiceCategoria}/${alvoId}/${meuId}`).set(valorDoVoto);
+        
+        // Ajuste visual imediato no ecrã para confirmar a escolha
+        const conteinerPai = elementoBotao.parentNode;
+        conteinerPai.querySelectorAll('button').forEach(b => {
+            b.style.opacity = '0.3';
+            b.style.borderColor = 'transparent';
+        });
+        elementoBotao.style.opacity = '1';
+        elementoBotao.style.borderColor = valorDoVoto ? '#10b981' : '#f43f5e';
+    }
+
+    async function processarEAvancar() {
+        const snapshot = await db.ref(`salas/${salaAtual}`).once('value');
+        const dados = snapshot.val();
+        
+        const jogadoresObjeto = dados.jogadores || {};
+        const chavesJogadores = Object.keys(jogadoresObjeto);
+        
+        let calculoPontosRodada = {};
+        chavesJogadores.forEach(id => calculoPontosRodada[id] = 0);
+
+        categoriasJogo.forEach((_, idxCat) => {
+            let palavrasValidadasDaCategoria = [];
+
+            chavesJogadores.forEach(id => {
+                const textoResp = (dados.respostas && dados.respostas[id] && dados.respostas[id][idxCat]) || "";
+                if (!textoResp.startsWith(dados.letraAtual)) return; 
+
+                const votosDestaResposta = (dados.votos && dados.votos[idxCat] && dados.votos[idxCat][id]) || {};
+                let votosSim = 0; 
+                let votosNao = 0;
+                
+                Object.values(votosDesteResposta).forEach(v => v ? votosSim++ : votosNao++);
+
+                // Validação democrática: se tiver mais "Não" do que "Sim", a palavra é invalidada
+                if (votosNao > votosSim) return; 
+
+                palavrasValidadasDaCategoria.push({ id: id, palavra: textoResp });
+            });
+
+            // Distribuição de pontuação padrão do Stop: 5 para repetidas, 10 para únicas
+            palavrasValidadasDaCategoria.forEach(itemAtual => {
+                const totalRepetidas = palavrasValidadasDaCategoria.filter(p => p.palavra === itemAtual.palavra).length;
+                calculoPontosRodada[itemAtual.id] += (totalRepetidas > 1) ? 5 : 10;
+            });
+        });
+
+        // Atualização incremental de pontos no banco
+        for (let id of chavesJogadores) {
+            const pontosAcumulados = (jogadoresObjeto[id].pontos || 0) + calculoPontosRodada[id];
+            await db.ref(`salas/${salaAtual}/jogadores/${id}/pontos`).set(pontosAcumulados);
+        }
+
+        const seguinteRodada = (dados.rodadaAtual || 1) + 1;
+        if (seguinteRodada > parseInt(dados.config.rodadas)) {
+            await db.ref(`salas/${salaAtual}/status`).set('ranking');
+        } else {
+            await db.ref(`salas/${salaAtual}/rodadaAtual`).set(seguinteRodada);
+            iniciarRodada(); 
+        }
+    }
+
+    // ==========================================
+    // ECRÃ FINAL DE RANKING E LEADERBOARD
+    // ==========================================
+    function construirAmbienteRanking(dados) {
+        gerirNavegacaoEcras('tela-ranking');
+        
+        if (isDono) document.getElementById("btnJogarNovamente").classList.remove('hidden');
+
+        const arrayOrdenado = Object.values(dados.jogadores || {}).sort((a,b) => b.pontos - a.pontos);
+        
+        const htmlRanking = arrayOrdenado.map((jogador, posicao) => {
+            let classeEstiloEstetica = "bg-slate-900/60 border-slate-800"; 
+            let medalhaIcone = "";
+            
+            if (posicao === 0) { classeEstiloEstetica = "bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border-amber-500/30 text-amber-300"; medalhaIcone = "🥇 "; }
+            else if (posicao === 1) { classeEstiloEstetica = "bg-gradient-to-r from-slate-400/20 to-slate-500/10 border-slate-400/30 text-slate-300"; medalhaIcone = "🥈 "; }
+            else if (posicao === 2) { classeEstiloEstetica = "bg-gradient-to-r from-amber-800/20 to-amber-900/10 border-amber-800/30 text-amber-600"; medalhaIcone = "🥉 "; }
+            
+            return `
+                <div class="border p-4 rounded-2xl flex justify-between items-center shadow-md ${classeEstiloEstetica}">
+                    <span class="font-bold text-lg">${medalhaIcone}${jogador.nome}</span>
+                    <span class="font-black text-2xl">${jogador.pontos} <span class="text-xs font-normal opacity-60">pts</span></span>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById("areaPodio").innerHTML = htmlRanking;
+    }
+
+    async function reiniciarPartidaCompleta() {
+        const snapshot = await db.ref(`salas/${salaAtual}/jogadores`).once('value');
+        const jogadoresExistentes = snapshot.val() || {};
+        
+        for (let jogadorId in jogadoresExistentes) {
+            await db.ref(`salas/${salaAtual}/jogadores/${jogadorId}/pontos`).set(0);
+        }
+
+        await db.ref(`salas/${salaAtual}`).update({
+            status: 'lobby', 
+            rodadaAtual: 1, 
+            letraAtual: "", 
+            letrasUsadas: [], 
+            respostas: null, 
+            votos: null
+        });
+    }
+
+    // ==========================================
+    // COMPONENTE DE LEITURA DE QR CODE
+    // ==========================================
+    function alternarLeitorQR() {
+        const divCamera = document.getElementById("leitor-qr");
+        if (!divCamera.classList.contains("hidden")) {
+            fecharCameraQr();
+            return;
+        }
+
+        divCamera.classList.remove("hidden");
+        scannerQr = new Html5Qrcode("leitor-qr");
+        scannerQr.start({ facingMode: "environment" }, { fps: 12, qrbox: { width: 230, height: 230 } },
+            (textoLido) => {
+                const extraido = textoLido.replace(/\D/g, "").slice(0, 6);
+                if (extraido.length === 6) {
+                    document.getElementById("inputCodigo").value = extraido;
+                    fecharCameraQr();
+                    entrarSala();
+                }
+            },
+            () => {} 
+        ).catch(() => emitirAviso("Câmara Indisponível", "Ative as permissões de acesso à câmara nas configurações do seu navegador."));
+    }
+
+    function fecharCameraQr() {
+        if (scannerQr) {
+            scannerQr.stop().then(() => {
+                scannerQr.clear();
+                document.getElementById("leitor-qr").classList.add("hidden");
+            }).catch(() => {});
+        } else {
+            document.getElementById("leitor-qr").classList.add("hidden");
+        }
+    }
+</script>
+
+</body>
+</html>
