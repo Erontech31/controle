@@ -27,12 +27,13 @@
         }
         
         .bg-custom-fundo {
-            background-image: linear-gradient(rgba(11, 15, 25, 0.5), rgba(11, 15, 25, 0.7)), url('fundo.jpg');
+            background-image: linear-gradient(rgba(11, 15, 25, 0.5), rgba(11, 15, 25, 0.7)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
 
+        /* Temas */
         body.ciano .cartao-glass { background: rgba(6, 182, 212, 0.4) !important; }
         body.verde_menta .cartao-glass { background: rgba(16, 185, 129, 0.4) !important; }
         body.azul_claro .cartao-glass { background: rgba(56, 189, 248, 0.4) !important; }
@@ -60,7 +61,11 @@
             border: 2px solid #1e293b;
             transition: all 0.25s ease;
         }
-        .input-premium:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 16px rgba(99, 102, 241, 0.3); }
+        .input-premium:focus { 
+            border-color: #6366f1; 
+            outline: none; 
+            box-shadow: 0 0 16px rgba(99, 102, 241, 0.3); 
+        }
 
         .btn-gradiente {
             background: linear-gradient(135deg, #6366f1, #7c3aed);
@@ -68,7 +73,7 @@
         }
         .btn-gradiente:active { transform: scale(0.97); }
         .btn-gradiente:hover { filter: brightness(1.1); }
-        .btn-gradiente:disabled { filter: grayscale(1); cursor: not-allowed; }
+        .btn-gradiente:disabled { filter: grayscale(1); cursor: not-allowed; opacity: 0.7; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -76,13 +81,13 @@
 </head>
 <body class="bg-custom-fundo min-h-screen flex flex-col p-4 md:p-8">
 
-    <div class="w-full mx-auto my-auto relative">
+    <div class="w-full max-w-7xl mx-auto my-auto relative flex flex-col justify-center min-h-[90vh]">
 
-        <div id="status-conexao" class="hidden max-w-md mx-auto mb-4 p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-center text-sm font-semibold text-rose-300">
+        <div id="status-conexao" class="hidden w-full max-w-md mx-auto mb-4 p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-center text-sm font-semibold text-rose-300">
             ⚠️ Erro de gravação no Firebase. Verifique suas regras no console.
         </div>
 
-        <div id="tela-inicio" class="tela ativa max-w-md mx-auto">
+        <div id="tela-inicio" class="tela ativa w-full max-w-md mx-auto">
             
             <div class="fixed top-2 left-2 z-[100]">
                 <select onchange="mudarTema(this.value)" class="bg-slate-900/80 text-[10px] sm:text-xs font-bold text-slate-300 border border-slate-700 rounded-lg px-2 py-1.5 outline-none backdrop-blur-md cursor-pointer shadow-lg">
@@ -95,198 +100,195 @@
                 </select>
             </div>
 
-            <div class="text-center mb-8 pt-8">
-                <h1 class="text-5xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-extrabold">Adedonha</h1>
-                <p class="text-slate-400 font-medium text-sm tracking-wide">Jogo Online de Palavras • Máx. 10 Amigos</p>
+            <div class="text-center mb-6 pt-4 md:pt-8 md:mb-8">
+                <h1 class="text-5xl md:text-6xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Adedonha</h1>
+                <p class="text-slate-400 font-medium text-xs md:text-sm tracking-wide">Jogo Online de Palavras • Máx. 10 Amigos</p>
             </div>
 
-            <div class="cartao-glass rounded-3xl p-6 space-y-5">
+            <div class="cartao-glass rounded-3xl p-5 md:p-6 space-y-5">
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Seu Apelido</label>
-                    <input type="text" id="inputNome" maxlength="12" placeholder="Ex: André" class="input-premium w-full rounded-2xl px-5 py-4 text-lg font-bold text-center text-white placeholder-slate-600">
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest text-center">Seu Apelido</label>
+                    <input type="text" id="inputNome" maxlength="12" placeholder="Ex: André" class="input-premium w-full rounded-2xl px-5 py-3 md:py-4 text-lg font-bold text-center text-white placeholder-slate-600">
                 </div>
 
                 <hr class="border-slate-800">
 
-                <button onclick="criarSala()" class="btn-gradiente w-full rounded-2xl py-4 font-bold text-lg shadow-lg shadow-indigo-500/20 text-white">
+                <button onclick="criarSala()" class="btn-gradiente w-full rounded-2xl py-3 md:py-4 font-bold text-lg shadow-lg shadow-indigo-500/20 text-white">
                     ✨ Criar Nova Sala
                 </button>
 
                 <div class="text-center text-slate-500 text-xs font-black uppercase tracking-widest">OU JUNTAR-SE</div>
 
                 <div class="flex justify-center gap-3">
-                    <input type="text" id="inputCodigo" maxlength="6" inputmode="numeric" placeholder="CÓDIGO" class="input-premium w-40 rounded-2xl px-4 py-4 text-xl font-black text-center tracking-widest text-indigo-300 placeholder-slate-600">
-                    <button onclick="alternarLeitorQR()" class="bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center rounded-2xl px-6 transition-colors shadow-md">
+                    <input type="text" id="inputCodigo" maxlength="6" inputmode="numeric" placeholder="CÓDIGO" class="input-premium w-full max-w-[160px] rounded-2xl px-4 py-3 md:py-4 text-xl font-black text-center tracking-widest text-indigo-300 placeholder-slate-600">
+                    <button onclick="alternarLeitorQR()" class="bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center rounded-2xl px-5 transition-colors shadow-md">
                         📷
                     </button>
                 </div>
-                <div id="leitor-qr" class="hidden rounded-2xl overflow-hidden border-2 border-indigo-500/30 mt-2"></div>
+                <div id="leitor-qr" class="hidden rounded-2xl overflow-hidden border-2 border-indigo-500/30 mt-2 w-full max-w-[250px] mx-auto"></div>
                 
-                <button onclick="entrarSala()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-lg transition-colors shadow-lg shadow-emerald-600/10">
-                    Entrar na Sala Pronta ➡️
+                <button onclick="entrarSala()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-3 md:py-4 font-bold text-lg transition-colors shadow-lg shadow-emerald-600/10">
+                    Entrar na Sala ➡️
                 </button>
             </div>
             
-            <div class="mt-8 text-center text-slate-500 text-xs font-medium tracking-wide">
+            <div class="mt-6 text-center text-slate-500 text-[10px] md:text-xs font-medium tracking-wide">
                 Desenvolvido por Eronildo Tavares &copy; 2026
             </div>
         </div>
 
-        <div id="tela-lobby" class="tela max-w-5xl mx-auto">
+        <div id="tela-lobby" class="tela w-full max-w-5xl mx-auto">
             <div class="flex justify-end mb-4">
                 <button onclick="abandonarPartida()" class="px-4 py-2 bg-rose-500/10 text-rose-400 rounded-xl text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                    🚪 Abandonar Sala
+                    🚪 Sair
                 </button>
             </div>
-            <div class="cartao-glass rounded-3xl p-6 md:p-8 relative overflow-hidden">
+            <div class="cartao-glass rounded-3xl p-5 md:p-8 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-                    <div class="md:col-span-5 flex flex-col justify-center items-center md:items-start border-b md:border-b-0 md:border-r border-slate-800 pb-6 md:pb-0 md:pr-8">
-                        <div class="text-center md:text-left mb-4 w-full">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
+                    <div class="md:col-span-5 flex flex-col justify-center items-center border-b md:border-b-0 md:border-r border-slate-800 pb-6 md:pb-0 md:pr-8">
+                        <div class="text-center mb-4 w-full">
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Código da Sala</p>
-                            <p id="lblCodigoSala" class="text-5xl font-black text-indigo-400 tracking-widest font-extrabold"></p>
+                            <p id="lblCodigoSala" class="text-5xl md:text-6xl font-black text-indigo-400 tracking-widest"></p>
                         </div>
 
                         <div class="p-2 bg-white rounded-xl shadow-xl mb-6">
-                            <div id="qrcodeBox"></div>
+                            <div id="qrcodeBox" class="flex justify-center"></div>
                         </div>
 
                         <div id="painelConfig" class="hidden w-full bg-slate-900/60 rounded-2xl p-4 border border-slate-800">
-                            <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3">⚙️ Configurações do Jogo</p>
+                            <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3 text-center md:text-left">⚙️ Configurações</p>
                             
-                            <label class="block text-xs font-semibold mb-1 text-slate-400">Categorias (uma por linha)</label>
-                            <textarea id="inputCategorias" rows="8" class="input-premium w-full rounded-xl p-3 text-sm mb-3 text-white">Nome
+                            <label class="block text-[11px] md:text-xs font-semibold mb-1 text-slate-400">Categorias (uma por linha)</label>
+                            <textarea id="inputCategorias" rows="6" class="input-premium w-full rounded-xl p-3 text-sm mb-3 text-white">Nome
 Animal
 Cor
 Objeto
 Cidade, Estado ou País
-Fruta
-Comida
-Profissão</textarea>
+Fruta</textarea>
                             
                             <div class="grid grid-cols-2 gap-3 mb-4">
                                 <div>
-                                    <label class="block text-xs font-semibold mb-1 text-slate-400">Tempo (S)</label>
+                                    <label class="block text-[11px] md:text-xs font-semibold mb-1 text-slate-400">Tempo (Segs)</label>
                                     <input type="number" id="inputTempo" value="60" class="input-premium w-full rounded-xl p-2 text-center font-bold text-white">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold mb-1 text-slate-400">Rodadas</label>
+                                    <label class="block text-[11px] md:text-xs font-semibold mb-1 text-slate-400">Rodadas</label>
                                     <input type="number" id="inputRodadas" value="3" class="input-premium w-full rounded-xl p-2 text-center font-bold text-white">
                                 </div>
                             </div>
                             
-                            <button onclick="iniciarRodada()" class="btn-gradiente w-full rounded-xl py-3 font-bold text-white shadow-md">
+                            <button onclick="iniciarRodada()" class="btn-gradiente w-full rounded-xl py-3 font-bold text-white shadow-md text-sm md:text-base">
                                 ▶️ Começar Partida
                             </button>
                         </div>
 
-                        <div id="msgAguardando" class="text-center md:text-left text-slate-400 text-sm py-2 animate-pulse w-full">
+                        <div id="msgAguardando" class="text-center text-slate-400 text-sm py-4 animate-pulse w-full">
                             Aguardando o líder iniciar o jogo...
                         </div>
                     </div>
 
-                    <div class="md:col-span-7 flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="font-bold text-lg text-slate-300">👥 Amigos na Sala</h3>
-                                <span class="text-xs font-bold px-3 py-1 bg-slate-900 rounded-full text-indigo-300"><span id="qtdJogadores">0</span>/10</span>
-                            </div>
-                            <ul id="listaJogadores" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 md:max-h-[400px] overflow-y-auto no-scrollbar">
-                            </ul>
+                    <div class="md:col-span-7 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg text-slate-300">👥 Jogadores na Sala</h3>
+                            <span class="text-xs font-bold px-3 py-1 bg-slate-900 rounded-full text-indigo-300"><span id="qtdJogadores">0</span>/10</span>
                         </div>
+                        <ul id="listaJogadores" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 md:max-h-[500px] overflow-y-auto no-scrollbar pb-2">
+                            </ul>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="tela-jogo" class="tela w-full">
-            
-            <div class="fixed top-0 left-0 right-0 z-[80] cartao-glass rounded-b-3xl border-b border-slate-700/50 shadow-2xl px-4 py-3 sm:px-8">
+            <div class="fixed top-0 left-0 right-0 z-[80] cartao-glass rounded-b-3xl border-b border-slate-700/50 shadow-2xl px-4 py-3 md:px-8">
                 <div class="max-w-5xl mx-auto flex flex-col gap-2.5">
                     <div class="flex justify-between items-center">
-                        <div class="text-[10px] sm:text-xs font-bold tracking-widest text-slate-300 uppercase">
-                            Rodada <span id="rodadaAtualL" class="text-indigo-400 text-sm sm:text-base"></span>/<span id="rodadasTotalL"></span>
+                        <div class="text-[10px] md:text-xs font-bold tracking-widest text-slate-300 uppercase">
+                            Rodada <span id="rodadaAtualL" class="text-indigo-400 text-sm md:text-base"></span>/<span id="rodadasTotalL"></span>
                         </div>
-                        <button onclick="abandonarPartida()" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 rounded-xl text-[10px] sm:text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                            🚪 Abandonar
+                        <button onclick="abandonarPartida()" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 rounded-xl text-[10px] md:text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                            🚪 Sair
                         </button>
                     </div>
                     
                     <div class="flex justify-between items-center gap-3">
-                        <div class="bg-slate-900/60 px-4 py-2 sm:px-6 sm:py-3 rounded-2xl border-l-4 border-indigo-500 flex-1 shadow-inner flex flex-col items-center">
-                            <p class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider mb-0.5">LETRA</p>
-                            <p id="letraSorteada" class="text-3xl sm:text-4xl font-black text-amber-400 font-extrabold leading-none"></p>
+                        <div class="bg-slate-900/60 px-4 py-2 md:px-6 md:py-3 rounded-2xl border-l-4 border-indigo-500 flex-1 shadow-inner flex flex-col items-center">
+                            <p class="text-[10px] md:text-xs text-slate-400 font-bold tracking-wider mb-0.5">LETRA</p>
+                            <p id="letraSorteada" class="text-3xl md:text-5xl font-black text-amber-400 leading-none"></p>
                         </div>
-                        <div class="bg-slate-900/60 px-4 py-2 sm:px-6 sm:py-3 rounded-2xl border-r-4 border-rose-500 flex-1 shadow-inner flex flex-col items-center">
-                            <p class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider mb-0.5">TEMPO</p>
-                            <p id="tempoRestante" class="text-3xl sm:text-4xl font-black text-rose-400 font-extrabold leading-none">60</p>
+                        <div class="bg-slate-900/60 px-4 py-2 md:px-6 md:py-3 rounded-2xl border-r-4 border-rose-500 flex-1 shadow-inner flex flex-col items-center">
+                            <p class="text-[10px] md:text-xs text-slate-400 font-bold tracking-wider mb-0.5">TEMPO</p>
+                            <p id="tempoRestante" class="text-3xl md:text-5xl font-black text-rose-400 leading-none">60</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="max-w-5xl mx-auto w-full pt-[130px] sm:pt-[140px]">
-                <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-28">
-                </div>
+            <div class="max-w-5xl mx-auto w-full pt-[140px] md:pt-[170px] pb-[100px] md:pb-[120px]">
+                <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                    </div>
             </div>
 
-            <div class="fixed bottom-4 left-0 right-0 z-50 pointer-events-none px-4">
+            <div class="fixed bottom-4 md:bottom-8 left-0 right-0 z-50 pointer-events-none px-4">
                 <div class="max-w-5xl mx-auto pointer-events-auto">
-                    <button onclick="submeterRespostasStop()" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-4 sm:py-5 font-black text-xl sm:text-2xl tracking-widest uppercase transition-colors shadow-2xl shadow-rose-600/40 border-2 border-rose-400/50">
+                    <button onclick="submeterRespostasStop()" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-4 md:py-5 font-black text-xl md:text-2xl tracking-widest uppercase transition-colors shadow-2xl shadow-rose-600/40 border-2 border-rose-400/50">
                         🚨 STOP!
                     </button>
                 </div>
             </div>
         </div>
 
-        <div id="tela-votacao" class="tela max-w-6xl mx-auto">
+        <div id="tela-votacao" class="tela w-full max-w-6xl mx-auto">
             <div class="flex justify-end mb-4">
                 <button onclick="abandonarPartida()" class="px-4 py-2 bg-rose-500/10 text-rose-400 rounded-xl text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                    🚪 Abandonar Partida
+                    🚪 Sair
                 </button>
             </div>
             
             <div class="text-center mb-6">
-                <h2 class="text-3xl font-black mb-1">⚖️ Tribunal de Validação</h2>
-                <p class="text-slate-400 text-sm">Avalie as respostas para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-2xl"></span></p>
+                <h2 class="text-2xl md:text-3xl font-black mb-1">⚖️ Tribunal de Validação</h2>
+                <p class="text-slate-400 text-xs md:text-sm">Avalie as respostas para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-xl md:text-2xl"></span></p>
             </div>
 
-            <div id="areaVotacao" class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-[58vh] overflow-y-auto no-scrollbar pb-4">
-            </div>
+            <div id="areaVotacao" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-h-[65vh] overflow-y-auto no-scrollbar pb-4">
+                </div>
 
-            <div class="max-w-md mx-auto mt-4">
-                <button id="btnApurar" onclick="marcarPronto()" class="hidden btn-gradiente w-full rounded-2xl py-4 font-bold text-lg text-white shadow-lg">
-                    ✅ Concluir Votação e Avançar
+            <div class="max-w-md mx-auto mt-6">
+                <button id="btnApurar" onclick="marcarPronto()" class="hidden btn-gradiente w-full rounded-2xl py-3 md:py-4 font-bold text-base md:text-lg text-white shadow-lg">
+                    ✅ Concluir Votação
                 </button>
-                <p id="msgVotacao" class="text-center text-slate-400 text-sm py-2 font-bold tracking-wide">Aguardando jogadores...</p>
+                <p id="msgVotacao" class="text-center text-slate-400 text-xs md:text-sm py-2 font-bold tracking-wide">Aguardando jogadores...</p>
             </div>
         </div>
 
-        <div id="tela-ranking" class="tela max-w-xl mx-auto">
-            <div class="text-center mb-8">
-                <div class="text-5xl mb-3">🏆</div>
-                <h2 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500 font-extrabold">Fim de Jogo!</h2>
-                <p class="text-slate-400 text-sm mt-1">Classificação final dos participantes</p>
+        <div id="tela-ranking" class="tela w-full max-w-lg mx-auto">
+            <div class="text-center mb-8 pt-6">
+                <div class="text-6xl mb-4">🏆</div>
+                <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500">Fim de Jogo!</h2>
+                <p class="text-slate-400 text-sm mt-2">Classificação final dos participantes</p>
             </div>
 
-            <div id="areaPodio" class="cartao-glass rounded-3xl p-6 space-y-3 mb-6">
-            </div>
+            <div id="areaPodio" class="cartao-glass rounded-3xl p-5 md:p-6 space-y-3 mb-6">
+                </div>
 
-            <button id="btnJogarNovamente" onclick="reiniciarPartidaCompleta()" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-lg mb-3 shadow-md">
-                🔄 Começar Nova Partida
-            </button>
-            
-            <button onclick="abandonarPartida()" class="bg-slate-800 hover:bg-slate-700 w-full text-slate-300 rounded-2xl py-4 font-bold transition-colors">
-                🏠 Voltar ao Início
-            </button>
+            <div class="space-y-3">
+                <button id="btnJogarNovamente" onclick="reiniciarPartidaCompleta()" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-base md:text-lg shadow-md transition-all">
+                    🔄 Começar Nova Partida
+                </button>
+                
+                <button onclick="abandonarPartida()" class="bg-slate-800 hover:bg-slate-700 w-full text-slate-300 rounded-2xl py-4 font-bold text-base md:text-lg transition-colors">
+                    🏠 Voltar ao Início
+                </button>
+            </div>
         </div>
 
     </div>
 
 <script>
     // ==========================================
-    // CONFIGURAÇÃO DO FIREBASE (Pronto e Conectado)
+    // CONFIGURAÇÃO DO FIREBASE
     // ==========================================
     const firebaseConfig = {
         apiKey: "AIzaSyAXDRmj8tQzxszosyxQi5cLDG87t91ZlGs",
@@ -521,9 +523,9 @@ Profissão</textarea>
         document.getElementById("qtdJogadores").innerText = listaInstanciada.length;
         
         const htmlElementos = listaInstanciada.map(j => `
-            <li class="bg-slate-900/50 px-4 py-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                <span class="font-bold text-slate-200 text-sm">👤 ${j.nome}</span>
-                <span class="text-xs bg-slate-950 font-semibold px-2.5 py-1 rounded-md text-indigo-400 border border-indigo-950">${j.pontos} pts</span>
+            <li class="bg-slate-900/50 px-4 py-3 rounded-xl border border-slate-800 flex justify-between items-center shadow-sm">
+                <span class="font-bold text-slate-200 text-sm truncate pr-2">👤 ${j.nome}</span>
+                <span class="text-[11px] md:text-xs bg-slate-950 font-semibold px-2.5 py-1 rounded-md text-indigo-400 border border-indigo-950 whitespace-nowrap">${j.pontos} pts</span>
             </li>
         `).join('');
         document.getElementById("listaJogadores").innerHTML = htmlElementos;
@@ -533,7 +535,7 @@ Profissão</textarea>
         gerirNavegacaoEcras('tela-lobby');
         document.getElementById("lblCodigoSala").innerText = salaAtual;
         document.getElementById("qrcodeBox").innerHTML = "";
-        new QRCode(document.getElementById("qrcodeBox"), { text: salaAtual, width: 120, height: 120 });
+        new QRCode(document.getElementById("qrcodeBox"), { text: salaAtual, width: 140, height: 140 });
 
         if (isDono) {
             document.getElementById("painelConfig").classList.remove('hidden');
@@ -586,12 +588,12 @@ Profissão</textarea>
         document.getElementById("rodadasTotalL").innerText = dados.config.rodadas;
         
         const htmlGerado = categoriasJogo.map((cat, idx) => `
-            <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 focus-within:border-indigo-500 transition-all">
-                <div class="flex justify-between items-center mb-1.5">
-                    <label class="block text-[11px] font-bold text-indigo-400 uppercase tracking-widest">${cat}</label>
-                    <button onclick="marcarNS(${idx})" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white px-2 py-0.5 rounded border border-slate-700 transition-colors shadow-sm">N/S</button>
+            <div class="bg-slate-900/80 p-3.5 md:p-4 rounded-2xl border border-slate-800 focus-within:border-indigo-500 transition-all shadow-sm">
+                <div class="flex justify-between items-center mb-1.5 md:mb-2">
+                    <label class="block text-[11px] md:text-xs font-bold text-indigo-400 uppercase tracking-widest">${cat}</label>
+                    <button onclick="marcarNS(${idx})" class="text-[10px] md:text-xs bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white px-2 py-0.5 md:px-3 md:py-1 rounded-md border border-slate-700 transition-colors shadow-sm">N/S</button>
                 </div>
-                <input type="text" id="resposta_campo_${idx}" oninput="verificarPreenchimentoCategorias()" class="w-full bg-transparent text-white font-bold text-lg outline-none" autocomplete="off" placeholder="Digitar...">
+                <input type="text" id="resposta_campo_${idx}" oninput="verificarPreenchimentoCategorias()" class="w-full bg-transparent text-white font-bold text-lg md:text-xl outline-none" autocomplete="off" placeholder="Digitar...">
             </div>
         `).join('');
         
@@ -654,7 +656,7 @@ Profissão</textarea>
         categoriasJogo.forEach((categoriaNome, idxCat) => {
             estruturaVisualVotos += `
                 <div class="cartao-glass p-4 rounded-2xl border border-slate-800">
-                    <h3 class="text-indigo-400 font-extrabold tracking-wider text-xs uppercase mb-3 border-b border-slate-800 pb-1.5">📂 ${categoriaNome}</h3>
+                    <h3 class="text-indigo-400 font-extrabold tracking-wider text-xs md:text-sm uppercase mb-3 border-b border-slate-800 pb-1.5">📂 ${categoriaNome}</h3>
                     <div class="space-y-2.5">
             `;
 
@@ -663,7 +665,7 @@ Profissão</textarea>
                 const respostaTexto = (dados.respostas && dados.respostas[jogadorId] && dados.respostas[jogadorId][idxCat]) ? String(dados.respostas[jogadorId][idxCat]).trim().toUpperCase() : "";
                 
                 const comecaComLetraCerta = respostaTexto.length > 0 && respostaTexto.startsWith(dados.letraAtual);
-                const stringExibicao = respostaTexto || "<span class='text-slate-600 italic font-normal text-sm'>Em branco</span>";
+                const stringExibicao = respostaTexto || "<span class='text-slate-600 italic font-normal text-[13px]'>Em branco</span>";
                 const classeBorda = comecaComLetraCerta ? 'border-slate-800/80 bg-slate-950/20' : 'border-rose-950/40 bg-rose-950/5';
 
                 const votosDestaResposta = (dados.votos && dados.votos[idxCat] && dados.votos[idxCat][jogadorId]) || {};
@@ -679,16 +681,16 @@ Profissão</textarea>
                 }
 
                 estruturaVisualVotos += `
-                    <div class="rounded-xl p-3 border ${classeBorda} flex justify-between items-center gap-2">
-                        <div>
-                            <span class="text-[10px] text-slate-500 font-bold block mb-0.5">${jogadorId === meuId ? '🫵 Sua Resposta' : nomeDoJogador}</span>
-                            <span class="text-base font-bold ${comecaComLetraCerta ? 'text-slate-200' : 'text-rose-400/80 line-through'}">${stringExibicao}</span>
+                    <div class="rounded-xl p-3 md:p-3.5 border ${classeBorda} flex justify-between items-center gap-2">
+                        <div class="truncate pr-2">
+                            <span class="text-[10px] md:text-xs text-slate-500 font-bold block mb-0.5 truncate">${jogadorId === meuId ? '🫵 Sua Resposta' : nomeDoJogador}</span>
+                            <span class="text-sm md:text-base font-bold truncate block ${comecaComLetraCerta ? 'text-slate-200' : 'text-rose-400/80 line-through'}">${stringExibicao}</span>
                         </div>
                         
                         ${(jogadorId !== meuId && comecaComLetraCerta && respostaTexto) ? `
-                            <div class="flex gap-1 shrink-0">
-                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', true, this)" style="${estiloSim}" class="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 text-xs rounded-lg font-bold border border-emerald-500/20 transition-all">👍 Sim</button>
-                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', false, this)" style="${estiloNao}" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 text-xs rounded-lg font-bold border border-rose-500/20 transition-all">👎 Não</button>
+                            <div class="flex flex-col sm:flex-row gap-1.5 shrink-0">
+                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', true, this)" style="${estiloSim}" class="px-2.5 py-1.5 md:px-3 bg-emerald-500/10 text-emerald-400 text-[10px] md:text-xs rounded-lg font-bold border border-emerald-500/20 transition-all">👍 Sim</button>
+                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', false, this)" style="${estiloNao}" class="px-2.5 py-1.5 md:px-3 bg-rose-500/10 text-rose-400 text-[10px] md:text-xs rounded-lg font-bold border border-rose-500/20 transition-all">👎 Não</button>
                             </div>
                         ` : ''}
                     </div>
@@ -807,8 +809,8 @@ Profissão</textarea>
             
             return `
                 <div class="border p-4 rounded-2xl flex justify-between items-center shadow-md ${classeEstiloEstetica}">
-                    <span class="font-bold text-lg">${medalhaIcone}${jogador.nome}</span>
-                    <span class="font-black text-2xl">${jogador.pontos} <span class="text-xs font-normal opacity-60">pts</span></span>
+                    <span class="font-bold text-lg truncate pr-3">${medalhaIcone}${jogador.nome}</span>
+                    <span class="font-black text-2xl whitespace-nowrap">${jogador.pontos} <span class="text-xs font-normal opacity-60">pts</span></span>
                 </div>
             `;
         }).join('');
