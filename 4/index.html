@@ -11,21 +11,18 @@
     
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Script adicionado exclusivamente para viabilizar o download do bloco em PNG -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
     <style>
         :root {
-            /* Paleta de Cores Premium */
             --bg-body: #f0f4f8;
             --text-main: #1e293b;
             --text-muted: #64748b;
             --white: #ffffff;
             --border-color: #e2e8f0;
             
-            /* Cores de Ação */
             --primary: #3b82f6;
             --primary-hover: #2563eb;
             --success: #10b981;
@@ -36,12 +33,10 @@
             --purple: #8b5cf6;
             --teal: #14b8a6;
 
-            /* Temas dos Perfis */
             --grad-adm: linear-gradient(135deg, #475569 0%, #1e293b 100%);
             --grad-dir: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
             --grad-prof: linear-gradient(135deg, #059669 0%, #047857 100%);
             
-            /* Sombras e Raios */
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
             --shadow-md: 0 10px 20px rgba(0,0,0,0.05), 0 6px 6px rgba(0,0,0,0.04);
             --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
@@ -317,7 +312,7 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 10mm; /* Define margens precisas para garantir alinhamento */
+                margin: 10mm;
             }
 
             .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra, .btn-imprimir { display: none !important; }
@@ -348,17 +343,15 @@
                 background: transparent !important; padding: 0 !important; margin: 0 !important;
             }
 
-            /* Configuração do Grid para exatamente 4 colunas */
             #area-impressao { 
                 display: grid !important; 
                 grid-template-columns: repeat(4, 1fr) !important; 
-                gap: 5mm !important; /* Espaço entre os cartões */
+                gap: 5mm !important; 
                 justify-items: center !important; 
                 align-items: start !important;
                 width: 100% !important; 
             }
 
-            /* Dimensões precisas em mm para que 5 filas caibam em 297mm (Altura do A4) */
             .cartao-qr { 
                 border: 1px dashed #000 !important; 
                 padding: 4mm !important; 
@@ -635,7 +628,7 @@
         }
 
         // ==========================================
-        // 3. MÓDULO DE GERENCIAMENTO (ADM) - CORRIGIDO
+        // 3. MÓDULO DE GERENCIAMENTO (ADM)
         // ==========================================
         function atualizarListasGerenciamento() {
             const selectAlunos = document.getElementById('select-turma-aluno');
@@ -792,9 +785,6 @@
             }
         }
 
-        // ==========================================
-        // NOVA LÓGICA DE CRIAÇÃO DO QR CODE (COM DOWNLOAD PNG POR CLIQUE)
-        // ==========================================
         function adicionarCartaoNaTela(nome, turma) {
             const areaImprimir = document.getElementById('area-impressao');
             
@@ -802,7 +792,6 @@
             divCartao.className = 'cartao-qr';
             divCartao.style.cursor = 'pointer'; 
             
-            // Evento configurado para que o clique dispare o download do cartão em PNG
             divCartao.onclick = function() {
                 baixarCartaoComoPNG(divCartao, nome, turma);
             };
@@ -817,10 +806,8 @@
             divImg.style.borderRadius = "4px";
             divCartao.appendChild(divImg);
             
-            // 1º PASSO: Adiciona fisicamente a div na tela para que o navegador calcule a largura dela
             areaImprimir.appendChild(divCartao);
 
-            // 2º PASSO: Adiciona um pequeno "delay" para o navegador processar o visual, depois desenha o código
             setTimeout(() => {
                 try {
                     new QRCode(divImg, {
@@ -836,7 +823,6 @@
             }, 50);
         }
 
-        // Função responsável por converter o elemento HTML em uma imagem de alta definição (PNG)
         function baixarCartaoComoPNG(elemento, nomeAluno, turmaAluno) {
             const opcoes = {
                 scale: 3, 
@@ -869,11 +855,9 @@
                 const divAcoes = document.getElementById('area-acoes-impressao');
                 const areaImprimir = document.getElementById('area-impressao');
                 
-                // Exibe a área primeiro
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
                 
-                // Dispara a criação segura
                 adicionarCartaoNaTela(nome, turma);
             });
         }
@@ -891,11 +875,9 @@
                 const divAcoes = document.getElementById('area-acoes-impressao');
                 const areaImprimir = document.getElementById('area-impressao');
                 
-                // Exibe a área PRIMEIRO antes de iniciar o loop para garantir a visibilidade
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
                 
-                // Dispara a criação de cada cartão de forma segura
                 nomes.forEach(nome => {
                     adicionarCartaoNaTela(nome, turma);
                 });
@@ -982,7 +964,7 @@
         }
 
         // ==========================================
-        // 5. MÓDULO DO PROFESSOR
+        // 5. MÓDULO DO PROFESSOR (COM AS CORREÇÕES)
         // ==========================================
         function iniciarModoProfessor(turma) {
             turmaAtual = turma;
@@ -1034,6 +1016,26 @@
             });
         }
 
+        // Função que estava faltando no código original para ligar a câmera do leitor
+        function initInstancia(configCamera, configLeitor) {
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                configCamera,
+                configLeitor,
+                (textoDecodificado) => {
+                    aoLerQrCode(textoDecodificado);
+                },
+                (mensagemErro) => {
+                    // Os erros de parse são ignorados para manter a varredura contínua
+                }
+            ).catch(err => {
+                console.error("Erro ao iniciar a câmera: ", err);
+                const msgDiv = document.getElementById('mensagem');
+                msgDiv.innerHTML = "Erro ao acessar a câmera. Verifique as permissões de vídeo.";
+                msgDiv.className = "vermelho";
+            });
+        }
+
         function iniciarCamera() {
             const configCamera = cameraTraseira ? { facingMode: "environment" } : { facingMode: "user" };
             const configLeitor = { fps: 12, qrbox: { width: 250, height: 250 } };
@@ -1046,6 +1048,16 @@
         }
 
         function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
+
+        // Nova função para formatar os minutos e segundos da mensagem dinamicamente
+        function formatarTempo(ms) {
+            const m = Math.floor(ms / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            if (m > 0) {
+                return `${m} minuto(s) e ${s} segundo(s)`;
+            }
+            return `${s} segundo(s)`;
+        }
 
         function aoLerQrCode(texto) {
             let qrDecodificado = texto;
@@ -1087,25 +1099,29 @@
 
             if (dbAlunos[qrLido]) {
                 const agoraTs = Date.now();
-                const dezMinutos = 10 * 60 * 1000;
+                // Novos tempos configurados conforme solicitado:
+                const cincoMinutos = 5 * 60 * 1000;
                 const sessentaMinutos = 60 * 60 * 1000;
 
+                // Verifica o limite INDIVIDUAL (mesmo aluno aguarda 1 hora)
                 if (ultimosScansAlunos[qrLido] && (agoraTs - ultimosScansAlunos[qrLido]) < sessentaMinutos) {
-                    const faltam = Math.ceil((sessentaMinutos - (agoraTs - ultimosScansAlunos[qrLido])) / 60000);
+                    const tempoRestante = sessentaMinutos - (agoraTs - ultimosScansAlunos[qrLido]);
                     if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
-                    msgDiv.innerHTML = `⏳ <strong>${qrLido}</strong><br>Aguarde ${faltam} minuto(s) para poder sair novamente.`;
+                    msgDiv.innerHTML = `⏳ <strong>${qrLido}</strong><br>Faltam ${formatarTempo(tempoRestante)} para você poder sair novamente.`;
                     msgDiv.className = "vermelho";
                     return;
                 }
 
-                if (ultimoScanGlobal && (agoraTs - ultimoScanGlobal) < dezMinutos) {
-                    const faltam = Math.ceil((dezMinutos - (agoraTs - ultimoScanGlobal)) / 60000);
+                // Verifica o limite GLOBAL (qualquer aluno aguarda 5 minutos)
+                if (ultimoScanGlobal && (agoraTs - ultimoScanGlobal) < cincoMinutos) {
+                    const tempoRestante = cincoMinutos - (agoraTs - ultimoScanGlobal);
                     if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
-                    msgDiv.innerHTML = `⏳ <strong>Aguarde!</strong><br>Saída bloqueada por ${faltam} minuto(s) devido à saída recente de outro aluno.`;
+                    msgDiv.innerHTML = `⏳ <strong>Aguarde!</strong><br>Faltam ${formatarTempo(tempoRestante)} devido à saída recente na turma.`;
                     msgDiv.className = "vermelho";
                     return;
                 }
 
+                // Se passou em todas as regras de tempo
                 if (dbAlunos[qrLido].contador < dbAlunos[qrLido].limite) {
                     dbAlunos[qrLido].contador++;
                     
@@ -1117,6 +1133,7 @@
 
                     refAlunosAtuais.child(qrLido).set(dbAlunos[qrLido]);
 
+                    // Atualiza os marcadores de tempo de sucesso
                     ultimoScanGlobal = agoraTs;
                     ultimosScansAlunos[qrLido] = agoraTs;
 
