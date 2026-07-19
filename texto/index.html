@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Monitoramento e Fluência Leitora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos Base - Interface Técnica e Limpa */
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: #f4f6f9; 
+            color: #2c3e50; 
+            margin: 0;
+            padding: 0;
+        }
+
+        /* TELA INICIAL (HOME) */
+        .home-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        /* Configuração da Imagem de Fundo com 80% de visibilidade */
+        .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('fundo.jpg'); /* Coloque a imagem na mesma pasta com este nome */
+            background-size: cover;
+            background-position: center;
+            opacity: 0.8; /* 80% de visibilidade */
+            z-index: -1;
+            background-color: #f4f6f9;
+        }
+
+        .home-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 90%;
+            width: 600px;
+            backdrop-filter: blur(10px);
+        }
+
+        .home-content h1 {
+            font-size: 2.2rem;
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 40px;
+            line-height: 1.2;
+        }
+
+        .home-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .app-btn {
+            flex: 1;
+            min-width: 220px;
+            background: #ffffff;
+            border: 2px solid #3182ce;
+            color: #3182ce;
+            padding: 25px 20px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(49, 130, 206, 0.1);
+            font-family: inherit;
+        }
+
+        .app-btn:hover {
+            background: #3182ce;
+            color: #ffffff;
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(49, 130, 206, 0.3);
+        }
+
+        .btn-icon {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .home-footer {
+            position: absolute;
+            bottom: 25px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #1a202c;
+            font-weight: 900;
+            text-shadow: 0px 0px 10px rgba(255, 255, 255, 1), 0px 0px 5px rgba(255, 255, 255, 0.8);
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        /* CONTAINER DO APLICATIVO PRINCIPAL */
+        .main-wrapper {
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container { 
+            max-width: 850px; 
+            margin: 0 auto; 
+            background: #ffffff; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+            position: relative;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #718096;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+            font-family: inherit;
+        }
+
+        .back-btn:hover {
+            color: #3182ce;
+        }
+
+        .app-title { 
+            text-align: center; 
+            color: #2c3e50; 
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        
+        /* Sistema de Abas */
+        .tab-container { 
+            display: flex; 
+            gap: 10px;
+            margin-bottom: 25px; 
+        }
+        .tab-button { 
+            flex: 1;
+            background: #edf2f7; 
+            border: 1px solid #e2e8f0; 
+            padding: 12px 20px; 
+            font-size: 1rem; 
+            border-radius: 8px;
+            cursor: pointer; 
+            color: #4a5568; 
+            font-weight: 700; 
+            transition: all 0.2s ease;
+        }
+        .tab-button.active { 
+            background: #ffffff;
+            color: #3182ce; 
+            border: 1px solid #3182ce;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .tab-button:hover:not(.active) { 
+            background: #e2e8f0;
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Formulários */
+        .form-group { margin-bottom: 18px; }
+        label { font-weight: 700; display: block; margin-bottom: 8px; color: #4a5568; font-size: 0.95rem; }
+        input[type="text"], textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #cbd5e0; 
+            border-radius: 6px; 
+            font-family: inherit; 
+            font-size: 0.95rem; 
+            box-sizing: border-box; 
+            transition: border 0.2s;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #3182ce;
+        }
+        textarea { height: 120px; resize: vertical; }
+        
+        button.action-btn { 
+            background: #3182ce; 
+            color: #fff; 
+            border: none; 
+            padding: 12px 24px; 
+            font-size: 1rem; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 700;
+            transition: background 0.2s;
+            width: 100%;
+        }
+        button.action-btn:hover { background: #2b6cb0; }
+        
+        button.print-btn { 
+            background: #48bb78; 
+            margin-top: 20px; 
+        }
+        button.print-btn:hover { background: #38a169; }
+
+        /* Controles de Modo (Dinâmico vs Formal) */
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: #f7fafc;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border: 1px solid #cbd5e0;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #4a5568;
+            transition: all 0.2s;
+        }
+        .mode-btn.active {
+            background: #4a5568;
+            color: #fff;
+            border-color: #4a5568;
+        }
+
+        /* Área de Resultados Geral */
+        .result-area {
+            margin-top: 25px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .result-title { 
+            text-align: center; 
+            font-weight: 700; 
+            margin-bottom: 1.2em; 
+        }
+
+        /* CONFIGURAÇÃO DE ESTILOS: MODO DINÂMICO */
+        .result-area.mode-dynamic {
+            border: 2px dashed #cbd5e0;
+            font-size: 16px; 
+            line-height: 1.7; 
+            text-align: left;
+        }
+        .result-area.mode-dynamic .result-title {
+            color: #2b6cb0;
+            font-size: 20px;
+        }
+        .result-area.mode-dynamic .word-silaba {
+            display: inline-block;
+            padding: 2px 6px;
+            margin: 3px;
+            background: #fefcbf;
+            border: 1px solid #faf089; 
+            border-radius: 6px;
+            color: #2d3748;
+            font-weight: 700;
+        }
+        .result-area.mode-dynamic .word-enumerada {
+            display: inline-block;
+            position: relative;
+            padding: 2px 8px;
+            margin: 12px 4px 4px 4px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            color: #2d3748;
+            font-weight: 700;
+        }
+        .result-area.mode-dynamic .word-number {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e53e3e;
+            color: #FFF;
+            font-size: 10px; 
+            font-weight: 700;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* CONFIGURAÇÃO DE ESTILOS: MODO FORMAL (Padrão de Avaliação CAEd / ABNT) */
+        .result-area.mode-formal {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            font-family: 'Arial', sans-serif;
+            font-size: 12pt; 
+            line-height: 1.5; 
+            text-align: justify;
+            color: #000;
+            padding: 20px;
+        }
+        .result-area.mode-formal .result-title {
+            color: #000;
+            font-size: 14pt;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .result-area.mode-formal .word-silaba {
+            display: inline-block;
+            padding: 2px 6px;
+            margin: 3px;
+            background: none;
+            border: 1px solid #000; 
+            border-radius: 6px;
+            color: #000;
+            font-weight: normal;
+        }
+        .result-area.mode-formal .word-enumerada {
+            display: inline;
+            position: relative;
+            padding: 0;
+            margin: 0 4px 0 0;
+            background: none;
+            border-radius: 0;
+            color: #000;
+            font-weight: normal;
+        }
+        .result-area.mode-formal .word-number {
+            position: static;
+            transform: none;
+            display: inline;
+            font-size: 8pt; 
+            color: #444;
+            background: none;
+            border: none;
+            width: auto;
+            height: auto;
+            margin-right: 2px;
+            vertical-align: super;
+            font-weight: normal;
+        }
+
+        /* Impressão Otimizada para uma Única Página A4 */
+        @media print {
+            body { background: transparent; padding: 0; margin: 0; }
+            .main-wrapper { padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+            .no-print, .tab-container, .mode-selector, .home-screen { display: none !important; }
+            .tab-content { display: block !important; }
+            .tab-content:not(.active) { display: none !important; }
+            
+            #main-app { display: block !important; }
+
+            .result-area { margin: 0; border: none; padding: 0; }
+            
+            /* Ajuste milimétrico de tamanho de fonte para evitar quebra de página */
+            .result-area.mode-dynamic { font-size: 13px; line-height: 1.4; }
+            .result-area.mode-formal { font-size: 11pt; line-height: 1.4; }
+            .result-area.mode-formal .result-title { font-size: 12pt; margin-bottom: 1em; }
+            
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TELA INICIAL -->
+    <div id="home-screen" class="home-screen">
+        <div class="bg-image"></div>
+        <div class="home-content">
+            <h1>Painel de Monitoramento<br>e Fluência Leitora</h1>
+            <div class="home-buttons">
+                <button class="app-btn" onclick="abrirApp('tab-silabas')">
+                    <span class="btn-icon">✂️</span>
+                    Dividir Texto
+                </button>
+                <button class="app-btn" onclick="abrirApp('tab-enumeracao')">
+                    <span class="btn-icon">🔢</span>
+                    Texto Enumerado
+                </button>
+            </div>
+        </div>
+        <footer class="home-footer">
+            &copy; Desenvolvido por Eronildo Tavares, com foco em desenvolvimento na fluência em leitura.
+        </footer>
+    </div>
+
+    <!-- APLICATIVO PRINCIPAL (Oculto inicialmente) -->
+    <div class="main-wrapper" id="main-app" style="display: none;">
+        <div class="container">
+            <button class="back-btn no-print" onclick="voltarHome()">&#8592; Voltar ao Início</button>
+            
+            <h1 class="app-title no-print">Ferramentas de Fluência</h1>
+            
+            <div class="tab-container no-print">
+                <button class="tab-button active" data-target="tab-silabas">Divisão Silábica</button>
+                <button class="tab-button" data-target="tab-enumeracao">Contagem de Palavras</button>
+            </div>
+
+            <div id="tab-silabas" class="tab-content active">
+                <div class="no-print">
+                    <div class="form-group">
+                        <label>Título da Atividade:</label>
+                        <input type="text" id="title-silabas" placeholder="Ex: Avaliação Diagnóstica de Fluência">
+                    </div>
+                    <div class="form-group">
+                        <label>Texto para Processamento:</label>
+                        <textarea id="text-silabas" placeholder="Insira o texto para segmentação silábica..."></textarea>
+                    </div>
+                    <button class="action-btn" id="btn-silabas">Gerar Divisão Silábica</button>
+                </div>
+                
+                <div class="result-area mode-dynamic" id="result-silabas-container" style="display:none;">
+                    <div class="mode-selector no-print">
+                        <button class="mode-btn active" onclick="alterarModo('silabas', 'dynamic')">Modo Dinâmico</button>
+                        <button class="mode-btn" onclick="alterarModo('silabas', 'formal')">Modo Formal (Padrão CAEd)</button>
+                    </div>
+                    <div class="result-title" id="out-title-silabas"></div>
+                    <div id="out-text-silabas"></div>
+                    <button class="action-btn print-btn no-print" onclick="window.print()">Imprimir Atividade</button>
+                </div>
+            </div>
+
+            <div id="tab-enumeracao" class="tab-content">
+                <div class="no-print">
+                    <div class="form-group">
+                        <label>Título da Atividade:</label>
+                        <input type="text" id="title-enum" placeholder="Ex: Teste de Velocidade de Leitura">
+                    </div>
+                    <div class="form-group">
+                        <label>Texto para Processamento:</label>
+                        <textarea id="text-enum" placeholder="Insira o texto para aplicação dos índices numéricos..."></textarea>
+                    </div>
+                    <button class="action-btn" id="btn-enum">Gerar Contagem de Palavras</button>
+                </div>
+                
+                <div class="result-area mode-dynamic" id="result-enum-container" style="display:none;">
+                    <div class="mode-selector no-print">
+                        <button class="mode-btn active" onclick="alterarModo('enum', 'dynamic')">Modo Dinâmico</button>
+                        <button class="mode-btn" onclick="alterarModo('enum', 'formal')">Modo Formal (Padrão CAEd)</button>
+                    </div>
+                    <div class="result-title" id="out-title-enum"></div>
+                    <div id="out-text-enum"></div>
+                    <button class="action-btn print-btn no-print" onclick="window.print()">Imprimir Atividade</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funções de Navegação Tela Inicial <-> Aplicativo
+        function abrirApp(tabAlvo) {
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            
+            // Simula o clique na aba correta automaticamente
+            const botaoAba = document.querySelector(`.tab-button[data-target="${tabAlvo}"]`);
+            if (botaoAba) {
+                botaoAba.click();
+            }
+        }
+
+        function voltarHome() {
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('home-screen').style.display = 'flex';
+        }
+
+        // Navegação entre as Abas Internas
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                button.classList.add('active');
+                const target = button.getAttribute('data-target');
+                document.getElementById(target).classList.add('active');
+            });
+        });
+
+        // Alternador de Modo de Visualização (Dinâmico vs Formal)
+        function alterarModo(aba, modo) {
+            const container = document.getElementById(`result-${aba}-container`);
+            const botoes = container.querySelectorAll('.mode-btn');
+            
+            if (modo === 'dynamic') {
+                container.classList.remove('mode-formal');
+                container.classList.add('mode-dynamic');
+                botoes[0].classList.add('active');
+                botoes[1].classList.remove('active');
+                
+                if (aba === 'silabas') {
+                    container.querySelectorAll('.word-silaba').forEach(w => {
+                        // Remove a barra vertical e os espaços ao redor, e troca por hífen
+                        w.textContent = w.textContent.replace(/\s*\|\s*/g, '-');
+                    });
+                }
+            } else {
+                container.classList.remove('mode-dynamic');
+                container.classList.add('mode-formal');
+                botoes[0].classList.remove('active');
+                botoes[1].classList.add('active');
+                
+                if (aba === 'silabas') {
+                    container.querySelectorAll('.word-silaba').forEach(w => {
+                        // Troca o hífen pela barra vertical com espaços
+                        w.textContent = w.textContent.replace(/-/g, ' | ');
+                    });
+                }
+            }
+        }
+
+        // Algoritmo de Separação Silábica
+        function dividirSilabasPT(palavra, separador = "-") {
+            let p = palavra.trim();
+            if (!p) return "";
+            
+            let pontuacaoFim = p.match(/[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\]+$/) || "";
+            let pontuacaoInicio = p.match(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\]+/) || "";
+            let termo = p.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\]+|[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\]+$/g, "");
+            
+            if (termo.length <= 1) return p;
+
+            const vogais = "aeiouáéíóúâêôãõàíúéóáîôûçAEIOUÁÉÍÓÚÂÊÔÃÕÀÍÚÉÓÁÎÔÛÇ";
+            let s = termo.split('');
+            let tipos = s.map(l => vogais.includes(l) ? 'V' : 'C');
+            let cortes = new Array(s.length).fill(false);
+            
+            for (let i = 0; i < s.length - 1; i++) {
+                let c1 = s[i].toLowerCase(), c2 = s[i+1].toLowerCase(), c3 = (i + 2 < s.length) ? s[i+2].toLowerCase() : "";
+                let t1 = tipos[i], t2 = tipos[i+1], t3 = tipos[i+2] || '';
+                
+                if ((c1==='r' && c2==='r') || (c1==='s' && c2==='s') || (c1==='s' && c2==='c') || (c1==='s' && c2==='ç') || (c1==='x' && c2==='c')) { cortes[i] = true; continue; }
+                if ((c1==='c' && c2==='h') || (c1==='l' && c2==='h') || (c1==='n' && c2==='h') || (c1==='g' && c2==='u') || (c1==='q' && c2==='u')) { continue; }
+                if (t1 === 'C' && t2 === 'C' && ['r', 'l'].includes(c2)) { continue; }
+                if (t1 === 'V' && t2 === 'C' && t3 === 'V') { cortes[i] = true; continue; }
+                if (t1 === 'V' && t2 === 'C' && t3 === 'C') {
+                    if ((['r', 'l'].includes(c3) && c2 !== c3 && c2 !== 's') || c3 === 'h' || (c2 === 'g' && c3 === 'u') || (c2 === 'q' && c3 === 'u')) { cortes[i] = true; }
+                    continue;
+                }
+                if (t1 === 'C' && t2 === 'C') { cortes[i] = true; continue; }
+                if (t1 === 'V' && t2 === 'V') {
+                    let ditongos = ["ai", "au", "ei", "eu", "oi", "ou", "ui", "ia", "ie", "io", "ua", "ue", "uo", "ão", "õe", "ao", "eo", "oa", "iu"];
+                    if (!ditongos.includes(c1 + c2)) { cortes[i] = true; }
+                }
+            }
+            
+            let finalStr = "";
+            for(let i=0; i<s.length; i++) {
+                finalStr += s[i];
+                if (cortes[i]) finalStr += separador; 
+            }
+            return pontuacaoInicio + finalStr + pontuacaoFim;
+        }
+
+        // Processar Sílabas
+        document.getElementById('btn-silabas').addEventListener('click', () => {
+            const title = document.getElementById('title-silabas').value;
+            const text = document.getElementById('text-silabas').value;
+            const outTitle = document.getElementById('out-title-silabas');
+            const outText = document.getElementById('out-text-silabas');
+            const container = document.getElementById('result-silabas-container');
+
+            outTitle.innerHTML = title;
+            outText.innerHTML = '';
+
+            const isFormal = container.classList.contains('mode-formal');
+            const sep = isFormal ? ' | ' : '-';
+
+            const paragraphs = text.split('\n');
+            paragraphs.forEach(p => {
+                if (p.trim() === '') {
+                    outText.innerHTML += '<br>';
+                    return;
+                }
+                const pDiv = document.createElement('div');
+                pDiv.style.marginBottom = '12px';
+                
+                const words = p.trim().split(/\s+/);
+                words.forEach(w => {
+                    pDiv.innerHTML += `<span class="word-silaba">${dividirSilabasPT(w, sep)}</span> `;
+                });
+                outText.appendChild(pDiv);
+            });
+            container.style.display = 'block';
+        });
+
+        // Processar Enumeração
+        document.getElementById('btn-enum').addEventListener('click', () => {
+            const title = document.getElementById('title-enum').value;
+            const text = document.getElementById('text-enum').value;
+            const outTitle = document.getElementById('out-title-enum');
+            const outText = document.getElementById('out-text-enum');
+            const container = document.getElementById('result-enum-container');
+
+            outTitle.innerHTML = title;
+            outText.innerHTML = '';
+
+            let counter = 1;
+            const paragraphs = text.split('\n');
+            paragraphs.forEach(p => {
+                if (p.trim() === '') {
+                    outText.innerHTML += '<br>';
+                    return;
+                }
+                const pDiv = document.createElement('div');
+                pDiv.style.marginBottom = '12px';
+                
+                const words = p.trim().split(/\s+/);
+                words.forEach(w => {
+                    pDiv.innerHTML += `<span class="word-enumerada"><span class="word-number">${counter}</span>${w}</span> `;
+                    counter++;
+                });
+                outText.appendChild(pDiv);
+            });
+            container.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
