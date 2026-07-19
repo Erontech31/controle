@@ -161,37 +161,6 @@
             margin-bottom: 25px;
         }
         
-        /* Sistema de Abas */
-        .tab-container { 
-            display: flex; 
-            gap: 10px;
-            margin-bottom: 25px; 
-        }
-        .tab-button { 
-            flex: 1;
-            background: #edf2f7; 
-            border: 1px solid #e2e8f0; 
-            padding: 12px 20px; 
-            font-size: 1rem; 
-            border-radius: 8px;
-            cursor: pointer; 
-            color: #4a5568; 
-            font-weight: 700; 
-            transition: all 0.2s ease;
-        }
-        .tab-button.active { 
-            background: #ffffff;
-            color: #3182ce; 
-            border: 1px solid #3182ce;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .tab-button:hover:not(.active) { 
-            background: #e2e8f0;
-        }
-        
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
         /* Formulários */
         .form-group { margin-bottom: 18px; }
         label { font-weight: 700; display: block; margin-bottom: 8px; color: #4a5568; font-size: 0.95rem; }
@@ -378,9 +347,7 @@
             body { background: transparent; padding: 0; margin: 0; }
             .main-wrapper { padding: 0; }
             .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
-            .no-print, .tab-container, .mode-selector, .home-screen { display: none !important; }
-            .tab-content { display: block !important; }
-            .tab-content:not(.active) { display: none !important; }
+            .no-print, .mode-selector, .home-screen { display: none !important; }
             
             #main-app { display: block !important; }
 
@@ -406,11 +373,11 @@
         <div class="home-content">
             <h1>Painel de Monitoramento<br>e Fluência Leitora</h1>
             <div class="home-buttons">
-                <button class="app-btn" onclick="abrirApp('tab-silabas')">
+                <button class="app-btn" onclick="abrirSilabas()">
                     <span class="btn-icon">✂️</span>
                     Dividir Texto
                 </button>
-                <button class="app-btn" onclick="abrirApp('tab-enumeracao')">
+                <button class="app-btn" onclick="abrirEnumeracao()">
                     <span class="btn-icon">🔢</span>
                     Texto Enumerado
                 </button>
@@ -421,97 +388,87 @@
         </footer>
     </div>
 
-    <!-- APLICATIVO PRINCIPAL (Oculto inicialmente) -->
-    <div class="main-wrapper" id="main-app" style="display: none;">
+    <!-- APLICATIVO: DIVISÃO SILÁBICA (Oculto inicialmente) -->
+    <div class="main-wrapper" id="app-silabas" style="display: none;">
         <div class="container">
             <button class="back-btn no-print" onclick="voltarHome()">&#8592; Voltar ao Início</button>
             
-            <h1 class="app-title no-print">Ferramentas de Fluência</h1>
+            <h1 class="app-title no-print">Divisão Silábica</h1>
             
-            <div class="tab-container no-print">
-                <button class="tab-button active" data-target="tab-silabas">Divisão Silábica</button>
-                <button class="tab-button" data-target="tab-enumeracao">Contagem de Palavras</button>
+            <div class="no-print">
+                <div class="form-group">
+                    <label>Título da Atividade:</label>
+                    <input type="text" id="title-silabas" placeholder="Ex: Avaliação Diagnóstica de Fluência">
+                </div>
+                <div class="form-group">
+                    <label>Texto para Processamento:</label>
+                    <textarea id="text-silabas" placeholder="Insira o texto para segmentação silábica..."></textarea>
+                </div>
+                <button class="action-btn" id="btn-silabas">Gerar Divisão Silábica</button>
             </div>
-
-            <div id="tab-silabas" class="tab-content active">
-                <div class="no-print">
-                    <div class="form-group">
-                        <label>Título da Atividade:</label>
-                        <input type="text" id="title-silabas" placeholder="Ex: Avaliação Diagnóstica de Fluência">
-                    </div>
-                    <div class="form-group">
-                        <label>Texto para Processamento:</label>
-                        <textarea id="text-silabas" placeholder="Insira o texto para segmentação silábica..."></textarea>
-                    </div>
-                    <button class="action-btn" id="btn-silabas">Gerar Divisão Silábica</button>
+            
+            <div class="result-area mode-dynamic" id="result-silabas-container" style="display:none;">
+                <div class="mode-selector no-print">
+                    <button class="mode-btn active" onclick="alterarModo('silabas', 'dynamic')">Modo Dinâmico</button>
+                    <button class="mode-btn" onclick="alterarModo('silabas', 'formal')">Modo Formal (Padrão CAEd)</button>
                 </div>
-                
-                <div class="result-area mode-dynamic" id="result-silabas-container" style="display:none;">
-                    <div class="mode-selector no-print">
-                        <button class="mode-btn active" onclick="alterarModo('silabas', 'dynamic')">Modo Dinâmico</button>
-                        <button class="mode-btn" onclick="alterarModo('silabas', 'formal')">Modo Formal (Padrão CAEd)</button>
-                    </div>
-                    <div class="result-title" id="out-title-silabas"></div>
-                    <div id="out-text-silabas"></div>
-                    <button class="action-btn print-btn no-print" onclick="window.print()">Imprimir Atividade</button>
-                </div>
+                <div class="result-title" id="out-title-silabas"></div>
+                <div id="out-text-silabas"></div>
+                <button class="action-btn print-btn no-print" onclick="window.print()">Imprimir Atividade</button>
             </div>
+        </div>
+    </div>
 
-            <div id="tab-enumeracao" class="tab-content">
-                <div class="no-print">
-                    <div class="form-group">
-                        <label>Título da Atividade:</label>
-                        <input type="text" id="title-enum" placeholder="Ex: Teste de Velocidade de Leitura">
-                    </div>
-                    <div class="form-group">
-                        <label>Texto para Processamento:</label>
-                        <textarea id="text-enum" placeholder="Insira o texto para aplicação dos índices numéricos..."></textarea>
-                    </div>
-                    <button class="action-btn" id="btn-enum">Gerar Contagem de Palavras</button>
+    <!-- APLICATIVO: CONTAGEM DE PALAVRAS (Oculto inicialmente) -->
+    <div class="main-wrapper" id="app-enum" style="display: none;">
+        <div class="container">
+            <button class="back-btn no-print" onclick="voltarHome()">&#8592; Voltar ao Início</button>
+            
+            <h1 class="app-title no-print">Contagem de Palavras</h1>
+            
+            <div class="no-print">
+                <div class="form-group">
+                    <label>Título da Atividade:</label>
+                    <input type="text" id="title-enum" placeholder="Ex: Teste de Velocidade de Leitura">
                 </div>
-                
-                <div class="result-area mode-dynamic" id="result-enum-container" style="display:none;">
-                    <div class="mode-selector no-print">
-                        <button class="mode-btn active" onclick="alterarModo('enum', 'dynamic')">Modo Dinâmico</button>
-                        <button class="mode-btn" onclick="alterarModo('enum', 'formal')">Modo Formal (Padrão CAEd)</button>
-                    </div>
-                    <div class="result-title" id="out-title-enum"></div>
-                    <div id="out-text-enum"></div>
-                    <button class="action-btn print-btn no-print" onclick="window.print()">Imprimir Atividade</button>
+                <div class="form-group">
+                    <label>Texto para Processamento:</label>
+                    <textarea id="text-enum" placeholder="Insira o texto para aplicação dos índices numéricos..."></textarea>
                 </div>
+                <button class="action-btn" id="btn-enum">Gerar Contagem de Palavras</button>
+            </div>
+            
+            <div class="result-area mode-dynamic" id="result-enum-container" style="display:none;">
+                <div class="mode-selector no-print">
+                    <button class="mode-btn active" onclick="alterarModo('enum', 'dynamic')">Modo Dinâmico</button>
+                    <button class="mode-btn" onclick="alterarModo('enum', 'formal')">Modo Formal (Padrão CAEd)</button>
+                </div>
+                <div class="result-title" id="out-title-enum"></div>
+                <div id="out-text-enum"></div>
+                <button class="action-btn print-btn no-print" onclick="window.print()">Imprimir Atividade</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Funções de Navegação Tela Inicial <-> Aplicativo
-        function abrirApp(tabAlvo) {
+        // Funções de Navegação - Cada botão abre apenas sua respectiva tela
+        function abrirSilabas() {
             document.getElementById('home-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            
-            // Simula o clique na aba correta automaticamente
-            const botaoAba = document.querySelector(`.tab-button[data-target="${tabAlvo}"]`);
-            if (botaoAba) {
-                botaoAba.click();
-            }
+            document.getElementById('app-silabas').style.display = 'block';
+            document.getElementById('app-enum').style.display = 'none';
+        }
+
+        function abrirEnumeracao() {
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('app-enum').style.display = 'block';
+            document.getElementById('app-silabas').style.display = 'none';
         }
 
         function voltarHome() {
-            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('app-silabas').style.display = 'none';
+            document.getElementById('app-enum').style.display = 'none';
             document.getElementById('home-screen').style.display = 'flex';
         }
-
-        // Navegação entre as Abas Internas
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                button.classList.add('active');
-                const target = button.getAttribute('data-target');
-                document.getElementById(target).classList.add('active');
-            });
-        });
 
         // Alternador de Modo de Visualização (Dinâmico vs Formal)
         function alterarModo(aba, modo) {
@@ -526,7 +483,6 @@
                 
                 if (aba === 'silabas') {
                     container.querySelectorAll('.word-silaba').forEach(w => {
-                        // Remove a barra vertical e os espaços ao redor, e troca por hífen
                         w.textContent = w.textContent.replace(/\s*\|\s*/g, '-');
                     });
                 }
@@ -538,7 +494,6 @@
                 
                 if (aba === 'silabas') {
                     container.querySelectorAll('.word-silaba').forEach(w => {
-                        // Troca o hífen pela barra vertical com espaços
                         w.textContent = w.textContent.replace(/-/g, ' | ');
                     });
                 }
