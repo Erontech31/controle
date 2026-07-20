@@ -271,7 +271,7 @@ Fruta</textarea>
     // ==========================================
     // COLE SUA API KEY DO GEMINI AQUI 👇
     // ==========================================
-    const GEMINI_API_KEY = "AQ.Ab8RN6LaHai7aOK9RVRqPPl811NEylTE1eHMcfeO6BdscYkaCw";
+    const GEMINI_API_KEY = "AQ.Ab8RN6IylkdcFZxDVNgubItstvgDTv3kth6JJ1KDRdNseyguYg";
 
     // ==========================================
     // CONFIGURAÇÃO DO FIREBASE
@@ -306,7 +306,7 @@ Fruta</textarea>
     let scannerQr = null;
     let jogadoresRegistrados = null;
     let dadosPartidaGlobal = null;
-    let apurandoResultados = false; // Evita loop de apuração
+    let apurandoResultados = false;
 
     window.addEventListener('DOMContentLoaded', () => {
         const nomeSalvo = localStorage.getItem('adedonhaNomeJogador');
@@ -401,9 +401,6 @@ Fruta</textarea>
         emitirAviso("Falha no Banco", "Verifique as regras do Firebase Realtime Database.");
     }
 
-    // ==========================================
-    // SINCRONIZAÇÃO EM TEMPO REAL
-    // ==========================================
     function escutarAlteracoesSala() {
         db.ref(`salas/${salaAtual}`).on('value', snapshot => {
             const dados = snapshot.val();
@@ -559,9 +556,6 @@ Fruta</textarea>
         await db.ref(`salas/${salaAtual}/status`).set('votacao'); 
     }
 
-    // ==========================================
-    // LÓGICA DA IA (GEMINI) & READY CHECK
-    // ==========================================
     function gerenciarVotacaoIA(dados, ecranAtual) {
         if (ecranAtual !== 'tela-votacao') {
             gerirNavegacaoEcras('tela-votacao');
@@ -598,7 +592,6 @@ Fruta</textarea>
             titulo.innerText = "⚖️ Veredito do Tribunal (IA)";
             construirVisualRespostasIA(dados, estadoVotos);
             
-            // READY CHECK PARA AVANÇAR
             btnApurar.classList.remove('hidden');
             
             const totalJogadores = Object.keys(dados.jogadores || {}).length;
@@ -618,7 +611,6 @@ Fruta</textarea>
             msgVotacao.classList.remove('hidden');
             msgVotacao.innerText = `${totalProntos} de ${totalJogadores} prontos para a próxima rodada.`;
 
-            // Apenas o Host faz a apuração para evitar cálculos duplicados
             if (totalProntos === totalJogadores && totalJogadores > 0 && isDono && !apurandoResultados) {
                 apurandoResultados = true;
                 executarApuracaoEAvancar(dados).finally(() => { apurandoResultados = false; });
@@ -658,10 +650,8 @@ Regras de Aceitação:
 1. A palavra DEVE obrigatoriamente começar com a letra '${letra}'.
 2. A palavra DEVE ser um item válido correspondente à sua respectiva categoria indexada.
 
-Retorne APENAS um objeto JSON com o resultado (true para aprovado, false para reprovado). O formato deve ser exato:
+Retorne APENAS um objeto JSON puro, sem nenhum texto adicional ou blocos de markdown, com o resultado (true para aprovado, false para reprovado). O formato deve ser exato:
 {"ID_JOGADOR": {"INDEX_CATEGORIA": booleano, ...}}
-
-Apenas gere o JSON validando as palavras fornecidas na lista.
         `;
 
         try {
@@ -676,7 +666,14 @@ Apenas gere o JSON validando as palavras fornecidas na lista.
             });
             
             const data = await response.json();
-            const textResponse = data.candidates[0].content.parts[0].text;
+            
+            if (!response.ok || !data.candidates || !data.candidates[0].content) {
+                throw new Error("Erro na resposta da API.");
+            }
+
+            let textResponse = data.candidates[0].content.parts[0].text;
+            textResponse = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+            
             const geminiResult = JSON.parse(textResponse);
 
             let estruturaVotos = {};
@@ -699,9 +696,14 @@ Apenas gere o JSON validando as palavras fornecidas na lista.
 
         } catch (err) {
             console.error("Erro na API Gemini", err);
-            emitirAviso("Erro na Inteligência Artificial", "A avaliação falhou. Respostas nulas serão dadas.");
             let fallbackVotos = {};
-            categorias.forEach((_, i) => fallbackVotos[i] = {});
+            categorias.forEach((_, idxCat) => {
+                fallbackVotos[idxCat] = {};
+                for(let idJogador in respostas) {
+                    const palavra = respostas[idJogador] && respostas[idJogador][idxCat] ? String(respostas[idJogador][idxCat]).trim().toUpperCase() : "";
+                    fallbackVotos[idxCat][idJogador] = (palavra && palavra.startsWith(letra) && palavra !== "N/S");
+                }
+            });
             await db.ref(`salas/${salaAtual}/votos`).set(fallbackVotos);
         }
     }
