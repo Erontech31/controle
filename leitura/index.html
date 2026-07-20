@@ -7,14 +7,14 @@
 <script>
 (function(){
   var s = document.createElement('style');
-  s.textContent = ':root{--bg:#faf9f4;--card:#ffffff;--text:#0f172a;--muted:#64748b;--accent:#6366f1;--accent-soft:rgba(99,102,241,.14);--erro-bg:#fee2e2;--erro-texto:#b91c1c;--certo-bg:#dcfce7;--certo-texto:#15803d;--aviso:#d97706;--atual-bg:#dbeafe;--atual-texto:#1d4ed8;--border:rgba(15,23,42,.08)}@keyframes pulse-ring{0%{transform:scale(.85);opacity:.55}70%{transform:scale(1.75);opacity:0}100%{transform:scale(1.75);opacity:0}}.tela{display:none}.tela.ativa{display:block}.flash-certo{animation:flashV .2s ease}.flash-erro{animation:flashR .2s ease}@keyframes flashV{0%{background:var(--certo-bg);transform:scale(1.04)}100%{background:var(--card);transform:scale(1)}}@keyframes flashR{0%{background:var(--erro-bg);transform:scale(1.04)}100%{background:var(--card);transform:scale(1)}}.pw{display:inline-block;margin:2px 3px;padding:2px 6px;border-radius:6px;transition:all .1s;font-weight:500}.pw-nao{color:var(--muted)}.pw-atual{background:var(--atual-bg);color:var(--atual-texto);transform:scale(1.08);box-shadow:0 0 0 2px var(--accent)}.pw-certo{background:var(--certo-bg);color:var(--certo-texto)}.pw-errado{background:var(--erro-bg);color:var(--erro-texto);text-decoration:line-through}';
+  s.textContent = ':root{--bg:#faf9f4;--card:#ffffff;--text:#0f172a;--muted:#64748b;--accent:#6366f1;--accent-soft:rgba(99,102,241,.14);--erro-bg:#fee2e2;--erro-texto:#b91c1c;--certo-bg:#dcfce7;--certo-texto:#15803d;--aviso:#d97706;--atual-bg:#dbeafe;--atual-texto:#1d4ed8;--border:rgba(15,23,42,.08)}.tela{display:none}.tela.ativa{display:block}.pw{display:inline-block;margin:2px 3px;padding:2px 6px;border-radius:6px;transition:all .1s;font-weight:500}.pw-nao{color:var(--muted)}.pw-atual{background:var(--atual-bg);color:var(--atual-texto);transform:scale(1.08);box-shadow:0 0 0 2px var(--accent)}.pw-certo{background:var(--certo-bg);color:var(--certo-texto)}.pw-errado{background:var(--erro-bg);color:var(--erro-texto);text-decoration:line-through}.celula-caed{border:1px solid #cbd5e1;padding:12px 8px;border-radius:8px;transition:all .2s;display:flex;align-items:center;justify-content:center;word-break:break-word;font-size:1.15rem;font-weight:600}.celula-nao{background:var(--card);color:var(--muted)}.celula-atual{background:var(--atual-bg);color:var(--atual-texto);border-color:var(--accent);transform:scale(1.05);box-shadow:0 4px 12px rgba(99,102,241,0.2);z-index:10}.celula-certo{background:var(--certo-bg);color:var(--certo-texto);border-color:#86efac}.celula-errado{background:var(--erro-bg);color:var(--erro-texto);border-color:#fca5a5;text-decoration:line-through}';
   document.head.appendChild(s);
 })();
 </script>
 </head>
 <body style="background-color:transparent;box-sizing:border-box;">
   <div style="color:var(--text);font-family:'Fredoka',sans-serif;background:var(--bg);min-height:100%">
-    <div class="max-w-3xl mx-auto px-5 py-8">
+    <div class="max-w-4xl mx-auto px-5 py-8">
 
       <div id="telaInicio" class="tela ativa">
         <div class="text-center mb-14 mt-6">
@@ -22,15 +22,15 @@
           <p class="text-base" style="color:var(--muted)">Escolha um modo para começar</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <button onclick="prepararModoPalavras()"
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <button onclick="mostrarTela('telaPalavrasConfig')"
             class="rounded-3xl p-10 text-center transition active:scale-[.98] hover:shadow-2xl"
             style="background:var(--card);border:2px solid var(--border);cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.05)">
             <div class="w-16 h-16 rounded-2xl mb-5 mx-auto flex items-center justify-center" style="background:var(--accent-soft);color:var(--accent)">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
-            <h2 class="text-2xl font-bold mb-2">📝 Palavras</h2>
-            <p style="color:var(--muted);font-size:.95rem">Desafio de 1 minuto e 3 segundos<br>Leitura contínua</p>
+            <h2 class="text-2xl font-bold mb-2">📝 Palavras (CAED)</h2>
+            <p style="color:var(--muted);font-size:.95rem">Tabela de 5 colunas<br>Desafio de 1m03s</p>
           </button>
 
           <button onclick="mostrarTela('telaTextoConfig')"
@@ -40,67 +40,90 @@
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             </div>
             <h2 class="text-2xl font-bold mb-2">📄 Texto</h2>
-            <p style="color:var(--muted);font-size:.95rem">Escreva título e texto<br>Leitura livre e natural</p>
+            <p style="color:var(--muted);font-size:.95rem">Escreva título e texto<br>Desafio de 1m03s</p>
           </button>
         </div>
       </div>
 
-      <div id="telaPalavras" class="tela">
+      <div id="telaPalavrasConfig" class="tela max-w-3xl mx-auto">
         <button onclick="pararTudo();mostrarTela('telaInicio')" class="mb-5 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
           style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Início</button>
 
+        <div class="text-center mb-6">
+          <h1 class="text-3xl font-bold mb-2">📝 Adicione suas Palavras</h1>
+          <p class="text-sm" style="color:var(--muted)">Deixe em branco para usar as palavras padrão do sistema.</p>
+        </div>
+
+        <div class="rounded-3xl p-6 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05)">
+          <label class="block text-sm font-semibold mb-2" style="color:var(--muted)">Lista de Palavras (separadas por espaço ou quebra de linha):</label>
+          <textarea id="txtPalavras" rows="8" placeholder="Ex: casa mesa bola cadeira escola carro..."
+            class="w-full px-4 py-3 rounded-2xl text-lg outline-none mb-5 resize-none transition"
+            style="background:#f5f5f0;border:2px solid var(--border);line-height:1.6"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+
+          <button onclick="prepararModoPalavras()"
+            class="w-full py-4 rounded-2xl text-xl font-bold text-white transition active:scale-[.98]"
+            style="background:var(--accent);border:none;cursor:pointer;box-shadow:0 8px 20px rgba(99,102,241,.3)">
+            ▶ ABRIR TABELA DE LEITURA
+          </button>
+        </div>
+      </div>
+
+      <div id="telaPalavrasLeitura" class="tela">
+        <button onclick="pararTudo();mostrarTela('telaInicio')" class="mb-5 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
+          style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Cancelar</button>
+
         <div class="rounded-3xl p-5 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 8px 25px rgba(0,0,0,.05)">
-          <div class="text-center mb-3">
-            <p class="text-xs uppercase tracking-widest font-semibold mb-1" style="color:var(--muted)">Tempo</p>
-            <p id="pCrono" class="text-6xl font-bold" style="color:var(--accent);font-variant-numeric:tabular-nums">1:03</p>
-          </div>
-          <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="grid grid-cols-4 gap-2 text-center items-center">
+            <div>
+              <p class="text-xs uppercase font-semibold mb-1" style="color:var(--muted)">Tempo</p>
+              <p id="pCrono" class="text-4xl sm:text-5xl font-bold" style="color:var(--accent);font-variant-numeric:tabular-nums">1:03</p>
+            </div>
             <div class="rounded-xl py-2" style="background:#f5f5f0"><p class="text-[10px] uppercase font-semibold" style="color:var(--muted)">Lidas</p><p id="pLidas" class="text-2xl font-bold">0</p></div>
             <div class="rounded-xl py-2" style="background:var(--certo-bg)"><p class="text-[10px] uppercase font-semibold" style="color:var(--certo-texto)">✅</p><p id="pCertas" class="text-2xl font-bold" style="color:var(--certo-texto)">0</p></div>
             <div class="rounded-xl py-2" style="background:var(--erro-bg)"><p class="text-[10px] uppercase font-semibold" style="color:var(--erro-texto)">❌</p><p id="pErradas" class="text-2xl font-bold" style="color:var(--erro-texto)">0</p></div>
           </div>
         </div>
 
-        <div id="pCaixaMestre" class="relative rounded-3xl mb-6 shadow-sm overflow-hidden" style="background:var(--card);border:1px solid var(--border)">
+        <div id="pCaixaMestre" class="relative rounded-3xl mb-6 shadow-sm overflow-hidden min-h-[300px]" style="background:var(--card);border:1px solid var(--border)">
           
-          <div id="pStartOverlay" onclick="pIniciarDesafio()" class="absolute inset-0 flex flex-col items-center justify-center bg-white/95 backdrop-blur z-10 cursor-pointer transition-opacity duration-300">
+          <div id="pStartOverlay" onclick="iniciarLeituraContagem('p')" class="absolute inset-0 flex flex-col items-center justify-center bg-white/95 backdrop-blur z-20 cursor-pointer transition-opacity duration-300">
              <div class="w-20 h-20 rounded-full mb-4 flex items-center justify-center shadow-lg" style="background:var(--accent);color:white">
                <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
              </div>
-             <h3 class="text-3xl font-bold mb-2" style="color:var(--text)">COMEÇAR</h3>
-             <p class="text-sm font-semibold" style="color:var(--muted)">Toque para soltar o tempo</p>
+             <h3 class="text-3xl font-bold mb-2" style="color:var(--text)">COMEÇAR LEITURA</h3>
+             <p class="text-sm font-semibold" style="color:var(--muted)">Toque para soltar o tempo de 1:03</p>
           </div>
 
-          <div id="pCaixa" class="p-8 text-center min-h-[220px] flex items-center justify-center">
-            <p id="pPalavra" class="text-6xl sm:text-7xl font-bold opacity-0 transition-opacity duration-300" style="color:var(--text);letter-spacing:-0.02em">—</p>
+          <div class="p-6">
+            <div id="pTabelaPalavras" class="grid grid-cols-2 sm:grid-cols-5 gap-3 opacity-10 transition-opacity duration-300">
+              </div>
           </div>
         </div>
 
         <p id="pStatus" class="text-center text-lg font-semibold min-h-[28px]" style="color:var(--muted)">Pronto para começar!</p>
       </div>
 
-      <div id="telaPalavrasRes" class="tela">
+      <div id="telaPalavrasRes" class="tela max-w-3xl mx-auto">
         <div class="text-center mb-6 mt-4">
           <h1 class="text-4xl font-bold mb-2">🏁 Tempo esgotado!</h1>
         </div>
         <div class="rounded-3xl p-6 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05)">
           <div class="grid grid-cols-1 gap-3">
-            <div class="rounded-2xl p-5 text-center" style="background:#f5f5f0"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--muted)">Total</p><p id="prLidas" class="text-5xl font-bold">0</p></div>
+            <div class="rounded-2xl p-5 text-center" style="background:#f5f5f0"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--muted)">Total de Palavras Lidas (em 1m03s)</p><p id="prLidas" class="text-5xl font-bold">0</p></div>
             <div class="grid grid-cols-2 gap-3">
               <div class="rounded-2xl p-5 text-center" style="background:var(--certo-bg)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--certo-texto)">✅ Certas</p><p id="prCertas" class="text-4xl font-bold" style="color:var(--certo-texto)">0</p></div>
               <div class="rounded-2xl p-5 text-center" style="background:var(--erro-bg)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--erro-texto)">❌ Erradas</p><p id="prErradas" class="text-4xl font-bold" style="color:var(--erro-texto)">0</p></div>
             </div>
-            <div class="rounded-2xl p-5 text-center" style="background:var(--accent-soft)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--accent)">Precisão</p><p id="prPct" class="text-4xl font-bold" style="color:var(--accent)">0%</p></div>
           </div>
         </div>
-        <p id="prMsg" class="text-center text-xl font-semibold mb-5"></p>
         <div class="grid grid-cols-2 gap-3">
-          <button onclick="prepararModoPalavras()" class="py-4 rounded-2xl font-bold text-white" style="background:var(--accent);border:none;cursor:pointer">🔄 De novo</button>
+          <button onclick="prepararModoPalavras()" class="py-4 rounded-2xl font-bold text-white" style="background:var(--accent);border:none;cursor:pointer">🔄 Tentar Novamente</button>
           <button onclick="pararTudo();mostrarTela('telaInicio')" class="py-4 rounded-2xl font-bold" style="background:var(--card);border:1px solid var(--border);cursor:pointer">🏠 Início</button>
         </div>
       </div>
 
-      <div id="telaTextoConfig" class="tela">
+      <div id="telaTextoConfig" class="tela max-w-3xl mx-auto">
         <button onclick="pararTudo();mostrarTela('telaInicio')" class="mb-5 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
           style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Início</button>
 
@@ -134,21 +157,25 @@
           style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Cancelar</button>
 
         <div class="rounded-3xl p-4 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 8px 25px rgba(0,0,0,.05)">
-          <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="grid grid-cols-4 gap-2 text-center items-center">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest font-semibold mb-1" style="color:var(--muted)">Tempo</p>
+              <p id="tCrono" class="text-3xl font-bold" style="color:#b45309;font-variant-numeric:tabular-nums">1:03</p>
+            </div>
             <div class="rounded-xl py-2" style="background:#f5f5f0"><p class="text-[10px] uppercase font-semibold" style="color:var(--muted)">Total</p><p id="tTotal" class="text-xl font-bold">0</p></div>
             <div class="rounded-xl py-2" style="background:var(--certo-bg)"><p class="text-[10px] uppercase font-semibold" style="color:var(--certo-texto)">✅</p><p id="tCertas" class="text-xl font-bold" style="color:var(--certo-texto)">0</p></div>
             <div class="rounded-xl py-2" style="background:var(--erro-bg)"><p class="text-[10px] uppercase font-semibold" style="color:var(--erro-texto)">❌</p><p id="tErradas" class="text-xl font-bold" style="color:var(--erro-texto)">0</p></div>
           </div>
         </div>
 
-        <div id="tCaixaMestre" class="relative rounded-3xl mb-5 shadow-sm overflow-hidden" style="background:var(--card);border:1px solid var(--border)">
+        <div id="tCaixaMestre" class="relative rounded-3xl mb-5 shadow-sm overflow-hidden min-h-[300px]" style="background:var(--card);border:1px solid var(--border)">
           
-          <div id="tStartOverlay" onclick="tIniciarLeitura()" class="absolute inset-0 flex flex-col items-center justify-center bg-white/95 backdrop-blur z-10 cursor-pointer transition-opacity duration-300">
+          <div id="tStartOverlay" onclick="iniciarLeituraContagem('t')" class="absolute inset-0 flex flex-col items-center justify-center bg-white/95 backdrop-blur z-20 cursor-pointer transition-opacity duration-300">
              <div class="w-20 h-20 rounded-full mb-4 flex items-center justify-center shadow-lg" style="background:#b45309;color:white">
                <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
              </div>
              <h3 class="text-3xl font-bold mb-2" style="color:var(--text)">LER TEXTO</h3>
-             <p class="text-sm font-semibold" style="color:var(--muted)">Toque para liberar a leitura contínua</p>
+             <p class="text-sm font-semibold" style="color:var(--muted)">Toque para soltar o tempo de 1:03</p>
           </div>
 
           <div id="tTextoContainer" class="p-6 sm:p-8 leading-relaxed opacity-10 transition-opacity duration-300" style="font-size:1.35rem;line-height:1.8"></div>
@@ -157,25 +184,23 @@
         <p id="tStatus" class="text-center text-lg font-semibold min-h-[28px]" style="color:var(--muted)">Pronto para começar!</p>
       </div>
 
-      <div id="telaTextoRes" class="tela">
+      <div id="telaTextoRes" class="tela max-w-3xl mx-auto">
         <div class="text-center mb-6 mt-4">
-          <h1 class="text-4xl font-bold mb-2">✅ Texto concluído!</h1>
+          <h1 class="text-4xl font-bold mb-2">✅ Tempo ou Leitura concluída!</h1>
         </div>
         <div class="rounded-3xl p-6 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05)">
           <div class="grid grid-cols-1 gap-3">
-            <div class="rounded-2xl p-5 text-center" style="background:#f5f5f0"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--muted)">Total de palavras</p><p id="trTotal" class="text-5xl font-bold">0</p></div>
+            <div class="rounded-2xl p-5 text-center" style="background:#f5f5f0"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--muted)">Total de Palavras Lidas (em 1m03s)</p><p id="trLidas" class="text-5xl font-bold">0</p></div>
             <div class="grid grid-cols-2 gap-3">
               <div class="rounded-2xl p-5 text-center" style="background:var(--certo-bg)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--certo-texto)">✅ Certas</p><p id="trCertas" class="text-4xl font-bold" style="color:var(--certo-texto)">0</p></div>
               <div class="rounded-2xl p-5 text-center" style="background:var(--erro-bg)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--erro-texto)">❌ Erradas</p><p id="trErradas" class="text-4xl font-bold" style="color:var(--erro-texto)">0</p></div>
             </div>
-            <div class="rounded-2xl p-5 text-center" style="background:var(--accent-soft)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--accent)">Precisão</p><p id="trPct" class="text-4xl font-bold" style="color:var(--accent)">0%</p></div>
           </div>
         </div>
-        <h3 class="font-bold mb-2" style="color:var(--muted)">📝 Texto com marcações:</h3>
+        <h3 class="font-bold mb-2" style="color:var(--muted)">📝 Como ficou a leitura:</h3>
         <div id="trTextoFinal" class="rounded-3xl p-6 mb-5 leading-relaxed" style="background:var(--card);border:1px solid var(--border);font-size:1.15rem;line-height:1.8"></div>
-        <p id="trMsg" class="text-center text-xl font-semibold mb-5"></p>
         <div class="grid grid-cols-2 gap-3">
-          <button onclick="mostrarTela('telaTextoConfig')" class="py-4 rounded-2xl font-bold text-white" style="background:#b45309;border:none;cursor:pointer">📄 Outro texto</button>
+          <button onclick="prepararModoTexto()" class="py-4 rounded-2xl font-bold text-white" style="background:#b45309;border:none;cursor:pointer">🔄 Tentar Novamente</button>
           <button onclick="pararTudo();mostrarTela('telaInicio')" class="py-4 rounded-2xl font-bold" style="background:var(--card);border:1px solid var(--border);cursor:pointer">🏠 Início</button>
         </div>
       </div>
@@ -185,7 +210,7 @@
 
 <script>
 /* ============================================================
-   🔧 FUNÇÕES BASE E VARIÁVEIS
+   🔧 FUNÇÕES BASE E VARIÁVEIS GERAIS
    ============================================================ */
 var PALAVRAS_BASE = [
   "pássaro","você","café","fácil","difícil","rápido","aéreo","atlético","óbvio","sábado",
@@ -198,10 +223,7 @@ var PALAVRAS_BASE = [
   "cabeça","praça","laço","aço","criança","lança","dança","começo","força",
   "palhaço","pedaço","raça","taça","trança","vergonha","abacaxi",
   "casa","mesa","rosa","prazo","dizer","visita","coisa","dúvida","físico","gás",
-  "uso","base","camisa","empresa","fase","igreja","loja","museu",
-  "carrossel","expressão","necessidade","segurança","sucesso","recomeçar","respeito","resposta",
-  "sol","lua","flor","água","fogo","pão","ovo","leite","mãe","pai","irmã","irmão",
-  "escola","livro","lápis","caneta","bola","avião","cavalo","peixe","pássaro","feliz","triste"
+  "uso","base","camisa","empresa","fase","igreja","loja","museu"
 ];
 
 function normalizarPreciso(t){
@@ -210,22 +232,36 @@ function normalizarPreciso(t){
     .replace(/\s+/g,' ').trim();
 }
 
+function quebrarPalavras(texto){
+  if(!texto) return [];
+  var partes = texto.match(/[^\s]+/g) || [];
+  return partes.map(function(p){ return { original:p, norm: normalizarPreciso(p) }; });
+}
+
 function embaralha(a){ var x=a.slice(); for(var i=x.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];} return x; }
 function fmt(s){ var m=Math.floor(s/60),r=s%60; return m+':'+(r<10?'0':'')+r; }
 function $(id){ return document.getElementById(id); }
 function mostrarTela(id){
-  ['telaInicio','telaPalavras','telaPalavrasRes','telaTextoConfig','telaTextoLeitura','telaTextoRes']
+  ['telaInicio','telaPalavrasConfig','telaPalavrasLeitura','telaPalavrasRes','telaTextoConfig','telaTextoLeitura','telaTextoRes']
     .forEach(t => $(t).classList.remove('ativa'));
   $(id).classList.add('ativa');
 }
 
 /* ============================================================
-   🎤 MOTOR DE VOZ CONTÍNUO (SEMPRE LIGADO)
+   🎤 MOTOR DE VOZ CONTÍNUO E GERENCIADOR DE TEMPO
    ============================================================ */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 var rec = null;
 var micForcado = false;
-var modoAtual = ''; // 'palavras' ou 'texto'
+var modoAtual = ''; // 'p' (palavras) ou 't' (texto)
+
+var cronometroTimer = null;
+
+// Objeto de controle para os modos
+var ctrl = {
+  p: { tempo:63, itens:[], spans:[], idx:0, lidas:0, c:0, e:0, palavrasMatchadas:0, uiLidas:'pLidas', uiCertas:'pCertas', uiErradas:'pErradas', uiCrono:'pCrono' },
+  t: { tempo:63, itens:[], spans:[], idx:0, lidas:0, c:0, e:0, palavrasMatchadas:0, uiLidas:'tTotal', uiCertas:'tCertas', uiErradas:'tErradas', uiCrono:'tCrono' }
+};
 
 if(!SR){
   document.addEventListener('DOMContentLoaded', function(){
@@ -244,28 +280,20 @@ function ligarMicContinuo(){
   rec = new SR();
   rec.lang = 'pt-BR';
   rec.continuous = true;
-  rec.interimResults = true; // Fundamental para leitura super rápida sem pausas
+  rec.interimResults = true; 
 
   rec.onresult = function(e){
     for (let i = e.resultIndex; i < e.results.length; ++i) {
       let textoFalado = e.results[i][0].transcript;
       let isFinal = e.results[i].isFinal;
-      
-      if(modoAtual === 'palavras') {
-        analisarFalaPalavra(textoFalado, isFinal);
-      } else if(modoAtual === 'texto') {
-        analisarFalaTexto(textoFalado, isFinal);
-      }
+      processarFalaContinua(ctrl[modoAtual], textoFalado, isFinal);
     }
   };
 
   rec.onerror = function(e){
-    // Se der erro (ex: silêncio prolongado), religa instantaneamente se micForcado for true
     if(micForcado) setTimeout(ligarMicContinuo, 50);
   };
-
   rec.onend = function(){
-    // Garante que o microfone NUNCA desligue até o desafio acabar
     if(micForcado) setTimeout(ligarMicContinuo, 50);
   };
 
@@ -275,157 +303,176 @@ function ligarMicContinuo(){
 
 function desligarMic(){
   micForcado = false;
-  modoAtual = '';
   if(rec) { try { rec.abort(); rec.stop(); } catch(e){} }
 }
 
 function pararTudo(){
   desligarMic();
-  clearInterval(p.crono);
+  clearInterval(cronometroTimer);
+  modoAtual = '';
 }
 
-/* ============================================================
-   📝 MODO 1: PALAVRAS (DESAFIO COM TEMPO)
-   ============================================================ */
-var p = { tempo:63, crono:null, acabou:false, idx:0, lista:[], cont:{l:0,c:0,e:0} };
-var palavraResolvidaNaUtterance = false;
-
-function prepararModoPalavras(){
-  pararTudo();
-  p.tempo=63; p.acabou=false; p.idx=0; p.lista=embaralha(PALAVRAS_BASE);
-  p.cont={l:0,c:0,e:0};
-  
-  // Reseta UI
-  $('pCrono').textContent=fmt(p.tempo); $('pCrono').style.color='var(--accent)';
-  $('pLidas').textContent=0; $('pCertas').textContent=0; $('pErradas').textContent=0;
-  $('pCaixa').classList.remove('flash-certo','flash-erro');
-  
-  // Mostra overlay e esconde palavra
-  $('pStartOverlay').style.display = 'flex';
-  setTimeout(() => $('pStartOverlay').style.opacity = '1', 50);
-  $('pPalavra').style.opacity = '0';
-  $('pPalavra').textContent = p.lista[0];
-  $('pStatus').textContent = 'Pronto para começar!';
-  $('pStatus').style.color = 'var(--muted)';
-  
-  mostrarTela('telaPalavras');
-}
-
-function pIniciarDesafio(){
+function iniciarLeituraContagem(modo){
   if(!SR){ alert('Navegador não suporta voz.'); return; }
+  modoAtual = modo;
+  var c = ctrl[modo];
   
-  // UI Muda: Esconde overlay, revela palavra
-  $('pStartOverlay').style.opacity = '0';
-  setTimeout(() => $('pStartOverlay').style.display = 'none', 300);
-  $('pPalavra').style.opacity = '1';
-  $('pStatus').textContent = '🎤 Lendo... Fale a palavra na tela!';
-  $('pStatus').style.color = 'var(--accent)';
+  // UI Esconde Overlay
+  $(modo + 'StartOverlay').style.opacity = '0';
+  setTimeout(() => $(modo + 'StartOverlay').style.display = 'none', 300);
+  
+  if(modo === 'p') {
+    $('pTabelaPalavras').style.opacity = '1';
+    $('pStatus').textContent = '🎤 Lendo... Fale as palavras na sequência!';
+    $('pStatus').style.color = 'var(--accent)';
+  } else {
+    $('tTextoContainer').style.opacity = '1';
+    $('tStatus').textContent = '🎤 Lendo... Pode ler naturalmente!';
+    $('tStatus').style.color = '#b45309';
+  }
 
-  // Tempo correndo
-  clearInterval(p.crono);
-  p.crono = setInterval(function(){
-    p.tempo--;
-    $('pCrono').textContent=fmt(p.tempo);
-    $('pCrono').style.color = p.tempo<=10?'#dc2626':p.tempo<=20?'var(--aviso)':'var(--accent)';
-    if(p.tempo<=0){ clearInterval(p.crono); pFinalizar(); }
-  },1000);
+  // Destaca a primeira
+  destacarAtual(c);
 
-  modoAtual = 'palavras';
-  palavraResolvidaNaUtterance = false;
+  // Inicia Tempo
+  clearInterval(cronometroTimer);
+  cronometroTimer = setInterval(function(){
+    c.tempo--;
+    $(c.uiCrono).textContent = fmt(c.tempo);
+    
+    // Cor do cronometro
+    let cor = c.tempo<=10 ? '#dc2626' : c.tempo<=20 ? 'var(--aviso)' : (modo==='p'?'var(--accent)':'#b45309');
+    $(c.uiCrono).style.color = cor;
+    
+    if(c.tempo <= 0){ 
+        clearInterval(cronometroTimer); 
+        finalizarModo(modo); 
+    }
+  }, 1000);
+
+  c.palavrasMatchadas = 0;
   ligarMicContinuo();
 }
 
-function analisarFalaPalavra(texto, isFinal) {
-  if(p.acabou) return;
-  var certa = p.lista[p.idx];
-  var certaNorm = normalizarPreciso(certa);
+/* ============================================================
+   🧠 LÓGICA UNIFICADA DE RECONHECIMENTO (FLUIDEZ TOTAL)
+   ============================================================ */
+function processarFalaContinua(c, texto, isFinal){
+  if(c.tempo <= 0) return;
   var faladas = normalizarPreciso(texto).split(' ').filter(Boolean);
+  var novasFaladas = faladas.slice(c.palavrasMatchadas);
 
-  // Se a palavra correta estiver no meio do que foi falado instantaneamente
-  var acertou = faladas.includes(certaNorm);
+  for(let i=0; i<novasFaladas.length; i++) {
+    if(c.idx >= c.itens.length) break;
+    
+    let f = novasFaladas[i];
+    let atual = c.itens[c.idx].norm;
+    let prox = (c.idx + 1 < c.itens.length) ? c.itens[c.idx+1].norm : null;
+    let prox2 = (c.idx + 2 < c.itens.length) ? c.itens[c.idx+2].norm : null;
 
-  if(acertou) {
-    p.cont.c++; p.cont.l++;
-    $('pStatus').textContent = '✅ CERTO: ' + certa;
-    $('pStatus').style.color = 'var(--certo-texto)';
-    $('pCaixa').classList.remove('flash-erro'); void $('pCaixa').offsetWidth; $('pCaixa').classList.add('flash-certo');
-    
-    p.idx++; 
-    if(p.idx >= p.lista.length) { p.lista=embaralha(PALAVRAS_BASE); p.idx=0; }
-    $('pPalavra').textContent = p.lista[p.idx];
-    
-    palavraResolvidaNaUtterance = true; // Impede que o isFinal julgue como erro
-  } 
-  // Se finalizou a frase (isFinal), falou algo, mas não acertou a palavra atual
-  else if(isFinal && faladas.length > 0 && !palavraResolvidaNaUtterance) {
-    p.cont.e++; p.cont.l++;
-    $('pStatus').textContent = '❌ ERA: ' + certa + ' — ouvi: ' + faladas[0];
-    $('pStatus').style.color = 'var(--erro-texto)';
-    $('pCaixa').classList.remove('flash-certo'); void $('pCaixa').offsetWidth; $('pCaixa').classList.add('flash-erro');
-    
-    p.idx++; 
-    if(p.idx >= p.lista.length) { p.lista=embaralha(PALAVRAS_BASE); p.idx=0; }
-    $('pPalavra').textContent = p.lista[p.idx];
+    if(f === atual) {
+      marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++;
+      c.palavrasMatchadas++;
+    } else if (prox && f === prox) {
+      marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++; // Errou a atual
+      marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++; // Acertou a próx
+      c.palavrasMatchadas++;
+    } else if (prox2 && f === prox2) {
+      marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++; // Errou atual
+      marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++; // Errou prox
+      marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++; // Acertou prox2
+      c.palavrasMatchadas++;
+    }
   }
 
-  // Reseta a trava se a frase encerrou
-  if(isFinal) {
-    palavraResolvidaNaUtterance = false;
-  }
+  if(isFinal) c.palavrasMatchadas = 0;
 
-  $('pLidas').textContent = p.cont.l;
-  $('pCertas').textContent = p.cont.c;
-  $('pErradas').textContent = p.cont.e;
+  destacarAtual(c);
+  $(c.uiCertas).textContent = c.c;
+  $(c.uiErradas).textContent = c.e;
+  $(c.uiLidas).textContent = c.lidas;
+
+  // Se terminou todas as palavras antes do tempo
+  if(c.idx >= c.itens.length){
+    setTimeout(() => finalizarModo(modoAtual), 400);
+  }
 }
 
-function pFinalizar(){
-  p.acabou = true;
-  desligarMic();
-  clearInterval(p.crono);
-  $('prLidas').textContent=p.cont.l;
-  $('prCertas').textContent=p.cont.c;
-  $('prErradas').textContent=p.cont.e;
-  var pc = p.cont.l>0 ? Math.round((p.cont.c/p.cont.l)*100) : 0;
-  $('prPct').textContent=pc+'%';
-  var msg='';
-  if(p.cont.l===0) msg='Tente falar mais alto na próxima 💪';
-  else if(pc>=90) msg='🏆 LEITOR PERFEITO!';
-  else if(pc>=75) msg='🎉 Muito bom!';
-  else if(pc>=50) msg='👍 Bom, continue praticando!';
-  else msg='💪 Foco nos acentos e SS/RR!';
-  $('prMsg').textContent=msg;
-  mostrarTela('telaPalavrasRes');
+function destacarAtual(c){
+  c.spans.forEach(function(s, i){
+    s.classList.remove('pw-atual', 'pw-nao', 'celula-atual', 'celula-nao');
+    if(i < c.idx) return;
+    
+    let isTabela = modoAtual === 'p';
+    if(i === c.idx) s.classList.add(isTabela ? 'celula-atual' : 'pw-atual');
+    else s.classList.add(isTabela ? 'celula-nao' : 'pw-nao');
+  });
+}
+
+function marcarItem(c, idx, certo){
+  var sp = c.spans[idx]; if(!sp) return;
+  sp.classList.remove('pw-atual', 'pw-nao', 'celula-atual', 'celula-nao');
+  
+  let isTabela = modoAtual === 'p';
+  if(certo) sp.classList.add(isTabela ? 'celula-certo' : 'pw-certo');
+  else sp.classList.add(isTabela ? 'celula-errado' : 'pw-errado');
 }
 
 /* ============================================================
-   📄 MODO 2: TEXTO (LEITURA FLUIDA)
+   📝 PREPARAÇÃO E FINALIZAÇÃO: MODO PALAVRAS (TABELA CAED)
    ============================================================ */
-var t = { palavras:[], spans:[], idx:0, cont:{total:0,c:0,e:0}, acabou:false };
-var palavrasMatchadasNestaUtterance = 0; // Ajuda a ignorar palavras repetidas no buffer interim
+function prepararModoPalavras(){
+  pararTudo();
+  var inputWords = $('txtPalavras').value.trim();
+  var wordList = inputWords ? quebrarPalavras(inputWords) : quebrarPalavras(embaralha(PALAVRAS_BASE).join(' '));
+  
+  var c = ctrl.p;
+  c.tempo=63; c.itens=wordList; c.spans=[]; c.idx=0; c.lidas=0; c.c=0; c.e=0;
+  
+  var container = $('pTabelaPalavras');
+  container.innerHTML = '';
+  
+  c.itens.forEach(function(pw){
+    var div = document.createElement('div');
+    div.className = 'celula-caed celula-nao';
+    div.textContent = pw.original;
+    container.appendChild(div);
+    c.spans.push(div);
+  });
 
-function quebrarPalavras(texto){
-  if(!texto) return [];
-  var partes = texto.match(/[^\s]+/g) || [];
-  return partes.map(function(p){ return { original:p, norm: normalizarPreciso(p) }; });
+  // Reseta UI
+  $(c.uiCrono).textContent=fmt(c.tempo); $(c.uiCrono).style.color='var(--accent)';
+  $(c.uiLidas).textContent=0; $(c.uiCertas).textContent=0; $(c.uiErradas).textContent=0;
+  
+  $('pStartOverlay').style.display = 'flex';
+  setTimeout(() => $('pStartOverlay').style.opacity = '1', 50);
+  $('pTabelaPalavras').style.opacity = '0.1';
+  $('pStatus').textContent = 'Pronto para começar!';
+  $('pStatus').style.color = 'var(--muted)';
+  
+  mostrarTela('telaPalavrasLeitura');
 }
 
+/* ============================================================
+   📄 PREPARAÇÃO E FINALIZAÇÃO: MODO TEXTO
+   ============================================================ */
 function prepararModoTexto(){
   pararTudo();
   var tit = $('txtTitulo').value.trim();
   var corpo = $('txtCorpo').value.trim();
   if(!tit && !corpo){ $('txtTitulo').focus(); alert('Escreva pelo menos um título ou texto!'); return; }
   
-  t.palavras = []; t.spans = []; t.acabou = false;
+  var c = ctrl.t;
+  c.tempo=63; c.itens=[]; c.spans=[]; c.idx=0; c.lidas=0; c.c=0; c.e=0;
+  
   var container = $('tTextoContainer');
   container.innerHTML = '';
 
   if(tit){
-    var divTit = document.createElement('div');
-    divTit.className = 'text-2xl sm:text-3xl font-bold mb-6 pb-4';
-    divTit.style.borderBottom = '2px solid var(--border)';
+    var divTit = document.createElement('div'); divTit.className = 'text-2xl sm:text-3xl font-bold mb-6 pb-4 border-b-2 border-gray-200';
     quebrarPalavras(tit).forEach(function(pw){
       var sp = document.createElement('span'); sp.className = 'pw pw-nao'; sp.textContent = pw.original + ' ';
-      divTit.appendChild(sp); t.palavras.push(pw); t.spans.push(sp);
+      divTit.appendChild(sp); c.itens.push(pw); c.spans.push(sp);
     });
     container.appendChild(divTit);
   }
@@ -434,115 +481,45 @@ function prepararModoTexto(){
       var divP = document.createElement('div'); divP.className = 'mb-4';
       quebrarPalavras(par).forEach(function(pw){
         var sp = document.createElement('span'); sp.className = 'pw pw-nao'; sp.textContent = pw.original + ' ';
-        divP.appendChild(sp); t.palavras.push(pw); t.spans.push(sp);
+        divP.appendChild(sp); c.itens.push(pw); c.spans.push(sp);
       });
       container.appendChild(divP);
     });
   }
   
-  t.cont.total = t.palavras.length;
-  if(t.cont.total === 0){ alert('Nenhuma palavra detectada!'); return; }
+  if(c.itens.length === 0){ alert('Nenhuma palavra detectada!'); return; }
   
-  t.idx = 0; t.cont.c = 0; t.cont.e = 0;
-  $('tTotal').textContent = t.cont.total;
-  $('tCertas').textContent = 0;
-  $('tErradas').textContent = 0;
+  $(c.uiCrono).textContent=fmt(c.tempo); $(c.uiCrono).style.color='#b45309';
+  $(c.uiLidas).textContent=0; $(c.uiCertas).textContent=0; $(c.uiErradas).textContent=0;
 
-  // Prepara visual
   $('tStartOverlay').style.display = 'flex';
   setTimeout(() => $('tStartOverlay').style.opacity = '1', 50);
-  $('tTextoContainer').style.opacity = '0.1'; // Só um fantasma
+  $('tTextoContainer').style.opacity = '0.1';
   $('tStatus').textContent = 'Pronto para começar!';
   $('tStatus').style.color = 'var(--muted)';
   
   mostrarTela('telaTextoLeitura');
 }
 
-function tDestacarAtual(){
-  t.spans.forEach(function(s, i){
-    s.classList.remove('pw-atual','pw-nao');
-    if(i < t.idx) return;
-    if(i === t.idx) s.classList.add('pw-atual');
-    else s.classList.add('pw-nao');
-  });
-}
-function tMarcar(idx, certo){
-  var sp = t.spans[idx]; if(!sp) return;
-  sp.classList.remove('pw-atual','pw-nao');
-  sp.classList.add(certo ? 'pw-certo' : 'pw-errado');
-}
-
-function tIniciarLeitura(){
-  if(!SR){ alert('Navegador não suporta voz.'); return; }
+/* ============================================================
+   🏁 FINALIZAÇÃO COMUM PARA OS DOIS MODOS
+   ============================================================ */
+function finalizarModo(modo){
+  pararTudo();
+  var c = ctrl[modo];
   
-  // UI Muda: Esconde overlay, revela texto
-  $('tStartOverlay').style.opacity = '0';
-  setTimeout(() => $('tStartOverlay').style.display = 'none', 300);
-  $('tTextoContainer').style.opacity = '1';
-  $('tStatus').textContent = '🎤 Lendo... Pode ler naturalmente!';
-  $('tStatus').style.color = 'var(--accent)';
-  
-  tDestacarAtual();
-  modoAtual = 'texto';
-  palavrasMatchadasNestaUtterance = 0;
-  ligarMicContinuo();
-}
-
-function analisarFalaTexto(texto, isFinal){
-  if(t.acabou) return;
-  var faladas = normalizarPreciso(texto).split(' ').filter(Boolean);
-  
-  // Pega apenas as palavras novas deste bloco de voz
-  var novasFaladas = faladas.slice(palavrasMatchadasNestaUtterance);
-
-  for(let i=0; i<novasFaladas.length; i++) {
-    if(t.idx >= t.cont.total) break;
-    
-    let f = novasFaladas[i];
-    let esperada = t.palavras[t.idx].norm;
-    let proxima = (t.idx + 1 < t.cont.total) ? t.palavras[t.idx+1].norm : null;
-
-    if(f === esperada) {
-      tMarcar(t.idx, true); t.cont.c++; t.idx++;
-      palavrasMatchadasNestaUtterance++;
-    } else if (proxima && f === proxima) {
-      // Pulou uma palavra (marcar anterior errada e próxima certa)
-      tMarcar(t.idx, false); t.cont.e++; t.idx++; 
-      tMarcar(t.idx, true); t.cont.c++; t.idx++;
-      palavrasMatchadasNestaUtterance++;
-    }
+  if(modo === 'p') {
+    $('prLidas').textContent = c.lidas;
+    $('prCertas').textContent = c.c;
+    $('prErradas').textContent = c.e;
+    mostrarTela('telaPalavrasRes');
+  } else {
+    $('trLidas').textContent = c.lidas;
+    $('trCertas').textContent = c.c;
+    $('trErradas').textContent = c.e;
+    $('trTextoFinal').innerHTML = $('tTextoContainer').innerHTML;
+    mostrarTela('telaTextoRes');
   }
-
-  // Quando o navegador define a fala como encerrada (pausa), reseta o contador do buffer
-  if(isFinal) {
-    palavrasMatchadasNestaUtterance = 0;
-  }
-
-  tDestacarAtual();
-  $('tCertas').textContent = t.cont.c;
-  $('tErradas').textContent = t.cont.e;
-
-  if(t.idx >= t.cont.total){
-    t.acabou = true;
-    setTimeout(tFinalizar, 400);
-  }
-}
-
-function tFinalizar(){
-  desligarMic();
-  $('trTotal').textContent = t.cont.total;
-  $('trCertas').textContent = t.cont.c;
-  $('trErradas').textContent = t.cont.e;
-  var pc = t.cont.total>0 ? Math.round((t.cont.c/t.cont.total)*100) : 0;
-  $('trPct').textContent = pc+'%';
-  $('trTextoFinal').innerHTML = $('tTextoContainer').innerHTML;
-  var msg='';
-  if(pc>=95) msg='🏆 LEITURA PERFEITA do começo ao fim!';
-  else if(pc>=80) msg='🎉 Excelente! Quase tudo certinho!';
-  else if(pc>=60) msg='👍 Muito bom! Treine as palavras em vermelho!';
-  else msg='💪 Leia devagar, uma palavra de cada vez — você consegue!';
-  $('trMsg').textContent = msg;
-  mostrarTela('telaTextoRes');
 }
 </script>
 </body>
