@@ -16,6 +16,7 @@
   <div style="color:var(--text);font-family:'Fredoka',sans-serif;background:var(--bg);min-height:100%">
     <div class="max-w-4xl mx-auto px-5 py-8">
 
+      <!-- TELA INICIAL -->
       <div id="telaInicio" class="tela ativa">
         <div class="text-center mb-14 mt-6">
           <h1 class="text-4xl sm:text-5xl font-bold mb-3" style="letter-spacing:-0.02em">🎤 Leitura Precisa</h1>
@@ -45,6 +46,7 @@
         </div>
       </div>
 
+      <!-- CONFIG PALAVRAS -->
       <div id="telaPalavrasConfig" class="tela max-w-3xl mx-auto">
         <button onclick="pararTudo();mostrarTela('telaInicio')" class="mb-5 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
           style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Início</button>
@@ -69,6 +71,7 @@
         </div>
       </div>
 
+      <!-- LEITURA PALAVRAS -->
       <div id="telaPalavrasLeitura" class="tela">
         <button onclick="pararTudo();mostrarTela('telaInicio')" class="mb-5 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
           style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Cancelar</button>
@@ -103,9 +106,10 @@
         <p id="pStatus" class="text-center text-lg font-semibold min-h-[28px]" style="color:var(--muted)">Pronto para começar!</p>
       </div>
 
+      <!-- RESUL PALAVRAS -->
       <div id="telaPalavrasRes" class="tela max-w-3xl mx-auto">
         <div class="text-center mb-6 mt-4">
-          <h1 class="text-4xl font-bold mb-2">🏁 Tempo esgotado!</h1>
+          <h1 class="text-4xl font-bold mb-2">🏁 Leitura Finalizada!</h1>
         </div>
         <div class="rounded-3xl p-6 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05)">
           <div class="grid grid-cols-1 gap-3">
@@ -122,6 +126,7 @@
         </div>
       </div>
 
+      <!-- CONFIG TEXTO -->
       <div id="telaTextoConfig" class="tela max-w-3xl mx-auto">
         <button onclick="pararTudo();mostrarTela('telaInicio')" class="mb-5 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
           style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Início</button>
@@ -151,6 +156,7 @@
         </div>
       </div>
 
+      <!-- LEITURA TEXTO -->
       <div id="telaTextoLeitura" class="tela">
         <button onclick="pararTudo();mostrarTela('telaInicio')" class="mb-4 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
           style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Cancelar</button>
@@ -183,6 +189,7 @@
         <p id="tStatus" class="text-center text-lg font-semibold min-h-[28px]" style="color:var(--muted)">Pronto para começar!</p>
       </div>
 
+      <!-- RESUL TEXTO -->
       <div id="telaTextoRes" class="tela max-w-3xl mx-auto">
         <div class="text-center mb-6 mt-4">
           <h1 class="text-4xl font-bold mb-2">✅ Leitura Concluída!</h1>
@@ -225,9 +232,10 @@ var PALAVRAS_BASE = [
   "uso","base","camisa","empresa","fase","igreja","loja","museu"
 ];
 
+// MANTÉM OS ACENTOS INTEGRAIS PARA AVALIAR ACENTUAÇÃO E ENTONAÇÃO CORRETAS
 function normalizarPreciso(t){
   return String(t||'').toLowerCase().trim()
-    .replace(/[.,!?;:()"'`´^~–—]/g,'')
+    .replace(/[.,!?;:()"'`^–—]/g,'') // Remove pontuação, mantém vogais acentuadas e cedilha
     .replace(/\s+/g,' ').trim();
 }
 
@@ -247,13 +255,12 @@ function mostrarTela(id){
 }
 
 /* ============================================================
-   🎤 MOTOR DE VOZ CONTÍNUO E GERENCIADOR DE TEMPO
+   🎤 MOTOR DE VOZ CONTÍNUO (SEM REINÍCIO CONSTANTE)
    ============================================================ */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 var rec = null;
-var micForcado = false;
+var micAtivo = false;
 var modoAtual = ''; 
-
 var cronometroTimer = null;
 
 var ctrl = {
@@ -271,37 +278,50 @@ if(!SR){
   });
 }
 
-function ligarMicContinuo(){
-  if(!SR) return;
-  if(rec) { try { rec.abort(); } catch(e){} }
-  
+function criarInstanciaRec(){
+  if(!SR || rec) return;
   rec = new SR();
   rec.lang = 'pt-BR';
   rec.continuous = true;
-  rec.interimResults = true; 
+  rec.interimResults = true;
 
   rec.onresult = function(e){
+    if(!micAtivo || !modoAtual) return;
+    var c = ctrl[modoAtual];
+    if(!c || c.tempo <= 0) return;
+
     for (let i = e.resultIndex; i < e.results.length; ++i) {
       let textoFalado = e.results[i][0].transcript;
       let isFinal = e.results[i].isFinal;
-      processarFalaContinua(ctrl[modoAtual], textoFalado, isFinal);
+      processarFalaInstantanea(c, textoFalado, isFinal);
     }
   };
 
   rec.onerror = function(e){
-    if(micForcado) setTimeout(ligarMicContinuo, 50);
-  };
-  rec.onend = function(){
-    if(micForcado) setTimeout(ligarMicContinuo, 50);
+    // Erros normais de pausa/ausência de som não devem resetar o mic abruptamente
   };
 
-  micForcado = true;
+  rec.onend = function(){
+    if(micAtivo){
+      setTimeout(function(){
+        if(micAtivo){
+          try { rec.start(); } catch(err){}
+        }
+      }, 100);
+    }
+  };
+}
+
+function ligarMicContinuo(){
+  if(!SR) return;
+  criarInstanciaRec();
+  micAtivo = true;
   try { rec.start(); } catch(e){}
 }
 
 function desligarMic(){
-  micForcado = false;
-  if(rec) { try { rec.abort(); rec.stop(); } catch(e){} }
+  micAtivo = false;
+  if(rec) { try { rec.stop(); } catch(e){} }
 }
 
 function pararTudo(){
@@ -348,58 +368,64 @@ function iniciarLeituraContagem(modo){
 }
 
 /* ============================================================
-   🧠 LÓGICA DE RECONHECIMENTO E AVANÇO INSTANTÂNEO
+   🧠 RECONHECIMENTO E AVANÇO INSTANTÂNEO COM VALIDAÇÃO DE ACENTUAÇÃO
    ============================================================ */
-function processarFalaContinua(c, texto, isFinal){
-  if(c.tempo <= 0) return;
+function processarFalaInstantanea(c, texto, isFinal){
+  if(c.tempo <= 0 || c.idx >= c.itens.length) return;
+  
   var faladas = normalizarPreciso(texto).split(' ').filter(Boolean);
-  var novasFaladas = faladas.slice(c.palavrasMatchadas);
 
-  for(let i=0; i<novasFaladas.length; i++) {
-    if(c.idx >= c.itens.length) break;
-    
-    let f = novasFaladas[i];
+  while (c.palavrasMatchadas < faladas.length && c.idx < c.itens.length) {
+    let f = faladas[c.palavrasMatchadas];
     let atual = c.itens[c.idx].norm;
     let prox = (c.idx + 1 < c.itens.length) ? c.itens[c.idx+1].norm : null;
     let prox2 = (c.idx + 2 < c.itens.length) ? c.itens[c.idx+2].norm : null;
 
     if(f === atual) {
-      marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++;
+      // ACERTOU com acentuação/entonação precisa
+      marcarItem(c, c.idx, true); 
+      c.c++; c.idx++; c.lidas++;
       c.palavrasMatchadas++;
     } else if (prox && f === prox) {
+      // Pulou a palavra atual e leu a próxima certa
       marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++;
       marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++;
       c.palavrasMatchadas++;
     } else if (prox2 && f === prox2) {
+      // Pulou 2 palavras
       marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++;
       marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++;
       marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++;
       c.palavrasMatchadas++;
+    } else {
+      // LEU INCORRETAMENTE (sem acento exigido, troca de sílaba ou palavra errada) -> CONTA COMO ERRO E PASSA INSTANTANEAMENTE
+      marcarItem(c, c.idx, false); 
+      c.e++; c.idx++; c.lidas++;
+      c.palavrasMatchadas++;
+    }
+
+    destacarAtual(c);
+    $(c.uiCertas).textContent = c.c;
+    $(c.uiErradas).textContent = c.e;
+    $(c.uiLidas).textContent = c.lidas;
+
+    if(c.idx >= c.itens.length){
+      setTimeout(() => finalizarModo(modoAtual), 300);
+      break;
     }
   }
 
   if(isFinal) c.palavrasMatchadas = 0;
-
-  destacarAtual(c);
-  $(c.uiCertas).textContent = c.c;
-  $(c.uiErradas).textContent = c.e;
-  $(c.uiLidas).textContent = c.lidas;
-
-  if(c.idx >= c.itens.length){
-    setTimeout(() => finalizarModo(modoAtual), 400);
-  }
 }
 
 function destacarAtual(c){
   if(modoAtual === 'p'){
-    // Exibe apenas a palavra atual em destaque gigante
     if(c.idx < c.itens.length){
       $('pPalavraUnica').textContent = c.itens[c.idx].original;
     } else {
       $('pPalavraUnica').textContent = "---";
     }
   } else {
-    // Destaque em texto corrido
     c.spans.forEach(function(s, i){
       s.classList.remove('pw-atual', 'pw-nao');
       if(i < c.idx) return;
@@ -419,7 +445,7 @@ function marcarItem(c, idx, certo){
 }
 
 /* ============================================================
-   📝 PREPARAÇÃO: MODO PALAVRAS (UMA POR VEZ)
+   📝 MODO PALAVRAS
    ============================================================ */
 function prepararModoPalavras(){
   pararTudo();
@@ -427,7 +453,7 @@ function prepararModoPalavras(){
   var wordList = inputWords ? quebrarPalavras(inputWords) : quebrarPalavras(embaralha(PALAVRAS_BASE).join(' '));
   
   var c = ctrl.p;
-  c.tempo=63; c.itens=wordList; c.spans=[]; c.idx=0; c.lidas=0; c.c=0; c.e=0;
+  c.tempo=63; c.itens=wordList; c.spans=[]; c.idx=0; c.lidas=0; c.c=0; c.e=0; c.palavrasMatchadas=0;
   
   $('pPalavraUnica').textContent = c.itens.length > 0 ? c.itens[0].original : "---";
 
@@ -443,7 +469,7 @@ function prepararModoPalavras(){
 }
 
 /* ============================================================
-   📄 PREPARAÇÃO: MODO TEXTO
+   📄 MODO TEXTO
    ============================================================ */
 function prepararModoTexto(){
   pararTudo();
@@ -452,7 +478,7 @@ function prepararModoTexto(){
   if(!tit && !corpo){ $('txtTitulo').focus(); alert('Escreva pelo menos um título ou texto!'); return; }
   
   var c = ctrl.t;
-  c.tempo=63; c.itens=[]; c.spans=[]; c.idx=0; c.lidas=0; c.c=0; c.e=0;
+  c.tempo=63; c.itens=[]; c.spans=[]; c.idx=0; c.lidas=0; c.c=0; c.e=0; c.palavrasMatchadas=0;
   
   var container = $('tTextoContainer');
   container.innerHTML = '';
