@@ -7,7 +7,7 @@
 <script>
 (function(){
   var s = document.createElement('style');
-  s.textContent = ':root{--bg:#faf9f4;--card:#ffffff;--text:#0f172a;--muted:#64748b;--accent:#6366f1;--accent-soft:rgba(99,102,241,.14);--erro-bg:#fee2e2;--erro-texto:#b91c1c;--certo-bg:#dcfce7;--certo-texto:#15803d;--aviso:#d97706;--atual-bg:#dbeafe;--atual-texto:#1d4ed8;--border:rgba(15,23,42,.08)}.tela{display:none}.tela.ativa{display:block}.pw{display:inline-block;margin:2px 3px;padding:2px 6px;border-radius:6px;transition:all .1s;font-weight:500}.pw-nao{color:var(--muted)}.pw-atual{background:var(--atual-bg);color:var(--atual-texto);transform:scale(1.08);box-shadow:0 0 0 2px var(--accent)}.pw-certo{background:var(--certo-bg);color:var(--certo-texto)}.pw-errado{background:var(--erro-bg);color:var(--erro-texto);text-decoration:line-through}.celula-caed{border:1px solid #cbd5e1;padding:12px 8px;border-radius:8px;transition:all .2s;display:flex;align-items:center;justify-content:center;word-break:break-word;font-size:1.15rem;font-weight:600}.celula-nao{background:var(--card);color:var(--muted)}.celula-atual{background:var(--atual-bg);color:var(--atual-texto);border-color:var(--accent);transform:scale(1.05);box-shadow:0 4px 12px rgba(99,102,241,0.2);z-index:10}.celula-certo{background:var(--certo-bg);color:var(--certo-texto);border-color:#86efac}.celula-errado{background:var(--erro-bg);color:var(--erro-texto);border-color:#fca5a5;text-decoration:line-through}';
+  s.textContent = ':root{--bg:#faf9f4;--card:#ffffff;--text:#0f172a;--muted:#64748b;--accent:#6366f1;--accent-soft:rgba(99,102,241,.14);--erro-bg:#fee2e2;--erro-texto:#b91c1c;--certo-bg:#dcfce7;--certo-texto:#15803d;--aviso:#d97706;--atual-bg:#dbeafe;--atual-texto:#1d4ed8;--border:rgba(15,23,42,.08)}.tela{display:none}.tela.ativa{display:block}.pw{display:inline-block;margin:2px 3px;padding:2px 6px;border-radius:6px;transition:all .1s;font-weight:500}.pw-nao{color:var(--muted)}.pw-atual{background:var(--atual-bg);color:var(--atual-texto);transform:scale(1.08);box-shadow:0 0 0 2px var(--accent)}.pw-certo{background:var(--certo-bg);color:var(--certo-texto)}.pw-errado{background:var(--erro-bg);color:var(--erro-texto);text-decoration:line-through}';
   document.head.appendChild(s);
 })();
 </script>
@@ -29,8 +29,8 @@
             <div class="w-16 h-16 rounded-2xl mb-5 mx-auto flex items-center justify-center" style="background:var(--accent-soft);color:var(--accent)">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
-            <h2 class="text-2xl font-bold mb-2">📝 Palavras (CAED)</h2>
-            <p style="color:var(--muted);font-size:.95rem">Tabela de 5 colunas<br>Desafio de 1m03s</p>
+            <h2 class="text-2xl font-bold mb-2">📝 Palavras</h2>
+            <p style="color:var(--muted);font-size:.95rem">Uma palavra por vez<br>Desafio de 1m03s</p>
           </button>
 
           <button onclick="mostrarTela('telaTextoConfig')"
@@ -64,7 +64,7 @@
           <button onclick="prepararModoPalavras()"
             class="w-full py-4 rounded-2xl text-xl font-bold text-white transition active:scale-[.98]"
             style="background:var(--accent);border:none;cursor:pointer;box-shadow:0 8px 20px rgba(99,102,241,.3)">
-            ▶ ABRIR TABELA DE LEITURA
+            ▶ INICIAR LEITURA DE PALAVRAS
           </button>
         </div>
       </div>
@@ -85,19 +85,18 @@
           </div>
         </div>
 
-        <div id="pCaixaMestre" class="relative rounded-3xl mb-6 shadow-sm overflow-hidden min-h-[300px]" style="background:var(--card);border:1px solid var(--border)">
+        <div id="pCaixaMestre" class="relative rounded-3xl mb-6 shadow-sm overflow-hidden min-h-[260px] flex items-center justify-center" style="background:var(--card);border:1px solid var(--border)">
           
           <div id="pStartOverlay" onclick="iniciarLeituraContagem('p')" class="absolute inset-0 flex flex-col items-center justify-center bg-white/95 backdrop-blur z-20 cursor-pointer transition-opacity duration-300">
              <div class="w-20 h-20 rounded-full mb-4 flex items-center justify-center shadow-lg" style="background:var(--accent);color:white">
                <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
              </div>
              <h3 class="text-3xl font-bold mb-2" style="color:var(--text)">COMEÇAR LEITURA</h3>
-             <p class="text-sm font-semibold" style="color:var(--muted)">Toque para soltar o tempo de 1:03</p>
+             <p class="text-sm font-semibold" style="color:var(--muted)">Toque para iniciar o tempo de 1:03</p>
           </div>
 
-          <div class="p-6">
-            <div id="pTabelaPalavras" class="grid grid-cols-2 sm:grid-cols-5 gap-3 opacity-10 transition-opacity duration-300">
-              </div>
+          <div class="text-center px-4 py-8">
+            <span id="pPalavraUnica" class="text-5xl sm:text-7xl font-bold tracking-wide" style="color:var(--accent)">---</span>
           </div>
         </div>
 
@@ -186,7 +185,7 @@
 
       <div id="telaTextoRes" class="tela max-w-3xl mx-auto">
         <div class="text-center mb-6 mt-4">
-          <h1 class="text-4xl font-bold mb-2">✅ Tempo ou Leitura concluída!</h1>
+          <h1 class="text-4xl font-bold mb-2">✅ Leitura Concluída!</h1>
         </div>
         <div class="rounded-3xl p-6 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05)">
           <div class="grid grid-cols-1 gap-3">
@@ -253,11 +252,10 @@ function mostrarTela(id){
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 var rec = null;
 var micForcado = false;
-var modoAtual = ''; // 'p' (palavras) ou 't' (texto)
+var modoAtual = ''; 
 
 var cronometroTimer = null;
 
-// Objeto de controle para os modos
 var ctrl = {
   p: { tempo:63, itens:[], spans:[], idx:0, lidas:0, c:0, e:0, palavrasMatchadas:0, uiLidas:'pLidas', uiCertas:'pCertas', uiErradas:'pErradas', uiCrono:'pCrono' },
   t: { tempo:63, itens:[], spans:[], idx:0, lidas:0, c:0, e:0, palavrasMatchadas:0, uiLidas:'tTotal', uiCertas:'tCertas', uiErradas:'tErradas', uiCrono:'tCrono' }
@@ -317,13 +315,11 @@ function iniciarLeituraContagem(modo){
   modoAtual = modo;
   var c = ctrl[modo];
   
-  // UI Esconde Overlay
   $(modo + 'StartOverlay').style.opacity = '0';
   setTimeout(() => $(modo + 'StartOverlay').style.display = 'none', 300);
   
   if(modo === 'p') {
-    $('pTabelaPalavras').style.opacity = '1';
-    $('pStatus').textContent = '🎤 Lendo... Fale as palavras na sequência!';
+    $('pStatus').textContent = '🎤 Lendo... Fale a palavra!';
     $('pStatus').style.color = 'var(--accent)';
   } else {
     $('tTextoContainer').style.opacity = '1';
@@ -331,16 +327,13 @@ function iniciarLeituraContagem(modo){
     $('tStatus').style.color = '#b45309';
   }
 
-  // Destaca a primeira
   destacarAtual(c);
 
-  // Inicia Tempo
   clearInterval(cronometroTimer);
   cronometroTimer = setInterval(function(){
     c.tempo--;
     $(c.uiCrono).textContent = fmt(c.tempo);
     
-    // Cor do cronometro
     let cor = c.tempo<=10 ? '#dc2626' : c.tempo<=20 ? 'var(--aviso)' : (modo==='p'?'var(--accent)':'#b45309');
     $(c.uiCrono).style.color = cor;
     
@@ -355,7 +348,7 @@ function iniciarLeituraContagem(modo){
 }
 
 /* ============================================================
-   🧠 LÓGICA UNIFICADA DE RECONHECIMENTO (FLUIDEZ TOTAL)
+   🧠 LÓGICA DE RECONHECIMENTO E AVANÇO INSTANTÂNEO
    ============================================================ */
 function processarFalaContinua(c, texto, isFinal){
   if(c.tempo <= 0) return;
@@ -374,13 +367,13 @@ function processarFalaContinua(c, texto, isFinal){
       marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++;
       c.palavrasMatchadas++;
     } else if (prox && f === prox) {
-      marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++; // Errou a atual
-      marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++; // Acertou a próx
+      marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++;
+      marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++;
       c.palavrasMatchadas++;
     } else if (prox2 && f === prox2) {
-      marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++; // Errou atual
-      marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++; // Errou prox
-      marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++; // Acertou prox2
+      marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++;
+      marcarItem(c, c.idx, false); c.e++; c.idx++; c.lidas++;
+      marcarItem(c, c.idx, true); c.c++; c.idx++; c.lidas++;
       c.palavrasMatchadas++;
     }
   }
@@ -392,34 +385,41 @@ function processarFalaContinua(c, texto, isFinal){
   $(c.uiErradas).textContent = c.e;
   $(c.uiLidas).textContent = c.lidas;
 
-  // Se terminou todas as palavras antes do tempo
   if(c.idx >= c.itens.length){
     setTimeout(() => finalizarModo(modoAtual), 400);
   }
 }
 
 function destacarAtual(c){
-  c.spans.forEach(function(s, i){
-    s.classList.remove('pw-atual', 'pw-nao', 'celula-atual', 'celula-nao');
-    if(i < c.idx) return;
-    
-    let isTabela = modoAtual === 'p';
-    if(i === c.idx) s.classList.add(isTabela ? 'celula-atual' : 'pw-atual');
-    else s.classList.add(isTabela ? 'celula-nao' : 'pw-nao');
-  });
+  if(modoAtual === 'p'){
+    // Exibe apenas a palavra atual em destaque gigante
+    if(c.idx < c.itens.length){
+      $('pPalavraUnica').textContent = c.itens[c.idx].original;
+    } else {
+      $('pPalavraUnica').textContent = "---";
+    }
+  } else {
+    // Destaque em texto corrido
+    c.spans.forEach(function(s, i){
+      s.classList.remove('pw-atual', 'pw-nao');
+      if(i < c.idx) return;
+      if(i === c.idx) s.classList.add('pw-atual');
+      else s.classList.add('pw-nao');
+    });
+  }
 }
 
 function marcarItem(c, idx, certo){
-  var sp = c.spans[idx]; if(!sp) return;
-  sp.classList.remove('pw-atual', 'pw-nao', 'celula-atual', 'celula-nao');
-  
-  let isTabela = modoAtual === 'p';
-  if(certo) sp.classList.add(isTabela ? 'celula-certo' : 'pw-certo');
-  else sp.classList.add(isTabela ? 'celula-errado' : 'pw-errado');
+  if(modoAtual === 't' && c.spans[idx]){
+    var sp = c.spans[idx];
+    sp.classList.remove('pw-atual', 'pw-nao');
+    if(certo) sp.classList.add('pw-certo');
+    else sp.classList.add('pw-errado');
+  }
 }
 
 /* ============================================================
-   📝 PREPARAÇÃO E FINALIZAÇÃO: MODO PALAVRAS (TABELA CAED)
+   📝 PREPARAÇÃO: MODO PALAVRAS (UMA POR VEZ)
    ============================================================ */
 function prepararModoPalavras(){
   pararTudo();
@@ -429,24 +429,13 @@ function prepararModoPalavras(){
   var c = ctrl.p;
   c.tempo=63; c.itens=wordList; c.spans=[]; c.idx=0; c.lidas=0; c.c=0; c.e=0;
   
-  var container = $('pTabelaPalavras');
-  container.innerHTML = '';
-  
-  c.itens.forEach(function(pw){
-    var div = document.createElement('div');
-    div.className = 'celula-caed celula-nao';
-    div.textContent = pw.original;
-    container.appendChild(div);
-    c.spans.push(div);
-  });
+  $('pPalavraUnica').textContent = c.itens.length > 0 ? c.itens[0].original : "---";
 
-  // Reseta UI
   $(c.uiCrono).textContent=fmt(c.tempo); $(c.uiCrono).style.color='var(--accent)';
   $(c.uiLidas).textContent=0; $(c.uiCertas).textContent=0; $(c.uiErradas).textContent=0;
   
   $('pStartOverlay').style.display = 'flex';
   setTimeout(() => $('pStartOverlay').style.opacity = '1', 50);
-  $('pTabelaPalavras').style.opacity = '0.1';
   $('pStatus').textContent = 'Pronto para começar!';
   $('pStatus').style.color = 'var(--muted)';
   
@@ -454,7 +443,7 @@ function prepararModoPalavras(){
 }
 
 /* ============================================================
-   📄 PREPARAÇÃO E FINALIZAÇÃO: MODO TEXTO
+   📄 PREPARAÇÃO: MODO TEXTO
    ============================================================ */
 function prepararModoTexto(){
   pararTudo();
@@ -502,7 +491,7 @@ function prepararModoTexto(){
 }
 
 /* ============================================================
-   🏁 FINALIZAÇÃO COMUM PARA OS DOIS MODOS
+   🏁 FINALIZAÇÃO DOS MODOS
    ============================================================ */
 function finalizarModo(modo){
   pararTudo();
