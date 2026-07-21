@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Adedonha Online AI 🎮</title>
+    <title>Adedonha Online 🎮</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
@@ -73,6 +73,15 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .mic-button {
+            animation: pulse-mic 2s infinite;
+        }
+        @keyframes pulse-mic {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
     </style>
 </head>
 <body class="bg-custom-fundo min-h-screen flex flex-col p-4 md:p-8">
@@ -83,7 +92,6 @@
             ⚠️ Erro de gravação no Firebase. Verifique suas regras no console.
         </div>
 
-        <!-- TELA INÍCIO -->
         <div id="tela-inicio" class="tela ativa w-full max-w-md mx-auto">
             <div class="fixed top-4 right-4 z-[100]">
                 <button onclick="document.getElementById('menuTema').classList.toggle('hidden')" class="w-11 h-11 rounded-full bg-slate-900/70 backdrop-blur border border-slate-700 shadow-lg flex items-center justify-center text-lg">🎨</button>
@@ -101,7 +109,17 @@
 
             <div class="text-center mb-6 pt-4 md:pt-8 md:mb-8">
                 <h1 class="text-5xl md:text-6xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Adedonha</h1>
-                <p class="text-slate-400 font-medium text-xs md:text-sm tracking-wide">Julgamento Rigoroso via IA 🤖</p>
+                <p class="text-slate-400 font-medium text-xs md:text-sm tracking-wide">Com Votação Manual Justa ⚖️</p>
+            </div>
+
+            <div class="cartao-glass rounded-3xl p-4 mb-6 flex items-center justify-between gap-3 border border-indigo-500/30">
+                <div class="flex flex-col flex-1">
+                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Assistente IA Gemini ✨</span>
+                    <input type="text" id="inputPesquisaInicio" placeholder="Tire uma dúvida por voz..." readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
+                </div>
+                <button onclick="iniciarPesquisaVoz('inputPesquisaInicio')" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-xl transition-colors shadow-lg mic-button">
+                    🎤
+                </button>
             </div>
 
             <div class="cartao-glass rounded-3xl p-5 md:p-6 space-y-5">
@@ -125,7 +143,6 @@
             </div>
         </div>
 
-        <!-- TELA LOBBY -->
         <div id="tela-lobby" class="tela w-full max-w-5xl mx-auto">
             <div class="flex justify-end mb-4">
                 <button onclick="abandonarPartida()" class="px-4 py-2 bg-rose-500/10 text-rose-400 rounded-xl text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
@@ -182,7 +199,6 @@ Fruta</textarea>
             </div>
         </div>
 
-        <!-- TELA JOGO -->
         <div id="tela-jogo" class="tela w-full">
             <div class="fixed top-0 left-0 right-0 z-[80] cartao-glass rounded-b-3xl border-b border-slate-700/50 shadow-2xl px-4 py-3 md:px-8">
                 <div class="max-w-5xl mx-auto flex flex-col gap-2.5">
@@ -220,7 +236,6 @@ Fruta</textarea>
             </div>
         </div>
 
-        <!-- TELA VOTAÇÃO (JULGAMENTO IA) -->
         <div id="tela-votacao" class="tela w-full max-w-6xl mx-auto">
             <div class="flex justify-end mb-4">
                 <button onclick="abandonarPartida()" class="px-4 py-2 bg-rose-500/10 text-rose-400 rounded-xl text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
@@ -229,25 +244,33 @@ Fruta</textarea>
             </div>
             
             <div class="text-center mb-6">
-                <h2 id="tituloValidacao" class="text-2xl md:text-3xl font-black mb-1">🤖 O Gemini está Avaliando...</h2>
-                <p class="text-slate-400 text-xs md:text-sm">Analisando as palavras para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-xl md:text-2xl"></span></p>
+                <h2 class="text-2xl md:text-3xl font-black mb-1">⚖️ Votação da Turma</h2>
+                <p class="text-slate-400 text-xs md:text-sm">Analise as palavras para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-xl md:text-2xl"></span>. Vote ✅ ou ❌.</p>
             </div>
 
-            <div id="areaVotacao" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-h-[65vh] overflow-y-auto no-scrollbar pb-4">
-                <!-- Preenchido pelo JS -->
+            <div class="cartao-glass rounded-3xl p-4 mb-6 max-w-xl mx-auto flex items-center justify-between gap-3 border border-indigo-500/30">
+                <div class="flex flex-col flex-1">
+                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Tire dúvidas com o Gemini ✨</span>
+                    <input type="text" id="inputPesquisaVotacao" placeholder="Ex: A palavra X existe?" readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
+                </div>
+                <button onclick="iniciarPesquisaVoz('inputPesquisaVotacao')" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-xl transition-colors shadow-lg mic-button">
+                    🎤
+                </button>
             </div>
+
+            <div id="areaVotacao" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-h-[50vh] overflow-y-auto no-scrollbar pb-4">
+                </div>
 
             <div class="max-w-md mx-auto mt-6">
-                <button id="btnApurar" onclick="marcarProntoAvancar()" class="hidden btn-gradiente w-full rounded-2xl py-3 md:py-4 font-bold text-base md:text-lg text-white shadow-lg transition-all">
+                <button id="btnApurar" onclick="marcarProntoAvancar()" class="btn-gradiente w-full rounded-2xl py-3 md:py-4 font-bold text-base md:text-lg text-white shadow-lg transition-all">
                     ✅ Estou Pronto para Avançar
                 </button>
-                <p id="msgVotacao" class="text-center text-amber-300 text-xs md:text-sm py-2 font-bold tracking-wide animate-pulse">
-                    A IA está validando todas as respostas, aguarde...
+                <p id="msgVotacao" class="text-center text-amber-300 text-xs md:text-sm py-2 font-bold tracking-wide mt-2">
+                    Todos devem confirmar para avançar.
                 </p>
             </div>
         </div>
 
-        <!-- TELA RANKING -->
         <div id="tela-ranking" class="tela w-full max-w-lg mx-auto">
             <div class="text-center mb-8 pt-6">
                 <div class="text-6xl mb-4">🏆</div>
@@ -412,7 +435,7 @@ Fruta</textarea>
             
             if (dados.status === 'lobby' && ecranAtual !== 'tela-lobby') configurarLobbyVisual();
             if (dados.status === 'jogando' && ecranAtual !== 'tela-jogo') construirAmbienteJogo(dados);
-            if (dados.status === 'votacao') gerenciarVotacaoIA(dados, ecranAtual);
+            if (dados.status === 'votacao') gerenciarVotacaoManual(dados, ecranAtual);
             if (dados.status === 'ranking' && ecranAtual !== 'tela-ranking') construirAmbienteRanking(dados);
         });
     }
@@ -544,7 +567,6 @@ Fruta</textarea>
         const respostasColetadas = {};
         categoriasJogo.forEach((_, idx) => {
             const campo = document.getElementById(`resposta_campo_${idx}`);
-            // AQUI NÃO DAMOS MAIS .toUpperCase(), para o Gemini poder avaliar acentos minúsculos e maiúsculos corretamente
             respostasColetadas[idx] = campo ? campo.value.trim() : "";
         });
 
@@ -552,7 +574,10 @@ Fruta</textarea>
         await db.ref(`salas/${salaAtual}/status`).set('votacao'); 
     }
 
-    function gerenciarVotacaoIA(dados, ecranAtual) {
+    // ==========================================
+    // GERENCIAMENTO DA VOTAÇÃO MANUAL
+    // ==========================================
+    function gerenciarVotacaoManual(dados, ecranAtual) {
         if (ecranAtual !== 'tela-votacao') {
             gerirNavegacaoEcras('tela-votacao');
             document.getElementById("letraVotacao").innerText = dados.letraAtual;
@@ -571,204 +596,51 @@ Fruta</textarea>
         const estadoVotos = dados.votos; 
         const btnApurar = document.getElementById("btnApurar");
         const msgVotacao = document.getElementById("msgVotacao");
-        const titulo = document.getElementById("tituloValidacao");
 
-        if (!estadoVotos) {
-            construirVisualRespostasIA(dados, null); 
-            msgVotacao.classList.remove('hidden');
-            msgVotacao.innerText = "A IA está validando rigorosamente as respostas, aguarde...";
-            btnApurar.classList.add('hidden');
-            titulo.innerText = "🤖 O Gemini está Avaliando...";
-            
-            if (isDono && !dados.requisitandoIA) {
-                db.ref(`salas/${salaAtual}/requisitandoIA`).set(true);
-                chamarGeminiParaValidacao(dados);
-            }
-        } else {
-            titulo.innerText = "⚖️ Veredito do Tribunal (IA)";
-            construirVisualRespostasIA(dados, estadoVotos);
-            
-            btnApurar.classList.remove('hidden');
-            
-            const totalJogadores = Object.keys(dados.jogadores || {}).length;
-            const prontosObj = dados.prontosParaAvancar || {};
-            const totalProntos = Object.keys(prontosObj).length;
-
-            if (prontosObj[meuId]) {
-                btnApurar.disabled = true;
-                btnApurar.innerText = `⏳ Aguardando Jogadores (${totalProntos}/${totalJogadores})`;
-                btnApurar.classList.add("opacity-50");
-            } else {
-                btnApurar.disabled = false;
-                btnApurar.innerText = "✅ Estou Pronto para Avançar";
-                btnApurar.classList.remove("opacity-50");
-            }
-
-            msgVotacao.classList.remove('hidden');
-            msgVotacao.innerText = `${totalProntos} de ${totalJogadores} prontos para a próxima rodada.`;
-
-            if (totalProntos === totalJogadores && totalJogadores > 0 && isDono && !apurandoResultados) {
-                apurandoResultados = true;
-                executarApuracaoEAvancar(dados).finally(() => { apurandoResultados = false; });
-            }
-        }
-    }
-
-    async function marcarProntoAvancar() {
-        document.getElementById("btnApurar").disabled = true;
-        document.getElementById("btnApurar").innerText = "Confirmando...";
-        await db.ref(`salas/${salaAtual}/prontosParaAvancar/${meuId}`).set(true);
-    }
-
-    // ==========================================
-    // NOVA VALIDAÇÃO RIGOROSA DO GEMINI
-    // ==========================================
-    async function chamarGeminiParaValidacao(dados) {
-        const respostas = dados.respostas || {};
-        const letra = dados.letraAtual;
-        const categorias = dados.config.categorias;
-
-        const objParaAnalisar = {};
-        for(let idJogador in respostas) {
-            objParaAnalisar[idJogador] = {};
-            for(let idxCat in respostas[idJogador]) {
-                const palavra = respostas[idJogador][idxCat];
-                if(palavra && palavra.toUpperCase() !== "N/S") {
-                    objParaAnalisar[idJogador][idxCat] = palavra;
-                }
-            }
-        }
-
-        // NOVO PROMPT: Totalmente focado em rigidez máxima para ortografia, categorias e sinais
-        const promptText = `
-Você é o juiz supremo e o mais rigoroso, implacável e exigente do jogo Adedonha (Stop). 
-Sua função é avaliar as respostas dos jogadores e REPROVAR sem piedade se não cumprirem TODAS as regras abaixo:
-
-1. LETRA INICIAL: A palavra DEVE começar obrigatoriamente com a letra '${letra}'. (Não importa se a primeira letra da resposta está maiúscula ou minúscula, desde que seja a letra correta).
-2. CATEGORIA EXATA: A palavra DEVE pertencer à categoria solicitada de forma inequívoca. Se começar com a letra certa mas for de outra categoria, for inventada, ou não se encaixar no tema, REPROVE IMEDIATAMENTE.
-3. ACENTUAÇÃO E ORTOGRAFIA PERFEITAS: A tolerância para erros ortográficos é ZERO. Se faltar um acento, se o acento for o errado (ex: agudo em vez de circunflexo) ou se estiver na sílaba errada, REPROVE. (ex: se a resposta correta for 'Árvore', reprove 'Arvore').
-4. SINAIS GRÁFICOS E HÍFEN: Se a palavra exige hífen ou sinal de ligação e o jogador não colocou, REPROVE. (ex: se o certo é 'Guarda-chuva', reprove 'Guarda chuva').
-
-Letra obrigatória desta rodada: ${letra}
-Categorias do jogo (índice e nome): ${JSON.stringify(categorias)}
-Respostas dos jogadores (ID e índice da categoria): ${JSON.stringify(objParaAnalisar)}
-
-Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente este modelo:
-{
-  "resultados": {
-    "ID_JOGADOR": {
-      "INDEX_CATEGORIA": {
-        "aprovado": true, 
-        "explicacao": "Explicação curta e direta do motivo da aprovação ou reprovação"
-      }
-    }
-  }
-}`;
-
-        try {
-            console.log("Iniciando chamada à API do Gemini com Regras Rígidas...");
-            let url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
-            let headers = { 'Content-Type': 'application/json' };
-
-            if (GEMINI_API_KEY.startsWith("AIzaSy")) {
-                url += `?key=${GEMINI_API_KEY}`;
-            } else {
-                headers["Authorization"] = `Bearer ${GEMINI_API_KEY}`;
-            }
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptText }] }],
-                    generationConfig: { response_mime_type: "application/json" }
-                })
-            });
-            
-            if (!response.ok) {
-                const erroStatus = await response.text();
-                throw new Error(`Erro HTTP ${response.status}: ${erroStatus}`);
-            }
-
-            const data = await response.json();
-            
-            if (!data.candidates || !data.candidates[0].content) {
-                throw new Error("A API retornou um formato inesperado.");
-            }
-
-            let textResponse = data.candidates[0].content.parts[0].text;
-            
-            textResponse = textResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
-            const inicioJson = textResponse.indexOf('{');
-            const fimJson = textResponse.lastIndexOf('}');
-            
-            if (inicioJson !== -1 && fimJson !== -1) {
-                textResponse = textResponse.substring(inicioJson, fimJson + 1);
-            } else {
-                throw new Error("A resposta da IA não contém um JSON válido.");
-            }
-
-            console.log("Veredito Rigoroso do Gemini:", textResponse);
-            const geminiResult = JSON.parse(textResponse);
-            const resultadosIA = geminiResult.resultados || {};
-
-            let estruturaVotos = {};
-            categorias.forEach((_, idx) => { estruturaVotos[idx] = {}; });
-            
-            for(let idJogador in respostas) {
-                for(let idx in respostas[idJogador]) {
-                    const palavra = respostas[idJogador][idx];
-                    
-                    if (!palavra || palavra.toUpperCase() === "N/S") {
-                        estruturaVotos[idx][idJogador] = {
-                            aprovado: false,
-                            explicacao: "Resposta em branco ou marcada como N/S."
-                        };
-                        continue;
-                    }
-
-                    if (resultadosIA[idJogador] && resultadosIA[idJogador][idx]) {
-                        estruturaVotos[idx][idJogador] = {
-                            aprovado: Boolean(resultadosIA[idJogador][idx].aprovado),
-                            explicacao: String(resultadosIA[idJogador][idx].explicacao || "Avaliado rigorosamente pela IA.")
-                        };
-                    } else {
-                        const comecaCerta = palavra.toUpperCase().startsWith(letra);
-                        estruturaVotos[idx][idJogador] = {
-                            aprovado: false,
-                            explicacao: "Reprovado por critério desconhecido de rigor."
-                        };
-                    }
-                }
-            }
-            await db.ref(`salas/${salaAtual}/votos`).set(estruturaVotos);
-
-        } catch (err) {
-            console.error("Falha na API:", err);
-            
-            emitirAviso(
-                "Aviso do Sistema", 
-                "A IA falhou. Validação em modo de segurança ativada.", 
-                "warning"
-            );
-
+        // Inicializa os votos caso não existam (Leader faz isso)
+        if (!estadoVotos && isDono && dados.respostas) {
             let fallbackVotos = {};
-            categorias.forEach((_, idxCat) => {
+            dados.config.categorias.forEach((_, idxCat) => {
                 fallbackVotos[idxCat] = {};
-                for(let idJogador in respostas) {
-                    const palavra = respostas[idJogador] && respostas[idJogador][idxCat] ? String(respostas[idJogador][idxCat]).trim().toUpperCase() : "";
-                    const comecaCerta = (palavra && palavra.startsWith(letra) && palavra !== "N/S");
+                for(let idJogador in dados.respostas) {
+                    const palavra = dados.respostas[idJogador] && dados.respostas[idJogador][idxCat] ? String(dados.respostas[idJogador][idxCat]).trim().toUpperCase() : "";
+                    const comecaCerta = (palavra && palavra.startsWith(dados.letraAtual) && palavra !== "N/S");
                     fallbackVotos[idxCat][idJogador] = {
-                        aprovado: comecaCerta,
-                        explicacao: comecaCerta ? "Aprovado por regra de letra básica." : "Reprovado."
+                        aprovado: comecaCerta
                     };
                 }
             });
-            await db.ref(`salas/${salaAtual}/votos`).set(fallbackVotos);
+            db.ref(`salas/${salaAtual}/votos`).set(fallbackVotos);
+            return; // aguarda renderização na próxima notificação do firebase
+        }
+
+        construirVisualRespostasManuais(dados, estadoVotos);
+        
+        btnApurar.classList.remove('hidden');
+        
+        const totalJogadores = Object.keys(dados.jogadores || {}).length;
+        const prontosObj = dados.prontosParaAvancar || {};
+        const totalProntos = Object.keys(prontosObj).length;
+
+        if (prontosObj[meuId]) {
+            btnApurar.disabled = true;
+            btnApurar.innerText = `⏳ Aguardando Jogadores (${totalProntos}/${totalJogadores})`;
+            btnApurar.classList.add("opacity-50");
+        } else {
+            btnApurar.disabled = false;
+            btnApurar.innerText = "✅ Estou Pronto para Avançar";
+            btnApurar.classList.remove("opacity-50");
+        }
+
+        msgVotacao.innerText = `${totalProntos} de ${totalJogadores} prontos para a próxima rodada.`;
+
+        if (totalProntos === totalJogadores && totalJogadores > 0 && isDono && !apurandoResultados) {
+            apurandoResultados = true;
+            executarApuracaoEAvancar(dados).finally(() => { apurandoResultados = false; });
         }
     }
 
-    function construirVisualRespostasIA(dados, vereditosIA) {
+    function construirVisualRespostasManuais(dados, estadoVotos) {
         categoriasJogo = dados.config.categorias;
         const idsListaJogadores = Object.keys(dados.jogadores || {});
         let estruturaVisualVotos = "";
@@ -787,26 +659,24 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
                 const emBranco = !respostaTexto || respostaTexto.toUpperCase() === "N/S";
                 const stringExibicao = !emBranco ? respostaTexto : "<span class='text-slate-600 italic font-normal text-[13px]'>Em branco</span>";
                 
-                let iconeVeredito = "⏳";
                 let classesStatus = "border-slate-800/80 bg-slate-950/20";
                 let textStatus = "text-slate-200";
-                let textoExplicacao = "Aguardando julgamento rigoroso da inteligência artificial...";
 
-                if (vereditosIA) {
-                    const votoObj = vereditosIA[idxCat] && vereditosIA[idxCat][jogadorId];
-                    const foiAprovado = votoObj ? votoObj.aprovado : false;
-                    textoExplicacao = votoObj ? votoObj.explicacao : "";
-
-                    if (foiAprovado) {
-                        iconeVeredito = "✅";
-                        classesStatus = "border-emerald-900/50 bg-emerald-950/10";
-                        textStatus = "text-emerald-400 font-black";
-                    } else {
-                        iconeVeredito = "❌";
-                        classesStatus = "border-rose-950/40 bg-rose-950/5 opacity-80";
-                        textStatus = "text-rose-400/80 line-through";
-                    }
+                let foiAprovado = false;
+                if (estadoVotos && estadoVotos[idxCat] && estadoVotos[idxCat][jogadorId]) {
+                    foiAprovado = estadoVotos[idxCat][jogadorId].aprovado;
                 }
+
+                if (foiAprovado) {
+                    classesStatus = "border-emerald-900/50 bg-emerald-950/10";
+                    textStatus = "text-emerald-400 font-black";
+                } else {
+                    classesStatus = "border-rose-950/40 bg-rose-950/5 opacity-80";
+                    textStatus = "text-rose-400/80 line-through";
+                }
+
+                // Desativa botões se estiver em branco
+                const podeVotar = !emBranco;
 
                 estruturaVisualVotos += `
                     <div class="rounded-xl p-3 md:p-3.5 border ${classesStatus} flex flex-col gap-2 transition-all">
@@ -815,12 +685,14 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
                                 <span class="text-[10px] md:text-xs text-slate-500 font-bold block mb-0.5 truncate">${jogadorId === meuId ? '🫵 Você' : nomeDoJogador}</span>
                                 <span class="text-sm md:text-base font-bold truncate block ${textStatus}">${stringExibicao}</span>
                             </div>
-                            <div class="flex items-center justify-center bg-slate-900/60 rounded-lg p-2 text-xl shadow-inner shrink-0">
-                                ${iconeVeredito}
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button onclick="alterarVotoManual(${idxCat}, '${jogadorId}', true)" ${!podeVotar ? 'disabled' : ''} class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900/80 border ${foiAprovado ? 'border-emerald-500 text-emerald-400' : 'border-slate-700 text-slate-500'} hover:bg-emerald-900/30 transition-all ${!podeVotar ? 'opacity-30 cursor-not-allowed' : ''}">
+                                    ✅
+                                </button>
+                                <button onclick="alterarVotoManual(${idxCat}, '${jogadorId}', false)" ${!podeVotar ? 'disabled' : ''} class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900/80 border ${!foiAprovado ? 'border-rose-500 text-rose-400' : 'border-slate-700 text-slate-500'} hover:bg-rose-900/30 transition-all ${!podeVotar ? 'opacity-30 cursor-not-allowed' : ''}">
+                                    ❌
+                                </button>
                             </div>
-                        </div>
-                        <div class="text-[11px] text-slate-400 bg-slate-900/50 px-2.5 py-1.5 rounded-lg border border-slate-800/80 leading-relaxed">
-                            💡 <span class="font-medium text-slate-300">${textoExplicacao}</span>
                         </div>
                     </div>
                 `;
@@ -828,6 +700,17 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
             estruturaVisualVotos += `</div></div>`;
         });
         document.getElementById("areaVotacao").innerHTML = estruturaVisualVotos;
+    }
+
+    async function alterarVotoManual(idxCat, jogadorId, aprovar) {
+        if (!db || !salaAtual) return;
+        await db.ref(`salas/${salaAtual}/votos/${idxCat}/${jogadorId}/aprovado`).set(aprovar);
+    }
+
+    async function marcarProntoAvancar() {
+        document.getElementById("btnApurar").disabled = true;
+        document.getElementById("btnApurar").innerText = "Confirmando...";
+        await db.ref(`salas/${salaAtual}/prontosParaAvancar/${meuId}`).set(true);
     }
 
     async function executarApuracaoEAvancar(dados) {
@@ -845,9 +728,9 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
                 chavesJogadores.forEach(id => {
                     const textoResp = (dados.respostas && dados.respostas[id] && dados.respostas[id][idxCat]) ? String(dados.respostas[id][idxCat]).trim().toUpperCase() : "";
                     const votoObj = dados.votos && dados.votos[idxCat] && dados.votos[idxCat][id];
-                    const aprovadoIA = votoObj ? votoObj.aprovado : false;
+                    const aprovadoManual = votoObj ? votoObj.aprovado : false;
                     
-                    if (aprovadoIA) {
+                    if (aprovadoManual) {
                         palavrasValidadasDaCategoria.push({ id: id, palavra: textoResp });
                     }
                 });
@@ -866,7 +749,7 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
             const seguinteRodada = (dados.rodadaAtual || 1) + 1;
             
             if (seguinteRodada > parseInt(dados.config.rodadas)) {
-                await db.ref(`salas/${salaAtual}`).update({ status: 'ranking', requisitandoIA: null, prontosParaAvancar: null });
+                await db.ref(`salas/${salaAtual}`).update({ status: 'ranking', prontosParaAvancar: null });
             } else {
                 let proximaLetra = "";
                 let tentativasLetra = 0;
@@ -883,7 +766,7 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
                     letraAtual: proximaLetra,
                     letrasUsadas: [...(dados.letrasUsadas || []), proximaLetra],
                     endTime: tempoMilisegundosFinal,
-                    respostas: null, votos: null, requisitandoIA: null, prontosParaAvancar: null
+                    respostas: null, votos: null, prontosParaAvancar: null
                 });
             }
         } catch (err) {
@@ -917,7 +800,7 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
         const snapshot = await db.ref(`salas/${salaAtual}/jogadores`).once('value');
         const jogadoresExistentes = snapshot.val() || {};
         for (let jogadorId in jogadoresExistentes) await db.ref(`salas/${salaAtual}/jogadores/${jogadorId}/pontos`).set(0);
-        await db.ref(`salas/${salaAtual}`).update({ status: 'lobby', rodadaAtual: 1, letraAtual: "", letrasUsadas: [], respostas: null, votos: null, requisitandoIA: null, prontosParaAvancar: null });
+        await db.ref(`salas/${salaAtual}`).update({ status: 'lobby', rodadaAtual: 1, letraAtual: "", letrasUsadas: [], respostas: null, votos: null, prontosParaAvancar: null });
     }
 
     function alternarLeitorQR() {
@@ -942,6 +825,106 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
     function marcarNS(idx) {
         const campo = document.getElementById(`resposta_campo_${idx}`);
         if(campo) { campo.value = "N/S"; verificarPreenchimentoCategorias(); }
+    }
+
+    // ==========================================
+    // PESQUISA POR VOZ (GEMINI API)
+    // ==========================================
+    function iniciarPesquisaVoz(inputId) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            return emitirAviso("Ops!", "Seu navegador não suporta pesquisa por voz. Tente usar o Google Chrome.", "warning");
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        const inputField = document.getElementById(inputId);
+        const originalPlaceholder = inputField.placeholder;
+        
+        recognition.start();
+
+        recognition.onstart = () => {
+            inputField.placeholder = "Ouvindo... Fale agora 🎤";
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+        };
+
+        recognition.onresult = async (event) => {
+            const transcript = event.results[0][0].transcript;
+            inputField.value = transcript;
+            await enviarPerguntaAoGemini(transcript);
+            setTimeout(() => { 
+                inputField.value = ""; 
+                inputField.placeholder = originalPlaceholder;
+            }, 5000);
+        };
+
+        recognition.onerror = (event) => {
+            inputField.placeholder = originalPlaceholder;
+            mostrarNotificacaoToast("Não consegui ouvir. Tente novamente.", "error");
+        };
+    }
+
+    async function enviarPerguntaAoGemini(pergunta) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Consultando a IA...',
+                text: `Sua pergunta: "${pergunta}"`,
+                allowOutsideClick: false,
+                background: '#111827', color: '#fff',
+                didOpen: () => { Swal.showLoading(); }
+            });
+        }
+
+        const promptText = `Um jogador de adedonha (stop) te fez a seguinte pergunta de forma oral. Seja extremamente direto, curto e rápido na resposta. Responda em português. Pergunta: ${pergunta}`;
+
+        try {
+            let url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
+            let headers = { 'Content-Type': 'application/json' };
+
+            if (GEMINI_API_KEY.startsWith("AIzaSy")) {
+                url += `?key=${GEMINI_API_KEY}`;
+            } else {
+                headers["Authorization"] = `Bearer ${GEMINI_API_KEY}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: promptText }] }]
+                })
+            });
+            
+            if (!response.ok) throw new Error("Erro na comunicação");
+
+            const data = await response.json();
+            const textResponse = data.candidates[0].content.parts[0].text;
+
+            Swal.fire({
+                title: 'Resposta do Gemini ✨',
+                text: textResponse,
+                icon: 'info',
+                background: '#111827', color: '#fff',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-3xl border border-slate-800' }
+            });
+
+        } catch (err) {
+            Swal.fire({
+                title: 'Ops!',
+                text: 'Não consegui me conectar para buscar a resposta no momento.',
+                icon: 'error',
+                background: '#111827', color: '#fff',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-3xl border border-slate-800' }
+            });
+        }
     }
 
     function mudarTema(tema) {
