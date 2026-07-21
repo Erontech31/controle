@@ -114,7 +114,7 @@
 
             <div class="cartao-glass rounded-3xl p-4 mb-6 flex items-center justify-between gap-3 border border-indigo-500/30">
                 <div class="flex flex-col flex-1">
-                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Assistente IA Gemini ✨</span>
+                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Assistente IA (ChatGPT) ✨</span>
                     <input type="text" id="inputPesquisaInicio" placeholder="Tire uma dúvida por voz..." readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
                 </div>
                 <button onclick="iniciarPesquisaVoz('inputPesquisaInicio')" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-xl transition-colors shadow-lg mic-button">
@@ -250,7 +250,7 @@ Fruta</textarea>
 
             <div class="cartao-glass rounded-3xl p-4 mb-6 max-w-xl mx-auto flex items-center justify-between gap-3 border border-indigo-500/30">
                 <div class="flex flex-col flex-1">
-                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Tire dúvidas com o Gemini ✨</span>
+                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Tire dúvidas com a IA ✨</span>
                     <input type="text" id="inputPesquisaVotacao" placeholder="Ex: A palavra X existe?" readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
                 </div>
                 <button onclick="iniciarPesquisaVoz('inputPesquisaVotacao')" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-xl transition-colors shadow-lg mic-button">
@@ -292,9 +292,10 @@ Fruta</textarea>
 
 <script>
     // ==========================================
-    // CHAVE DE API / TOKEN DO GEMINI
+    // CHAVE DE API DA OPENAI
     // ==========================================
-    const GEMINI_API_KEY = "AQ.Ab8RN6K7W4MrjlxCpk3sf-BaD_J7F8HiUqmluQQDW0AYCqXD2w";
+    // Crie sua chave em: https://platform.openai.com/api-keys
+    const OPENAI_API_KEY = "COLOQUE_SUA_CHAVE_AQUI";
 
     // ==========================================
     // CONFIGURAÇÃO DO FIREBASE
@@ -597,7 +598,6 @@ Fruta</textarea>
         const btnApurar = document.getElementById("btnApurar");
         const msgVotacao = document.getElementById("msgVotacao");
 
-        // Inicializa os votos caso não existam (Leader faz isso)
         if (!estadoVotos && isDono && dados.respostas) {
             let fallbackVotos = {};
             dados.config.categorias.forEach((_, idxCat) => {
@@ -611,7 +611,7 @@ Fruta</textarea>
                 }
             });
             db.ref(`salas/${salaAtual}/votos`).set(fallbackVotos);
-            return; // aguarda renderização na próxima notificação do firebase
+            return; 
         }
 
         construirVisualRespostasManuais(dados, estadoVotos);
@@ -675,7 +675,6 @@ Fruta</textarea>
                     textStatus = "text-rose-400/80 line-through";
                 }
 
-                // Desativa botões se estiver em branco
                 const podeVotar = !emBranco;
 
                 estruturaVisualVotos += `
@@ -828,7 +827,7 @@ Fruta</textarea>
     }
 
     // ==========================================
-    // PESQUISA POR VOZ (GEMINI API)
+    // PESQUISA POR VOZ (OPENAI API - CHATGPT)
     // ==========================================
     function iniciarPesquisaVoz(inputId) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -857,7 +856,7 @@ Fruta</textarea>
         recognition.onresult = async (event) => {
             const transcript = event.results[0][0].transcript;
             inputField.value = transcript;
-            await enviarPerguntaAoGemini(transcript);
+            await enviarPerguntaAIA(transcript);
             setTimeout(() => { 
                 inputField.value = ""; 
                 inputField.placeholder = originalPlaceholder;
@@ -870,7 +869,11 @@ Fruta</textarea>
         };
     }
 
-    async function enviarPerguntaAoGemini(pergunta) {
+    async function enviarPerguntaAIA(pergunta) {
+        if (OPENAI_API_KEY === "COLOQUE_SUA_CHAVE_AQUI") {
+            return emitirAviso("Aviso", "Você precisa inserir a sua OPENAI_API_KEY no código para usar a IA.");
+        }
+
         if (typeof Swal !== 'undefined') {
             Swal.fire({
                 title: 'Consultando a IA...',
@@ -881,33 +884,29 @@ Fruta</textarea>
             });
         }
 
-        const promptText = `Um jogador de adedonha (stop) te fez a seguinte pergunta de forma oral. Seja extremamente direto, curto e rápido na resposta. Responda em português. Pergunta: ${pergunta}`;
-
         try {
-            let url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
-            let headers = { 'Content-Type': 'application/json' };
-
-            if (GEMINI_API_KEY.startsWith("AIzaSy")) {
-                url += `?key=${GEMINI_API_KEY}`;
-            } else {
-                headers["Authorization"] = `Bearer ${GEMINI_API_KEY}`;
-            }
-
-            const response = await fetch(url, {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
-                headers: headers,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`
+                },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptText }] }]
+                    model: "gpt-4o-mini", // Modelo rápido e barato
+                    messages: [
+                        { role: "system", content: "Você é um assistente rápido e direto para um jogo de Stop/Adedonha. Responda em uma ou duas frases curtas." },
+                        { role: "user", content: pergunta }
+                    ]
                 })
             });
             
             if (!response.ok) throw new Error("Erro na comunicação");
 
             const data = await response.json();
-            const textResponse = data.candidates[0].content.parts[0].text;
+            const textResponse = data.choices[0].message.content;
 
             Swal.fire({
-                title: 'Resposta do Gemini ✨',
+                title: 'Resposta da IA ✨',
                 text: textResponse,
                 icon: 'info',
                 background: '#111827', color: '#fff',
