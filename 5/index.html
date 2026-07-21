@@ -271,8 +271,6 @@ Fruta</textarea>
     // ==========================================
     // CHAVE DE API / TOKEN DO GEMINI
     // ==========================================
-    // NOTA: Chaves oficiais do Google AI Studio SEMPRE começam com "AIzaSy".
-    // Se a sua chave "AQ." for um token de acesso de outro serviço, a API irá rejeitá-la.
     const GEMINI_API_KEY = "AQ.Ab8RN6IylkdcFZxDVNgubItstvgDTv3kth6JJ1KDRdNseyguYg";
 
     // ==========================================
@@ -546,7 +544,8 @@ Fruta</textarea>
         const respostasColetadas = {};
         categoriasJogo.forEach((_, idx) => {
             const campo = document.getElementById(`resposta_campo_${idx}`);
-            respostasColetadas[idx] = campo ? campo.value.trim().toUpperCase() : "";
+            // AQUI NÃO DAMOS MAIS .toUpperCase(), para o Gemini poder avaliar acentos minúsculos e maiúsculos corretamente
+            respostasColetadas[idx] = campo ? campo.value.trim() : "";
         });
 
         await db.ref(`salas/${salaAtual}/respostas/${meuId}`).set(respostasColetadas);
@@ -563,7 +562,7 @@ Fruta</textarea>
                 const respostasColetadas = {};
                 categoriasJogo.forEach((_, idx) => {
                     const campo = document.getElementById(`resposta_campo_${idx}`);
-                    respostasColetadas[idx] = campo ? campo.value.trim().toUpperCase() : "";
+                    respostasColetadas[idx] = campo ? campo.value.trim() : "";
                 });
                 db.ref(`salas/${salaAtual}/respostas/${meuId}`).set(respostasColetadas);
             }
@@ -621,6 +620,9 @@ Fruta</textarea>
         await db.ref(`salas/${salaAtual}/prontosParaAvancar/${meuId}`).set(true);
     }
 
+    // ==========================================
+    // NOVA VALIDAÇÃO RIGOROSA DO GEMINI
+    // ==========================================
     async function chamarGeminiParaValidacao(dados) {
         const respostas = dados.respostas || {};
         const letra = dados.letraAtual;
@@ -631,16 +633,21 @@ Fruta</textarea>
             objParaAnalisar[idJogador] = {};
             for(let idxCat in respostas[idJogador]) {
                 const palavra = respostas[idJogador][idxCat];
-                if(palavra && palavra !== "N/S") {
+                if(palavra && palavra.toUpperCase() !== "N/S") {
                     objParaAnalisar[idJogador][idxCat] = palavra;
                 }
             }
         }
 
+        // NOVO PROMPT: Totalmente focado em rigidez máxima para ortografia, categorias e sinais
         const promptText = `
-Você é o juiz chefe mais estrito, implacável e inteligente do jogo Adedonha (Stop). Sua função é avaliar se cada resposta enviada pelos jogadores cumpre RIGOROSAMENTE duas condições fundamentais:
-1. LETRA INICIAL: A palavra DEVE começar obrigatoriamente com a letra '${letra}'.
-2. PERTINÊNCIA À CATEGORIA: A palavra DEVE pertencer estritamente à categoria solicitada. 
+Você é o juiz supremo e o mais rigoroso, implacável e exigente do jogo Adedonha (Stop). 
+Sua função é avaliar as respostas dos jogadores e REPROVAR sem piedade se não cumprirem TODAS as regras abaixo:
+
+1. LETRA INICIAL: A palavra DEVE começar obrigatoriamente com a letra '${letra}'. (Não importa se a primeira letra da resposta está maiúscula ou minúscula, desde que seja a letra correta).
+2. CATEGORIA EXATA: A palavra DEVE pertencer à categoria solicitada de forma inequívoca. Se começar com a letra certa mas for de outra categoria, for inventada, ou não se encaixar no tema, REPROVE IMEDIATAMENTE.
+3. ACENTUAÇÃO E ORTOGRAFIA PERFEITAS: A tolerância para erros ortográficos é ZERO. Se faltar um acento, se o acento for o errado (ex: agudo em vez de circunflexo) ou se estiver na sílaba errada, REPROVE. (ex: se a resposta correta for 'Árvore', reprove 'Arvore').
+4. SINAIS GRÁFICOS E HÍFEN: Se a palavra exige hífen ou sinal de ligação e o jogador não colocou, REPROVE. (ex: se o certo é 'Guarda-chuva', reprove 'Guarda chuva').
 
 Letra obrigatória desta rodada: ${letra}
 Categorias do jogo (índice e nome): ${JSON.stringify(categorias)}
@@ -651,19 +658,18 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
   "resultados": {
     "ID_JOGADOR": {
       "INDEX_CATEGORIA": {
-        "aprovado": true,
-        "explicacao": "Explicação curta"
+        "aprovado": true, 
+        "explicacao": "Explicação curta e direta do motivo da aprovação ou reprovação"
       }
     }
   }
 }`;
 
         try {
-            console.log("Iniciando chamada à API do Gemini...");
+            console.log("Iniciando chamada à API do Gemini com Regras Rígidas...");
             let url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
             let headers = { 'Content-Type': 'application/json' };
 
-            // Se for uma chave oficial do AI Studio, passamos na URL. Se não, tenta como Bearer.
             if (GEMINI_API_KEY.startsWith("AIzaSy")) {
                 url += `?key=${GEMINI_API_KEY}`;
             } else {
@@ -692,7 +698,6 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
 
             let textResponse = data.candidates[0].content.parts[0].text;
             
-            // Extrator robusto de JSON para evitar quebras por marcação de Markdown (```json)
             textResponse = textResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
             const inicioJson = textResponse.indexOf('{');
             const fimJson = textResponse.lastIndexOf('}');
@@ -703,7 +708,7 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
                 throw new Error("A resposta da IA não contém um JSON válido.");
             }
 
-            console.log("Resposta Parseada do Gemini:", textResponse);
+            console.log("Veredito Rigoroso do Gemini:", textResponse);
             const geminiResult = JSON.parse(textResponse);
             const resultadosIA = geminiResult.resultados || {};
 
@@ -714,7 +719,7 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
                 for(let idx in respostas[idJogador]) {
                     const palavra = respostas[idJogador][idx];
                     
-                    if (!palavra || palavra === "N/S") {
+                    if (!palavra || palavra.toUpperCase() === "N/S") {
                         estruturaVotos[idx][idJogador] = {
                             aprovado: false,
                             explicacao: "Resposta em branco ou marcada como N/S."
@@ -728,10 +733,10 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
                             explicacao: String(resultadosIA[idJogador][idx].explicacao || "Avaliado rigorosamente pela IA.")
                         };
                     } else {
-                        const comecaCerta = palavra.startsWith(letra);
+                        const comecaCerta = palavra.toUpperCase().startsWith(letra);
                         estruturaVotos[idx][idJogador] = {
-                            aprovado: comecaCerta,
-                            explicacao: comecaCerta ? "Aprovado por iniciar com a letra correta." : "Reprovado por não iniciar com a letra exigida."
+                            aprovado: false,
+                            explicacao: "Reprovado por critério desconhecido de rigor."
                         };
                     }
                 }
@@ -739,12 +744,11 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
             await db.ref(`salas/${salaAtual}/votos`).set(estruturaVotos);
 
         } catch (err) {
-            console.error("Falha grave na API do Gemini:", err);
+            console.error("Falha na API:", err);
             
-            // ALERTA VISUAL SE A CHAVE FALHAR
             emitirAviso(
                 "Aviso do Sistema", 
-                "A API da Inteligência Artificial falhou ou rejeitou a chave de acesso. O jogo fará uma validação básica (apenas verificando a primeira letra) para que a partida não trave.\n\nVerifique o console (F12) para os detalhes do erro.", 
+                "A IA falhou. Validação em modo de segurança ativada.", 
                 "warning"
             );
 
@@ -756,7 +760,7 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
                     const comecaCerta = (palavra && palavra.startsWith(letra) && palavra !== "N/S");
                     fallbackVotos[idxCat][idJogador] = {
                         aprovado: comecaCerta,
-                        explicacao: comecaCerta ? "Aprovado por regra de letra (modo de segurança, IA indisponível)." : "Reprovado por ausência ou letra incorreta."
+                        explicacao: comecaCerta ? "Aprovado por regra de letra básica." : "Reprovado."
                     };
                 }
             });
@@ -778,9 +782,9 @@ Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente
 
             idsListaJogadores.forEach(jogadorId => {
                 const nomeDoJogador = dados.jogadores[jogadorId].nome;
-                const respostaTexto = (dados.respostas && dados.respostas[jogadorId] && dados.respostas[jogadorId][idxCat]) ? String(dados.respostas[jogadorId][idxCat]).trim().toUpperCase() : "";
+                const respostaTexto = (dados.respostas && dados.respostas[jogadorId] && dados.respostas[jogadorId][idxCat]) ? String(dados.respostas[jogadorId][idxCat]).trim() : "";
                 
-                const emBranco = !respostaTexto || respostaTexto === "N/S";
+                const emBranco = !respostaTexto || respostaTexto.toUpperCase() === "N/S";
                 const stringExibicao = !emBranco ? respostaTexto : "<span class='text-slate-600 italic font-normal text-[13px]'>Em branco</span>";
                 
                 let iconeVeredito = "⏳";
