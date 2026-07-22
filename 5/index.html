@@ -821,7 +821,7 @@ Fruta</textarea>
     }
 
     // ==========================================
-    // PESQUISA POR VOZ + WIKIPEDIA (Dicionário/Informação)
+    // PESQUISA POR VOZ (Direto e Funcional no Pop-up)
     // ==========================================
     function iniciarPesquisaVoz(inputId) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -868,11 +868,10 @@ Fruta</textarea>
     async function buscarRespostaNaWeb(termo) {
         if (!termo) return;
 
-        // Mostrar aviso de carregamento no SweetAlert2
         if (typeof Swal !== 'undefined') {
             Swal.fire({
-                title: 'Pesquisando... 🔍',
-                text: `Buscando informações sobre: "${termo}"`,
+                title: 'Buscando Definição... 🔍',
+                text: `Procurando informações sobre: "${termo}"`,
                 allowOutsideClick: false,
                 background: '#111827', color: '#fff',
                 didOpen: () => { Swal.showLoading(); }
@@ -880,7 +879,8 @@ Fruta</textarea>
         }
 
         try {
-            // Buscando o resumo do termo diretamente na Wikipédia em português
+            // A Wikipédia é a única base de dados gratuita que permite puxar o texto diretamente 
+            // sem bloqueio de CORS (Diferente do Google que bloqueia).
             const urlBase = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo.trim())}`;
             const resposta = await fetch(urlBase);
             
@@ -888,24 +888,35 @@ Fruta</textarea>
 
             if (resposta.ok) {
                 const dados = await resposta.json();
-                textoLido = dados.extract || "Achei a página, mas ela não tem um resumo curto para ler.";
+                // Pega apenas a PRIMEIRA FRASE da resposta para agir como o snippet do Google
+                if (dados.extract) {
+                    textoLido = dados.extract.split('.')[0] + '.';
+                } else {
+                    textoLido = "Encontrei a palavra, mas ela não tem um resumo curto disponível.";
+                }
             } else {
-                textoLido = "Não encontrei essa palavra exata. Tente falar apenas o nome, como 'Cachorro' ou 'Itália'.";
+                textoLido = `A palavra "${termo}" não foi encontrada no banco de dados livre.`;
             }
 
-            // Ler a resposta em voz alta usando o navegador nativo
+            // Ler a resposta em voz alta imediatamente
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Para qualquer fala anterior
+                window.speechSynthesis.cancel(); 
                 const fala = new SpeechSynthesisUtterance(textoLido);
                 fala.lang = 'pt-BR';
+                fala.rate = 1.05; // Velocidade da leitura
                 window.speechSynthesis.speak(fala);
             }
 
-            // Mostrar a resposta escrita na tela
+            // Exibir a resposta escrita e indicar que está lendo
             Swal.fire({
-                title: `Sobre: ${termo.toUpperCase()} ✨`,
-                text: textoLido,
-                icon: 'info',
+                title: `🎯 ${termo.toUpperCase()}`,
+                html: `
+                    <p class="text-slate-300 text-sm mb-4 leading-relaxed">${textoLido}</p>
+                    <div class="text-indigo-400 text-xs font-bold animate-pulse flex items-center justify-center gap-2">
+                        <span>🔊</span> Lendo a resposta em voz alta...
+                    </div>
+                `,
+                icon: 'success',
                 background: '#111827', color: '#fff',
                 confirmButtonColor: '#6366f1',
                 customClass: { popup: 'rounded-3xl border border-slate-800' }
@@ -913,7 +924,7 @@ Fruta</textarea>
 
         } catch (erro) {
             Swal.fire({
-                title: 'Erro',
+                title: 'Erro de Conexão',
                 text: 'Falha ao buscar a resposta na internet.',
                 icon: 'error',
                 background: '#111827', color: '#fff',
