@@ -231,13 +231,25 @@ Fruta</textarea>
 
             <div class="cartao-glass rounded-3xl p-4 mb-6 max-w-3xl mx-auto border border-indigo-500/30">
                 <label class="block text-xs font-bold text-indigo-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
-                    🔍 Pesquisar Dúvidas de Palavras no Bing
+                    🔍 Consultar Palavra no Jogo
                 </label>
                 <div class="flex gap-2">
-                    <input type="text" id="inputPesquisaBing" placeholder="Digite uma palavra para consultar..." onkeypress="if(event.key==='Enter') pesquisarNoBing()" class="input-premium w-full rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500">
-                    <button onclick="pesquisarNoBing()" class="btn-gradiente px-5 py-2 rounded-xl font-bold text-sm text-white shrink-0 shadow-md flex items-center gap-1">
-                        Pesquisar ↗
+                    <input type="text" id="inputPesquisaInterna" placeholder="Digite uma palavra para validar..." onkeypress="if(event.key==='Enter') abrirMiniTelaPesquisa()" class="input-premium w-full rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500">
+                    <button onclick="abrirMiniTelaPesquisa()" class="btn-gradiente px-5 py-2 rounded-xl font-bold text-sm text-white shrink-0 shadow-md flex items-center gap-1">
+                        Pesquisar 🔍
                     </button>
+                </div>
+
+                <div id="miniJanelaPesquisa" class="hidden mt-3 pt-3 border-t border-slate-800">
+                    <div class="flex justify-between items-center mb-2">
+                        <span id="tituloMiniJanela" class="text-xs font-bold text-slate-300">Resultados da Consulta</span>
+                        <button onclick="fecharMiniTelaPesquisa()" class="text-xs bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white px-2.5 py-1 rounded-lg border border-rose-500/30 transition-all font-bold">
+                            ✖ Fechar
+                        </button>
+                    </div>
+                    <div class="w-full h-64 md:h-80 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-inner">
+                        <iframe id="frameMiniPesquisa" class="w-full h-full border-0" title="Pesquisa"></iframe>
+                    </div>
                 </div>
             </div>
 
@@ -314,13 +326,29 @@ Fruta</textarea>
         if (nomeSalvo) document.getElementById('inputNome').value = nomeSalvo;
     });
 
-    function pesquisarNoBing() {
-        const termo = document.getElementById('inputPesquisaBing').value.trim();
-        if (termo) {
-            window.open(`https://www.bing.com/search?q=${encodeURIComponent(termo)}`, '_blank');
-        } else {
-            window.open('https://www.bing.com', '_blank');
+    // Função para abrir mini janela com buscador interno
+    function abrirMiniTelaPesquisa() {
+        const termo = document.getElementById('inputPesquisaInterna').value.trim();
+        const miniJanela = document.getElementById('miniJanelaPesquisa');
+        const frame = document.getElementById('frameMiniPesquisa');
+        const titulo = document.getElementById('tituloMiniJanela');
+
+        if (!termo) {
+            emitirAviso("Atenção", "Digite uma palavra para pesquisar.");
+            return;
         }
+
+        titulo.innerText = `🔍 Pesquisando: "${termo}"`;
+        // Utiliza o DuckDuckGo em versão Lite que aceita exibição interna em frame
+        frame.src = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(termo)}`;
+        miniJanela.classList.remove('hidden');
+    }
+
+    function fecharMiniTelaPesquisa() {
+        const miniJanela = document.getElementById('miniJanelaPesquisa');
+        const frame = document.getElementById('frameMiniPesquisa');
+        miniJanela.classList.add('hidden');
+        frame.src = "";
     }
 
     function emitirAviso(titulo, texto, tipo = 'error') {
@@ -568,6 +596,7 @@ Fruta</textarea>
         if (ecranAtual !== 'tela-votacao') {
             gerirNavegacaoEcras('tela-votacao');
             document.getElementById("letraVotacao").innerText = dados.letraAtual;
+            fecharMiniTelaPesquisa();
             
             if (ecranAtual === 'tela-jogo') {
                 clearInterval(cronometro);
