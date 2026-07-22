@@ -114,8 +114,8 @@
 
             <div class="cartao-glass rounded-3xl p-4 mb-6 flex items-center justify-between gap-3 border border-indigo-500/30">
                 <div class="flex flex-col flex-1">
-                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Pesquisar no Google 🔍</span>
-                    <input type="text" id="inputPesquisaInicio" placeholder="Pesquisar por voz..." readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
+                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Dúvidas rápidas 🔍</span>
+                    <input type="text" id="inputPesquisaInicio" placeholder="Fale uma palavra por voz..." readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
                 </div>
                 <button onclick="iniciarPesquisaVoz('inputPesquisaInicio')" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-xl transition-colors shadow-lg mic-button">
                     🎤
@@ -250,8 +250,8 @@ Fruta</textarea>
 
             <div class="cartao-glass rounded-3xl p-4 mb-6 max-w-xl mx-auto flex items-center justify-between gap-3 border border-indigo-500/30">
                 <div class="flex flex-col flex-1">
-                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Pesquisar no Google 🔍</span>
-                    <input type="text" id="inputPesquisaVotacao" placeholder="Ex: A palavra X existe?" readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
+                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Dúvidas Rápidas 🔍</span>
+                    <input type="text" id="inputPesquisaVotacao" placeholder="Fale uma palavra por voz..." readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
                 </div>
                 <button onclick="iniciarPesquisaVoz('inputPesquisaVotacao')" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-xl transition-colors shadow-lg mic-button">
                     🎤
@@ -821,7 +821,7 @@ Fruta</textarea>
     }
 
     // ==========================================
-    // PESQUISA POR VOZ + BUSCA DIRETA NO GOOGLE
+    // PESQUISA POR VOZ + WIKIPEDIA (Dicionário/Informação)
     // ==========================================
     function iniciarPesquisaVoz(inputId) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -840,7 +840,7 @@ Fruta</textarea>
         recognition.start();
 
         recognition.onstart = () => {
-            inputField.placeholder = "Ouvindo... Fale agora 🎤";
+            inputField.placeholder = "Ouvindo... Fale a palavra 🎤";
         };
 
         recognition.onspeechend = () => {
@@ -851,12 +851,12 @@ Fruta</textarea>
             const transcript = event.results[0][0].transcript;
             inputField.value = transcript;
             
-            pesquisarNoGoogle(transcript);
+            buscarRespostaNaWeb(transcript);
 
             setTimeout(() => { 
                 inputField.value = ""; 
                 inputField.placeholder = originalPlaceholder;
-            }, 4000);
+            }, 3000);
         };
 
         recognition.onerror = (event) => {
@@ -865,33 +865,62 @@ Fruta</textarea>
         };
     }
 
-    function pesquisarNoGoogle(termo) {
+    async function buscarRespostaNaWeb(termo) {
         if (!termo) return;
 
-        // 1. Resposta em voz usando a API nativa do navegador
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); // Cancela falas anteriores
-            const fala = new SpeechSynthesisUtterance(`Pesquisando no Google por: ${termo}`);
-            fala.lang = 'pt-BR';
-            window.speechSynthesis.speak(fala);
-        }
-
-        // 2. Alerta visual na tela
+        // Mostrar aviso de carregamento no SweetAlert2
         if (typeof Swal !== 'undefined') {
             Swal.fire({
-                title: 'Pesquisando no Google 🔍',
-                text: `Buscando por: "${termo}"`,
-                icon: 'info',
-                timer: 2000,
-                showConfirmButton: false,
+                title: 'Pesquisando... 🔍',
+                text: `Buscando informações sobre: "${termo}"`,
+                allowOutsideClick: false,
                 background: '#111827', color: '#fff',
-                customClass: { popup: 'rounded-3xl border border-slate-800' }
+                didOpen: () => { Swal.showLoading(); }
             });
         }
 
-        // 3. Abre a busca no Google em uma nova aba
-        const urlGoogle = `https://www.google.com/search?q=${encodeURIComponent(termo)}`;
-        window.open(urlGoogle, '_blank');
+        try {
+            // Buscando o resumo do termo diretamente na Wikipédia em português
+            const urlBase = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo.trim())}`;
+            const resposta = await fetch(urlBase);
+            
+            let textoLido = "";
+
+            if (resposta.ok) {
+                const dados = await resposta.json();
+                textoLido = dados.extract || "Achei a página, mas ela não tem um resumo curto para ler.";
+            } else {
+                textoLido = "Não encontrei essa palavra exata. Tente falar apenas o nome, como 'Cachorro' ou 'Itália'.";
+            }
+
+            // Ler a resposta em voz alta usando o navegador nativo
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Para qualquer fala anterior
+                const fala = new SpeechSynthesisUtterance(textoLido);
+                fala.lang = 'pt-BR';
+                window.speechSynthesis.speak(fala);
+            }
+
+            // Mostrar a resposta escrita na tela
+            Swal.fire({
+                title: `Sobre: ${termo.toUpperCase()} ✨`,
+                text: textoLido,
+                icon: 'info',
+                background: '#111827', color: '#fff',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-3xl border border-slate-800' }
+            });
+
+        } catch (erro) {
+            Swal.fire({
+                title: 'Erro',
+                text: 'Falha ao buscar a resposta na internet.',
+                icon: 'error',
+                background: '#111827', color: '#fff',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-3xl border border-slate-800' }
+            });
+        }
     }
 
     function mudarTema(tema) {
