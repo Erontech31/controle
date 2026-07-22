@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Adedonha Online 🎮</title>
+    <title>Adedonha</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
@@ -34,7 +34,7 @@
             background-attachment: fixed;
         }
 
-        /* Efeito de Vidro Líquido Ultra Moderno */
+        /* Efeito de Vidro Líquido Ultra Moderno Exclusivo */
         .liquid-glass {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
             backdrop-filter: blur(24px) saturate(190%);
@@ -49,7 +49,7 @@
             overflow: hidden;
         }
 
-        /* Brilho líquido reativo ao passar o cursor */
+        /* Brilho líquido reativo e fluído */
         .liquid-glass::before {
             content: '';
             position: absolute;
@@ -68,13 +68,6 @@
             50% { transform: translate(10%, 10%) rotate(180deg); }
             100% { transform: translate(-10%, -10%) rotate(360deg); }
         }
-
-        /* Temas */
-        body.ciano .liquid-glass { background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(6, 182, 212, 0.05) 100%) !important; border-color: rgba(6, 182, 212, 0.3) !important; }
-        body.verde_menta .liquid-glass { background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.05) 100%) !important; border-color: rgba(16, 185, 129, 0.3) !important; }
-        body.azul_claro .liquid-glass { background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(56, 189, 248, 0.05) 100%) !important; border-color: rgba(56, 189, 248, 0.3) !important; }
-        body.claro .liquid-glass { background: rgba(255, 255, 255, 0.3) !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; color: #0f172a !important; }
-        body.escuro .liquid-glass { background: rgba(0, 0, 0, 0.85) !important; border-color: rgba(255, 255, 255, 0.08) !important; }
 
         .tela { display: none; }
         .tela.ativa { 
@@ -121,7 +114,7 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Animação Flutuante do Título Principal */
+        /* Animação Flutuante do Título */
         .titulo-flutuante {
             animation: flutuarLevitacao 4s ease-in-out infinite;
         }
@@ -160,20 +153,7 @@
         </div>
 
         <div id="tela-inicio" class="tela ativa w-full max-w-md mx-auto">
-            <div class="fixed top-4 right-4 z-[100]">
-                <button onclick="document.getElementById('menuTema').classList.toggle('hidden')" class="w-12 h-12 rounded-2xl liquid-glass flex items-center justify-center text-xl hover:scale-110 active:scale-95 transition-all shadow-xl">🎨</button>
-                <div id="menuTema" class="hidden absolute right-0 mt-3 liquid-glass rounded-2xl p-2 shadow-2xl z-[101]">
-                    <select onchange="mudarTema(this.value);localStorage.setItem('temaAdedonha',this.value);document.getElementById('menuTema').classList.add('hidden')" class="bg-slate-900/90 text-xs font-bold text-slate-200 border border-slate-700/60 rounded-xl px-3 py-2 outline-none cursor-pointer shadow-lg">
-                        <option value="atual">🎨 Padrão Líquido</option>
-                        <option value="ciano">🎨 Ciano Cyber</option>
-                        <option value="verde_menta">🎨 Verde Menta</option>
-                        <option value="azul_claro">🎨 Azul Neon</option>
-                        <option value="claro">☀️ Modo Claro</option>
-                        <option value="escuro">🌙 Modo Escuro</option>
-                    </select>
-                </div>
-            </div>
-
+            
             <div class="text-center mb-8 pt-2 titulo-flutuante">
                 <div class="inline-block px-4 py-1.5 rounded-full liquid-glass border border-indigo-500/30 text-[11px] font-black uppercase tracking-widest text-indigo-300 mb-3 shadow-lg">
                     ⚡ Edição Multiplayer
@@ -197,7 +177,7 @@
                 </div>
 
                 <button onclick="criarSala()" class="btn-liquid-main w-full rounded-2xl py-4 font-black text-lg text-white tracking-wide uppercase">
-                    ✨ Criar Nova Sala
+                    Criar Nova Sala
                 </button>
 
                 <div class="space-y-3 pt-1">
@@ -208,7 +188,7 @@
                     </div>
                     <div id="leitor-qr" class="hidden rounded-2xl overflow-hidden border-2 border-indigo-500/40 mt-2 w-full max-w-[250px] mx-auto shadow-2xl"></div>
                     <button onclick="entrarSala()" class="w-full bg-emerald-600/90 hover:bg-emerald-500/90 text-white rounded-2xl py-3.5 font-bold text-lg transition-all active:scale-95 shadow-lg shadow-emerald-900/30 backdrop-blur-md border border-emerald-400/30">
-                        Entrar na Sala ➡️
+                        Entrar na Sala 
                     </button>
                 </div>
             </div>
@@ -217,7 +197,7 @@
         <div id="tela-lobby" class="tela w-full max-w-5xl mx-auto">
             <div class="flex justify-end mb-4">
                 <button onclick="abandonarPartida()" class="px-4 py-2 bg-rose-500/20 text-rose-300 rounded-xl text-xs font-bold border border-rose-500/30 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                    🚪 Sair
+                    Sair
                 </button>
             </div>
             <div class="liquid-glass rounded-3xl p-6 md:p-8 relative overflow-hidden">
@@ -251,7 +231,7 @@ Fruta</textarea>
                                 </div>
                             </div>
                             <button onclick="iniciarRodada()" class="btn-liquid-main w-full rounded-xl py-3 font-bold text-white shadow-md text-sm md:text-base">
-                                ▶️ Começar Partida
+                                Começar Partida
                             </button>
                         </div>
                         <div id="msgAguardando" class="text-center text-slate-400 text-sm py-4 animate-pulse w-full">
@@ -277,7 +257,7 @@ Fruta</textarea>
                             Rodada <span id="rodadaAtualL" class="text-indigo-400 text-sm md:text-base"></span>/<span id="rodadasTotalL"></span>
                         </div>
                         <button onclick="abandonarPartida()" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded-xl text-[10px] md:text-xs font-bold border border-rose-500/30 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                            🚪 Sair
+                            Sair
                         </button>
                     </div>
                     <div class="flex justify-between items-center gap-3">
@@ -300,7 +280,7 @@ Fruta</textarea>
             <div class="fixed bottom-4 md:bottom-8 left-0 right-0 z-50 pointer-events-none px-4">
                 <div class="max-w-5xl mx-auto pointer-events-auto">
                     <button onclick="submeterRespostasStop()" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-4 md:py-5 font-black text-xl md:text-2xl tracking-widest uppercase transition-all shadow-2xl shadow-rose-600/50 border-2 border-rose-400/50">
-                        🚨 STOP!
+                        STOP!
                     </button>
                 </div>
             </div>
@@ -309,7 +289,7 @@ Fruta</textarea>
         <div id="tela-votacao" class="tela w-full max-w-6xl mx-auto">
             <div class="flex justify-end mb-4">
                 <button onclick="abandonarPartida()" class="px-4 py-2 bg-rose-500/20 text-rose-300 rounded-xl text-xs font-bold border border-rose-500/30 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                    🚪 Sair
+                    Sair
                 </button>
             </div>
             
@@ -325,7 +305,7 @@ Fruta</textarea>
                 <div class="flex gap-2">
                     <input type="text" id="inputPesquisaInterna" placeholder="Digite uma palavra para validar..." onkeypress="if(event.key==='Enter') pesquisarSignificadoSemBloqueio()" class="input-liquid w-full rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500">
                     <button onclick="pesquisarSignificadoSemBloqueio()" class="btn-liquid-main px-5 py-2 rounded-xl font-bold text-sm text-white shrink-0 shadow-md flex items-center gap-1">
-                        Validar 🔍
+                        Validar
                     </button>
                 </div>
 
@@ -333,7 +313,7 @@ Fruta</textarea>
                     <div class="flex justify-between items-center mb-2">
                         <span id="tituloMiniJanela" class="text-xs font-bold text-slate-300">Resultado</span>
                         <button onclick="fecharMiniJanela()" class="text-xs bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white px-2.5 py-1 rounded-lg border border-rose-500/30 transition-all font-bold">
-                            ✖ Fechar
+                            Fechar
                         </button>
                     </div>
                     <div id="conteudoPesquisa" class="w-full p-4 rounded-2xl border border-slate-800 bg-slate-950/80 text-sm text-slate-300 max-h-56 overflow-y-auto leading-relaxed">
@@ -346,7 +326,7 @@ Fruta</textarea>
 
             <div class="max-w-md mx-auto mt-6">
                 <button id="btnApurar" onclick="marcarProntoAvancar()" class="btn-liquid-main w-full rounded-2xl py-3.5 md:py-4 font-bold text-base md:text-lg text-white shadow-lg transition-all">
-                    ✅ Estou Pronto para Avançar
+                    Estou Pronto para Avançar
                 </button>
                 <p id="msgVotacao" class="text-center text-amber-300 text-xs md:text-sm py-2 font-bold tracking-wide mt-2">
                     Todos devem confirmar para avançar.
@@ -422,7 +402,7 @@ Fruta</textarea>
         if (nomeSalvo) document.getElementById('inputNome').value = nomeSalvo;
     });
 
-    // Consulta à Wikipédia para validação de palavras sem restrição de iframe
+    // Consulta à Wikipédia para validação de palavras
     async function pesquisarSignificadoSemBloqueio() {
         const termo = document.getElementById('inputPesquisaInterna').value.trim();
         const janela = document.getElementById('miniJanelaResultado');
@@ -435,7 +415,7 @@ Fruta</textarea>
         }
 
         janela.classList.remove('hidden');
-        titulo.innerText = `📖 Consultado: "${termo}"`;
+        titulo.innerText = `Consultado: "${termo}"`;
         conteudo.innerHTML = `<span class="animate-pulse text-indigo-400 font-bold">🔍 Verificando palavra...</span>`;
 
         try {
@@ -443,7 +423,7 @@ Fruta</textarea>
             if (resp.ok) {
                 const data = await resp.json();
                 if (data.extract) {
-                    conteudo.innerHTML = `<p class="font-bold text-emerald-400 mb-1">✅ Palavra Encontrada:</p><p>${data.extract}</p>`;
+                    conteudo.innerHTML = `<p class="font-bold text-emerald-400 mb-1">Palavra Encontrada:</p><p>${data.extract}</p>`;
                     return;
                 }
             }
@@ -656,7 +636,7 @@ Fruta</textarea>
             </div>
         `).join('');
         
-        document.getElementById("btnStop").innerText = "🚨 STOP!";
+        document.getElementById("btnStop").innerText = "STOP!";
         document.getElementById("btnStop").disabled = false;
         document.getElementById("btnStop").classList.add("hidden"); 
 
@@ -749,7 +729,7 @@ Fruta</textarea>
             btnApurar.classList.add("opacity-50");
         } else {
             btnApurar.disabled = false;
-            btnApurar.innerText = "✅ Estou Pronto para Avançar";
+            btnApurar.innerText = "Estou Pronto para Avançar";
             btnApurar.classList.remove("opacity-50");
         }
 
@@ -946,13 +926,6 @@ Fruta</textarea>
         const campo = document.getElementById(`resposta_campo_${idx}`);
         if(campo) { campo.value = "N/S"; verificarPreenchimentoCategorias(); }
     }
-
-    function mudarTema(tema) {
-        let classesBase = "bg-custom-fundo min-h-screen flex flex-col justify-between p-4 md:p-8 relative";
-        if (tema !== "atual") classesBase += ` ${tema}`;
-        document.body.className = classesBase;
-    }
-    window.addEventListener('DOMContentLoaded', () => { const t = localStorage.getItem('temaAdedonha'); if(t) mudarTema(t); });
 </script>
 </body>
 </html>
